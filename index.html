@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/favicon.svg" />
+    <link rel="canonical" href="https://cynwell-liao.github.io/" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="AI and cloud engineer portfolio featuring projects, architecture work, and platform engineering expertise."
+    />
+    <meta
+      name="keywords"
+      content="AI engineer, cloud engineer, portfolio, MLOps, platform engineering, Kubernetes, TypeScript"
+    />
+    <meta name="author" content="Cynwell Liao" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Cynwell Liao | AI & Cloud Engineer" />
+    <meta
+      property="og:description"
+      content="Personal portfolio showcasing AI products, cloud-native systems, and platform engineering projects."
+    />
+    <meta property="og:url" content="https://cynwell-liao.github.io/" />
+    <meta
+      property="og:image"
+      content="https://cynwell-liao.github.io/assets/og-cover.svg"
+    />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Cynwell Liao | AI & Cloud Engineer" />
+    <meta
+      name="twitter:description"
+      content="Personal portfolio showcasing AI products, cloud-native systems, and platform engineering projects."
+    />
+    <meta
+      name="twitter:image"
+      content="https://cynwell-liao.github.io/assets/og-cover.svg"
+    />
+    <title>Cynwell Liao | AI & Cloud Engineer</title>
+    <script>
+      (() => {
+        const storageKey = 'portfolio-theme'
+        const storedTheme = localStorage.getItem(storageKey)
+        const shouldUseDark =
+          storedTheme === 'dark' ||
+          (!storedTheme &&
+            window.matchMedia('(prefers-color-scheme: dark)').matches)
+        if (shouldUseDark) {
+          document.documentElement.classList.add('dark')
+        }
+      })()
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

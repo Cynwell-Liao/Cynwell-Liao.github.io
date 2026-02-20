@@ -1,0 +1,54 @@
+@import '@fontsource-variable/sora';
+@import '@fontsource-variable/jetbrains-mono';
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply min-h-screen bg-slate-50 font-sans text-slate-900 transition-colors duration-300 dark:bg-slate-950 dark:text-slate-100;
+    background-image:
+      radial-gradient(circle at 0% 0%, rgb(224 242 254 / 0.65), transparent 55%),
+      radial-gradient(circle at 100% 0%, rgb(204 251 241 / 0.75), transparent 45%);
+  }
+
+  html.dark body {
+    background-image:
+      radial-gradient(circle at 0% 0%, rgb(20 83 45 / 0.22), transparent 55%),
+      radial-gradient(circle at 100% 0%, rgb(15 23 42 / 0.5), transparent 45%);
+  }
+
+  a {
+    @apply no-underline;
+  }
+
+  ::selection {
+    @apply bg-accent-200 text-slate-900 dark:bg-accent-500/40 dark:text-slate-100;
+  }
+}
+
+@layer components {
+  .section-wrap {
+    @apply mx-auto w-full max-w-6xl px-6;
+  }
+
+  .glass-panel {
+    @apply rounded-3xl border border-slate-200/70 bg-white/80 shadow-soft backdrop-blur dark:border-slate-700/50 dark:bg-slate-900/70;
+  }
+
+  .anchor-link {
+    @apply text-sm font-medium tracking-wide text-slate-600 transition hover:text-accent-700 dark:text-slate-300 dark:hover:text-accent-200;
+  }
+}

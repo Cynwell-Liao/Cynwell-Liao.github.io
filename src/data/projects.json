@@ -1,0 +1,51 @@
+[
+  {
+    "id": "llm-control-plane",
+    "title": "LLM Platform Control Plane",
+    "summary": "A cloud-native orchestration layer for running retrieval, evaluation, and safe deployment flows for internal LLM services.",
+    "highlights": [
+      "Implemented policy-based model rollouts with staged promotion gates.",
+      "Built observability dashboards for latency, token spend, and quality drift.",
+      "Reduced release rollback time from 45 minutes to under 8 minutes."
+    ],
+    "stack": ["TypeScript", "Python", "Kubernetes", "PostgreSQL"],
+    "repoUrl": "https://github.com/Cynwell-Liao/llm-control-plane",
+    "liveUrl": "https://cynwell-liao.github.io/llm-control-plane/"
+  },
+  {
+    "id": "cost-sentinel",
+    "title": "Cloud Cost Sentinel",
+    "summary": "FinOps automation toolkit that detects cost anomalies and opens actionable optimization pull requests for shared infrastructure.",
+    "highlights": [
+      "Automated daily anomaly checks across compute, storage, and network spend.",
+      "Generated right-sizing recommendations with confidence scoring.",
+      "Cut monthly infrastructure waste by 22% in the first quarter."
+    ],
+    "stack": ["AWS", "Terraform", "GitHub Actions", "Python"],
+    "repoUrl": "https://github.com/Cynwell-Liao/cloud-cost-sentinel"
+  },
+  {
+    "id": "incident-copilot",
+    "title": "Incident Response Copilot",
+    "summary": "A private on-call assistant that combines runbook retrieval and timeline summarization for faster incident triage.",
+    "highlights": [
+      "Integrated event ingestion from logs and tracing metadata.",
+      "Created deterministic runbook grounding to prevent hallucinated steps.",
+      "Improved mean time to mitigation by 31%."
+    ],
+    "stack": ["React", "TypeScript", "PyTorch", "Docker"],
+    "repoUrl": "https://github.com/Cynwell-Liao/incident-response-copilot"
+  },
+  {
+    "id": "edge-observatory",
+    "title": "Edge AI Observatory",
+    "summary": "Monitoring suite for edge inference workloads with synthetic checks, deployment metrics, and upgrade safety scoring.",
+    "highlights": [
+      "Built unified telemetry collectors for heterogeneous edge nodes.",
+      "Added release risk scoring before regional rollouts.",
+      "Enabled 24/7 visibility into hardware and model health."
+    ],
+    "stack": ["TypeScript", "Kubernetes", "AWS", "GitHub Actions"],
+    "repoUrl": "https://github.com/Cynwell-Liao/edge-ai-observatory"
+  }
+]

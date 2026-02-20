@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Cynwell Liao portfolio social card">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ecfeff" />
+      <stop offset="55%" stop-color="#dcfce7" />
+      <stop offset="100%" stop-color="#f8fafc" />
+    </linearGradient>
+    <linearGradient id="chip" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#157f72" />
+      <stop offset="100%" stop-color="#0f766e" />
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)" />
+  <circle cx="1020" cy="120" r="180" fill="#99f6e4" fill-opacity="0.45" />
+  <circle cx="140" cy="560" r="220" fill="#bae6fd" fill-opacity="0.5" />
+  <rect x="80" y="90" width="1040" height="450" rx="36" fill="#ffffff" fill-opacity="0.84" />
+  <text x="140" y="190" fill="#0f766e" font-family="Sora, sans-serif" font-size="26" font-weight="700" letter-spacing="4">
+    AI &amp; CLOUD ENGINEER
+  </text>
+  <text x="140" y="290" fill="#0f172a" font-family="Sora, sans-serif" font-size="72" font-weight="700">
+    Cynwell Liao
+  </text>
+  <text x="140" y="360" fill="#334155" font-family="Sora, sans-serif" font-size="32">
+    Building resilient AI systems on cloud-native foundations.
+  </text>
+  <rect x="140" y="420" width="390" height="64" rx="32" fill="url(#chip)" />
+  <text x="182" y="462" fill="#f8fafc" font-family="JetBrains Mono, monospace" font-size="28" font-weight="700">
+    github.com/Cynwell-Liao
+  </text>
+</svg>
