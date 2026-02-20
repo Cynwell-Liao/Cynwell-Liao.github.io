@@ -43,10 +43,15 @@ Workflow: `.github/workflows/update-github-contrib.yml`
 How it works:
 
 1. Runs weekly and can be triggered manually from the Actions tab.
-2. Executes `npm run generate:contrib`.
-3. Script uses GitHub GraphQL (`secrets.GITHUB_TOKEN`) to fetch contribution history for `${{ github.repository_owner }}`.
+2. Executes `node scripts/generate-github-contrib.mjs`.
+3. Script fetches real contribution activity levels from `https://github.com/users/<username>/contributions` (GitHub only).
 4. Saves SVG to `public/assets/github-contrib.svg`.
 5. Commits and pushes changes if the generated file changed.
+
+Username source:
+
+1. By default it uses `${{ github.repository_owner }}`.
+2. If your profile username differs, set repository variable `PORTFOLIO_GITHUB_USERNAME`.
 
 Manual trigger:
 

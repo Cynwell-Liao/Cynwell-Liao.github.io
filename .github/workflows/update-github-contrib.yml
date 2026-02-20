@@ -22,9 +22,9 @@ jobs:
 
       - name: Generate contribution graph
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          GITHUB_USERNAME: ${{ github.repository_owner }}
-        run: npm run generate:contrib
+          GITHUB_USERNAME: ${{ vars.PORTFOLIO_GITHUB_USERNAME || github.repository_owner }}
+          ALLOW_CONTRIB_FALLBACK: 'false'
+        run: node scripts/generate-github-contrib.mjs
 
       - name: Commit and push if graph changed
         run: |

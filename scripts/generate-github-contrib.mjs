@@ -5,20 +5,13 @@ import { fileURLToPath } from 'node:url'
 const OUTPUT_FILE = '../public/assets/github-contrib.svg'
 const DEFAULT_COLORS = ['#ebedf0', '#9be9a8', '#40c463', '#30a14e', '#216e39']
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+const LEVEL_TO_COUNT = [0, 1, 4, 8, 12]
 
 /**
  * @typedef {{date: string, weekday: number, contributionCount: number, color?: string}} ContributionDay
  * @typedef {{contributionDays: ContributionDay[]}} ContributionWeek
  * @typedef {{totalContributions: number, colors: string[], weeks: ContributionWeek[]}} ContributionCalendar
  */
-
-const escapeXml = (value) =>
-  value
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&#39;')
 
 const formatDate = (value) => value.toISOString().slice(0, 10)
 
@@ -94,89 +87,13 @@ const buildFallbackCalendar = (username) => {
 }
 
 /**
- * @param {string} username
- * @param {string} token
- * @returns {Promise<ContributionCalendar>}
- */
-const fetchGitHubCalendar = async (username, token) => {
-  const to = new Date()
-  const from = new Date(to)
-  from.setUTCFullYear(to.getUTCFullYear() - 1)
-
-  const query = `
-    query ContributionCalendar($username: String!, $from: DateTime!, $to: DateTime!) {
-      user(login: $username) {
-        contributionsCollection(from: $from, to: $to) {
-          contributionCalendar {
-            totalContributions
-            colors
-            weeks {
-              contributionDays {
-                color
-                contributionCount
-                date
-                weekday
-              }
-            }
-          }
-        }
-      }
-    }
-  `
-
-  const response = await fetch('https://api.github.com/graphql', {
-    method: 'POST',
-    headers: {
-      Authorization: `bearer ${token}`,
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      query,
-      variables: {
-        username,
-        from: from.toISOString(),
-        to: to.toISOString(),
-      },
-    }),
-  })
-
-  if (!response.ok) {
-    throw new Error(`GitHub API returned ${response.status}`)
-  }
-
-  const payload = await response.json()
-  if (payload.errors?.length) {
-    throw new Error(payload.errors.map((error) => error.message).join('; '))
-  }
-
-  const calendar = payload.data?.user?.contributionsCollection?.contributionCalendar
-  if (!calendar?.weeks?.length) {
-    throw new Error(`No contribution calendar returned for ${username}`)
-  }
-
-  const weeks = calendar.weeks.map((week) => ({
-    contributionDays: week.contributionDays.map((day) => ({
-      date: day.date,
-      weekday: day.weekday,
-      contributionCount: day.contributionCount,
-      color: day.color,
-    })),
-  }))
-
-  return {
-    totalContributions: calendar.totalContributions,
-    colors: calendar.colors?.length ? calendar.colors : DEFAULT_COLORS,
-    weeks,
-  }
-}
-
-/**
  * @param {ContributionCalendar} calendar
  * @param {string} username
- * @param {boolean} fromApi
+ * @param {string} headline
+ * @param {string} subtitle
  * @returns {string}
  */
-const buildSvg = (calendar, username, fromApi) => {
+const buildCalendarSvg = (calendar, username, headline, subtitle) => {
   const cell = 10
   const gap = 3
   const stride = cell + gap
@@ -218,8 +135,7 @@ const buildSvg = (calendar, username, fromApi) => {
           const x = originX + weekIndex * stride
           const y = originY + day.weekday * stride
           const color = day.color || palette[levelFromCount(day.contributionCount)]
-          const title = `${day.date}: ${day.contributionCount} contribution${day.contributionCount === 1 ? '' : 's'}`
-          return `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="2" fill="${color}"><title>${escapeXml(title)}</title></rect>`
+          return `<rect x="${x}" y="${y}" width="${cell}" height="${cell}" rx="2" fill="${color}" />`
         })
         .join(''),
     )
@@ -233,18 +149,140 @@ const buildSvg = (calendar, username, fromApi) => {
     .map((label) => `<text x="8" y="${originY + label.weekday * stride + 8}">${label.label}</text>`)
     .join('')
 
-  const subtitle = fromApi
-    ? 'Generated from GitHub GraphQL API'
-    : 'Fallback mock generated locally (token missing)'
-
-  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="GitHub contributions for ${escapeXml(username)}">
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="GitHub contributions for ${username}">
   <rect width="${width}" height="${height}" rx="14" fill="#f8fafc" />
-  <text x="12" y="16" fill="#0f172a" font-size="11" font-family="JetBrains Mono Variable, ui-monospace">Contributions for @${escapeXml(username)} · ${calendar.totalContributions} in last year</text>
-  <text x="12" y="${height - 10}" fill="#64748b" font-size="10" font-family="JetBrains Mono Variable, ui-monospace">${escapeXml(subtitle)}</text>
+  <text x="12" y="16" fill="#0f172a" font-size="11" font-family="JetBrains Mono Variable, ui-monospace">${headline}</text>
+  <text x="12" y="${height - 10}" fill="#64748b" font-size="10" font-family="JetBrains Mono Variable, ui-monospace">${subtitle}</text>
   <g fill="#64748b" font-size="10" font-family="JetBrains Mono Variable, ui-monospace">${monthText}${dayText}</g>
   <g>${cells}</g>
 </svg>
 `
+}
+
+/**
+ * @param {string} username
+ * @returns {Promise<ContributionCalendar>}
+ */
+const fetchPublicGitHubCalendar = async (username) => {
+  const dayCellRegex = /<td\b[^>]*class="ContributionCalendar-day"[^>]*>/g
+
+  /**
+   * @param {number} year
+   * @returns {Promise<Array<{date: string, level: number, contributionCount: number}>>}
+   */
+  const fetchDaysForYear = async (year) => {
+    const url = `https://github.com/users/${encodeURIComponent(username)}/contributions?from=${year}-01-01&to=${year}-12-31`
+    const response = await fetch(url, {
+      headers: {
+        'User-Agent': 'portfolio-contrib-generator',
+        Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+      },
+    })
+
+    if (!response.ok) {
+      throw new Error(`GitHub contributions endpoint returned ${response.status} for year ${year}`)
+    }
+
+    const html = await response.text()
+    const tooltipMap = new Map()
+
+    for (const tooltip of html.matchAll(/<tool-tip[^>]*for="([^"]+)"[^>]*>([\s\S]*?)<\/tool-tip>/g)) {
+      const targetId = tooltip[1]
+      const tooltipText = tooltip[2].replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()
+      let contributionCount = 0
+
+      if (/No contributions on/i.test(tooltipText)) {
+        contributionCount = 0
+      } else {
+        const countMatch = tooltipText.match(/([0-9,]+)\s+contributions?\s+on/i)
+        if (countMatch) {
+          contributionCount = Number(countMatch[1].replace(/,/g, ''))
+        }
+      }
+
+      tooltipMap.set(targetId, contributionCount)
+    }
+
+    const parsedDays = []
+    for (const cell of html.match(dayCellRegex) || []) {
+      const idMatch = cell.match(/\bid="([^"]+)"/)
+      const dateMatch = cell.match(/\bdata-date="([^"]+)"/)
+      const levelMatch = cell.match(/\bdata-level="([0-4])"/)
+      if (!idMatch || !dateMatch || !levelMatch) {
+        continue
+      }
+      const level = Number(levelMatch[1])
+      const contributionCount = tooltipMap.get(idMatch[1]) ?? (LEVEL_TO_COUNT[level] ?? 0)
+      parsedDays.push({
+        date: dateMatch[1],
+        level,
+        contributionCount,
+      })
+    }
+    return parsedDays
+  }
+
+  const today = new Date()
+  const endDate = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate()))
+  const rangeStart = new Date(endDate)
+  rangeStart.setUTCDate(rangeStart.getUTCDate() - 364)
+
+  const startYear = rangeStart.getUTCFullYear()
+  const endYear = endDate.getUTCFullYear()
+  const years = startYear === endYear ? [startYear] : [startYear, endYear]
+
+  const parsedDays = (await Promise.all(years.map((year) => fetchDaysForYear(year)))).flat()
+  if (!parsedDays.length) {
+    throw new Error('GitHub response did not include contribution day cells')
+  }
+
+  const startDate = new Date(rangeStart)
+  startDate.setUTCDate(startDate.getUTCDate() - startDate.getUTCDay())
+  endDate.setUTCDate(endDate.getUTCDate() + (6 - endDate.getUTCDay()))
+
+  const dayByDate = new Map(
+    parsedDays.map((day) => [
+      day.date,
+      { level: day.level, contributionCount: day.contributionCount },
+    ]),
+  )
+  const weeks = []
+  const cursor = new Date(startDate)
+
+  while (cursor <= endDate) {
+    const contributionDays = []
+    for (let weekday = 0; weekday < 7; weekday += 1) {
+      const date = formatDate(cursor)
+      const day = dayByDate.get(date)
+      const level = day?.level ?? 0
+      const contributionCount = day?.contributionCount ?? 0
+      contributionDays.push({
+        date,
+        weekday,
+        contributionCount,
+        color: DEFAULT_COLORS[level] || DEFAULT_COLORS[0],
+      })
+      cursor.setUTCDate(cursor.getUTCDate() + 1)
+    }
+    weeks.push({ contributionDays })
+  }
+
+  const totalContributions = parsedDays.reduce(
+    (total, day) => {
+      const date = new Date(`${day.date}T00:00:00Z`)
+      if (date < rangeStart || date > endDate) {
+        return total
+      }
+      return total + day.contributionCount
+    },
+    0,
+  )
+
+  return {
+    totalContributions,
+    colors: DEFAULT_COLORS,
+    weeks,
+  }
 }
 
 const username = process.env.GITHUB_USERNAME || process.env.GITHUB_REPOSITORY_OWNER
@@ -252,24 +290,32 @@ if (!username) {
   throw new Error('Set GITHUB_USERNAME (or GITHUB_REPOSITORY_OWNER) before running this script.')
 }
 
-const token = process.env.GITHUB_TOKEN
-let fromApi = false
-let calendar
+const allowFallback = process.env.ALLOW_CONTRIB_FALLBACK === 'true'
 
-if (token) {
-  try {
-    calendar = await fetchGitHubCalendar(username, token)
-    fromApi = true
-  } catch (error) {
-    console.warn(`GitHub API unavailable: ${error.message}`)
-    calendar = buildFallbackCalendar(username)
+let svg
+try {
+  const calendar = await fetchPublicGitHubCalendar(username)
+  svg = buildCalendarSvg(
+    calendar,
+    username,
+    `${calendar.totalContributions.toLocaleString('en-US')} contributions in the last year`,
+    `Generated from github.com on ${formatDate(new Date())}`,
+  )
+  console.log(`Fetched real contribution activity for @${username} from github.com`)
+} catch (error) {
+  if (!allowFallback) {
+    throw error
   }
-} else {
-  console.warn('GITHUB_TOKEN not found. Using fallback contribution data.')
-  calendar = buildFallbackCalendar(username)
+  console.warn(`GitHub fetch failed (${error.message}). Falling back to mock contribution graph.`)
+  const fallback = buildFallbackCalendar(username)
+  svg = buildCalendarSvg(
+    fallback,
+    username,
+    `Fallback contribution graph for @${username} · ${fallback.totalContributions}`,
+    'Generated locally because GitHub fetch failed.',
+  )
 }
 
-const svg = buildSvg(calendar, username, fromApi)
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url))
 const outputPath = path.resolve(scriptDirectory, OUTPUT_FILE)
 await mkdir(path.dirname(outputPath), { recursive: true })
