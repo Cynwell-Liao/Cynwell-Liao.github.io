@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { FiArrowRight, FiGithub } from 'react-icons/fi'
+import { FiArrowRight, FiGithub, FiTerminal } from 'react-icons/fi'
 import type { ProfileData } from '../types/portfolio'
 
 interface HeroSectionProps {
@@ -8,96 +8,110 @@ interface HeroSectionProps {
 
 export function HeroSection({ profile }: HeroSectionProps) {
   return (
-    <section className="section-wrap flex items-center py-12 lg:h-[calc(100vh-5rem)] lg:py-0" id="home">
-      <div className="grid w-full items-center gap-10 lg:grid-cols-[1.08fr_0.92fr] lg:gap-12">
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20 pb-12 lg:pt-0" id="home">
+
+      {/* Background Animated Orbs */}
+      <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
+        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-accent-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob" />
+        <div className="absolute top-1/3 right-1/4 w-96 h-96 bg-purple-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-2000" />
+        <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-blue-500/20 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000" />
+      </div>
+
+      <div className="section-wrap relative z-10 grid w-full gap-8 lg:grid-cols-12 lg:gap-10">
+
+        {/* Main Content Area */}
         <motion.div
-          initial={{ opacity: 0, x: -30 }}
-          transition={{ duration: 0.6 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.4 }}
+          className="lg:col-span-7 flex flex-col justify-center"
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <span className="inline-flex rounded-full border border-accent-200 bg-accent-50 px-4 py-1 text-xs font-semibold uppercase tracking-[0.2em] text-accent-700 dark:border-accent-500/40 dark:bg-accent-500/10 dark:text-accent-300">
-            AI Systems • Cloud Platforms • DevEx
-          </span>
-          <h1 className="mt-6 text-4xl font-semibold tracking-tight text-slate-900 dark:text-slate-50 md:text-6xl">
-            {profile.name}
+          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-mono tracking-widest text-accent-300 backdrop-blur-md mb-8 w-fit shadow-[0_0_15px_rgba(125,215,197,0.1)]">
+            <span className="relative flex h-2 w-2">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-500"></span>
+            </span>
+            SYSTEMS ONLINE
+          </div>
+
+          <h1 className="text-5xl font-bold tracking-tight text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1]">
+            Building <br />
+            <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-300 via-white to-purple-300">
+              {profile.title}s
+            </span>
           </h1>
-          <p className="mt-4 text-xl font-medium text-accent-700 dark:text-accent-300 md:text-2xl">
-            {profile.title}
+
+          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-300 font-light">
+            {profile.name} — {profile.tagline}
           </p>
-          <p className="mt-5 max-w-2xl text-base leading-relaxed text-slate-600 dark:text-slate-300 md:text-lg">
-            {profile.tagline}
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
+
+          <div className="mt-10 flex flex-wrap gap-5">
             <a
-              className="inline-flex items-center gap-2 rounded-full bg-accent-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-accent-700"
+              className="group relative inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition-all hover:scale-105 hover:shadow-glow"
               href="#projects"
             >
-              View Projects
-              <FiArrowRight className="h-4 w-4" />
+              Explore Architecture
+              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
             </a>
+
             <a
-              className="inline-flex items-center gap-2 rounded-full border border-slate-300 bg-white/75 px-6 py-3 text-sm font-semibold text-slate-800 transition hover:border-accent-500 hover:text-accent-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-100 dark:hover:border-accent-400 dark:hover:text-accent-300"
+              className="inline-flex items-center gap-3 rounded-full border border-white/20 bg-white/5 px-8 py-4 text-sm font-semibold text-white backdrop-blur-md transition-all hover:bg-white/10 hover:border-white/40"
               href={profile.githubUrl}
               rel="noreferrer"
               target="_blank"
             >
+              <FiGithub className="h-5 w-5" />
               GitHub
-              <FiGithub className="h-4 w-4" />
             </a>
           </div>
-          <div className="mt-8 grid max-w-xl grid-cols-3 gap-3">
-            {profile.stats.map((stat) => (
-              <div
-                className="glass-panel rounded-2xl border border-slate-200/80 p-4 dark:border-slate-700/60"
-                key={stat.label}
-              >
-                <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                  {stat.value}
-                </p>
-                <p className="mt-1 text-xs leading-snug text-slate-600 dark:text-slate-300">
-                  {stat.label}
-                </p>
-              </div>
-            ))}
-          </div>
         </motion.div>
-        <motion.aside
-          className="glass-panel p-5 sm:p-7"
-          initial={{ opacity: 0, x: 30 }}
-          transition={{ duration: 0.6, delay: 0.1 }}
-          whileInView={{ opacity: 1, x: 0 }}
-          viewport={{ once: true, amount: 0.35 }}
-        >
-          <div className="mb-4 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-              GitHub Snapshot
-            </h2>
-            <span className="rounded-full border border-slate-300/80 px-3 py-1 text-xs font-medium text-slate-600 dark:border-slate-700 dark:text-slate-300">
-              Local SVG
-            </span>
-          </div>
-          <p className="text-sm leading-relaxed text-slate-600 dark:text-slate-300">
-            This contribution chart is generated by a weekly GitHub Actions workflow and committed into the repository.
-          </p>
-          <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/80 bg-slate-50 p-3 dark:border-slate-700 dark:bg-slate-900/60">
-            <img
-              alt={`GitHub contribution activity for ${profile.githubUsername}`}
-              className="h-auto w-full rounded-xl"
-              loading="eager"
-              src="/assets/github-contrib.svg"
-            />
-          </div>
-          <a
-            className="mt-5 inline-flex items-center gap-2 rounded-full border border-accent-400/70 px-5 py-2 text-sm font-semibold text-accent-700 transition hover:bg-accent-500 hover:text-white dark:border-accent-300/60 dark:text-accent-300 dark:hover:bg-accent-500 dark:hover:text-white"
-            href={profile.githubUrl}
-            rel="noreferrer"
-            target="_blank"
+
+        {/* Bento Box Right Side */}
+        <div className="lg:col-span-5 grid grid-cols-2 gap-4 auto-rows-[minmax(0,1fr)]">
+
+          {/* Main Terminal Box */}
+          <motion.div
+            className="col-span-2 glass-panel p-6 flex flex-col justify-between min-h-[220px]"
+            initial={{ opacity: 0, x: 30 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
           >
-            Open @{profile.githubUsername}
-            <FiArrowRight className="h-4 w-4" />
-          </a>
-        </motion.aside>
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex gap-2">
+                <div className="h-3 w-3 rounded-full bg-red-500/80"></div>
+                <div className="h-3 w-3 rounded-full bg-yellow-500/80"></div>
+                <div className="h-3 w-3 rounded-full bg-green-500/80"></div>
+              </div>
+              <FiTerminal className="text-slate-400" />
+            </div>
+            <div className="font-mono text-sm leading-relaxed text-slate-300 mt-2">
+              <span className="text-accent-400">~/stack</span> $ ls -la<br />
+              drwxr-xr-x AI Models<br />
+              drwxr-xr-x Cloud Native<br />
+              drwxr-xr-x Developer Exp<br />
+              <span className="text-accent-400 mt-2 block">~/stack</span> $ <span className="animate-pulse">_</span>
+            </div>
+          </motion.div>
+
+          {/* Stat Boxes */}
+          {profile.stats.map((stat, i) => (
+            <motion.div
+              className={`glass-panel p-6 flex flex-col justify-center ${i === 2 ? 'col-span-2' : ''}`}
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 + (i * 0.1), ease: [0.16, 1, 0.3, 1] }}
+              key={stat.label}
+            >
+              <h3 className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-accent-200 to-white">
+                {stat.value}
+              </h3>
+              <p className="mt-2 text-xs font-medium uppercase tracking-wider text-slate-400">
+                {stat.label}
+              </p>
+            </motion.div>
+          ))}
+
+        </div>
       </div>
     </section>
   )

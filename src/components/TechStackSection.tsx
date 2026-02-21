@@ -8,42 +8,57 @@ interface TechStackSectionProps {
 
 export function TechStackSection({ categories }: TechStackSectionProps) {
   return (
-    <section className="section-wrap py-20" id="tech-stack">
+    <section className="section-wrap py-24 relative" id="tech-stack">
+      {/* Background ambient light */}
+      <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent-500/10 rounded-full mix-blend-screen filter blur-[150px] pointer-events-none" />
+
       <SectionHeading
         description="Tools and platforms I rely on to build robust AI and cloud systems."
         eyebrow="Tech Stack"
         title="Production-ready toolkit"
       />
-      <div className="grid gap-6 md:grid-cols-3">
+
+      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12 relative z-10">
         {categories.map((category, categoryIndex) => (
           <motion.div
-            className="glass-panel p-6"
-            initial={{ opacity: 0, y: 20 }}
+            className="glass-panel p-8 group relative"
+            initial={{ opacity: 0, y: 30 }}
             key={category.title}
-            transition={{ duration: 0.45, delay: categoryIndex * 0.06 }}
-            viewport={{ once: true, amount: 0.3 }}
+            transition={{ duration: 0.6, delay: categoryIndex * 0.1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, amount: 0.2 }}
             whileInView={{ opacity: 1, y: 0 }}
           >
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            {/* Hover glow effect */}
+            <div className="absolute inset-0 bg-gradient-to-br from-accent-500/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl pointer-events-none" />
+
+            <h3 className="text-xl font-bold tracking-tight text-white mb-8 border-b border-white/10 pb-4">
               {category.title}
             </h3>
-            <ul className="mt-5 space-y-4">
-              {category.items.map((item) => {
+
+            <ul className="space-y-6">
+              {category.items.map((item, itemIndex) => {
                 const Icon = item.icon
                 return (
-                  <li className="flex items-center gap-3" key={item.name}>
-                    <span className="inline-flex h-10 w-10 items-center justify-center rounded-xl border border-slate-200 bg-white text-accent-700 dark:border-slate-700 dark:bg-slate-900/70 dark:text-accent-300">
-                      <Icon className="h-5 w-5" />
+                  <motion.li
+                    className="flex items-start gap-4"
+                    key={item.name}
+                    initial={{ opacity: 0, x: -10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    transition={{ duration: 0.4, delay: (categoryIndex * 0.1) + (itemIndex * 0.1) }}
+                    viewport={{ once: true }}
+                  >
+                    <span className="flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-accent-300 shadow-[0_0_15px_rgba(125,215,197,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-500/30">
+                      <Icon className="h-6 w-6" />
                     </span>
-                    <span>
-                      <span className="block text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    <div>
+                      <span className="block text-base font-semibold text-slate-100">
                         {item.name}
                       </span>
-                      <span className="block text-xs text-slate-600 dark:text-slate-300">
+                      <span className="block text-sm text-slate-400 font-light mt-1 leading-snug">
                         {item.note}
                       </span>
-                    </span>
-                  </li>
+                    </div>
+                  </motion.li>
                 )
               })}
             </ul>

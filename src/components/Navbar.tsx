@@ -1,5 +1,8 @@
 import { FiMoon, FiSun } from 'react-icons/fi'
 import type { NavLink, ThemeMode } from '../types/portfolio'
+import { motion, useScroll } from 'framer-motion'
+import { useState, useEffect } from 'react'
+import { twMerge } from 'tailwind-merge'
 
 interface NavbarProps {
   links: NavLink[]
@@ -9,34 +12,64 @@ interface NavbarProps {
 }
 
 export function Navbar({ links, theme, githubUrl, onToggleTheme }: NavbarProps) {
+  const [isScrolled, setIsScrolled] = useState(false)
+  const { scrollY } = useScroll()
+
+  useEffect(() => {
+    return scrollY.on('change', (latest) => {
+      setIsScrolled(latest > 50)
+    })
+  }, [scrollY])
+
   return (
-    <header className="sticky top-0 z-40 border-b border-slate-200/60 bg-white/85 backdrop-blur-md dark:border-slate-800/80 dark:bg-slate-950/80">
-      <div className="section-wrap flex h-20 items-center justify-between gap-4">
+    <motion.header
+      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 px-4 pointer-events-none transition-all duration-300"
+      initial={{ y: -100 }}
+      animate={{ y: 0 }}
+      transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+    >
+      <div
+        className={twMerge(
+          "pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full border transition-all duration-500",
+          isScrolled
+            ? "bg-slate-900/40 border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-xl w-full max-w-4xl"
+            : "bg-transparent border-transparent w-full max-w-6xl"
+        )}
+      >
         <a
-          className="text-sm font-semibold uppercase tracking-[0.3em] text-slate-900 dark:text-slate-50"
+          className="text-sm font-bold tracking-widest text-white group relative overflow-hidden flex items-center gap-2"
           href="#home"
         >
-          CL
+          <span className="w-2 h-2 rounded-full bg-accent-400 block shadow-[0_0_8px_rgba(125,215,197,0.8)]" />
+          CYNWELL
         </a>
-        <nav className="hidden items-center gap-6 md:flex">
+
+        <nav className="hidden items-center gap-8 md:flex absolute left-1/2 -translate-x-1/2">
           {links.map((link) => (
-            <a key={link.href} className="anchor-link" href={link.href}>
+            <a
+              key={link.href}
+              className="text-sm font-medium tracking-wide text-slate-300 transition-colors hover:text-white relative group"
+              href={link.href}
+            >
               {link.label}
+              <span className="absolute -bottom-2 left-1/2 w-1 h-1 bg-accent-400 rounded-full opacity-0 -translate-x-1/2 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-1" />
             </a>
           ))}
         </nav>
-        <div className="flex items-center gap-3">
+
+        <div className="flex items-center gap-4">
           <a
-            className="rounded-full border border-slate-300/70 px-4 py-2 text-sm font-medium text-slate-700 transition hover:border-accent-500 hover:text-accent-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-accent-400 dark:hover:text-accent-300"
+            className="text-sm font-medium text-slate-300 transition-colors hover:text-white hidden sm:block"
             href={githubUrl}
             rel="noreferrer"
             target="_blank"
           >
             GitHub
           </a>
+          <div className="w-px h-4 bg-white/20 hidden sm:block" />
           <button
             aria-label={theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'}
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-300/70 text-slate-700 transition hover:border-accent-500 hover:text-accent-700 dark:border-slate-700 dark:text-slate-200 dark:hover:border-accent-400 dark:hover:text-accent-300"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/5 border border-white/10 text-slate-300 transition-all hover:bg-white/10 hover:border-white/20 hover:text-white"
             onClick={onToggleTheme}
             type="button"
           >
@@ -44,6 +77,6 @@ export function Navbar({ links, theme, githubUrl, onToggleTheme }: NavbarProps) 
           </button>
         </div>
       </div>
-    </header>
+    </motion.header>
   )
 }
