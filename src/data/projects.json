@@ -1,51 +1,79 @@
 [
   {
-    "id": "llm-control-plane",
-    "title": "LLM Platform Control Plane",
-    "summary": "A cloud-native orchestration layer for running retrieval, evaluation, and safe deployment flows for internal LLM services.",
+    "id": "parkpie-landing",
+    "title": "ParkPie Landing Website",
+    "summary": "Architected a high-performance marketing platform using Next.js 16 and React 19, achieving a 100% Lighthouse performance score via zero-layout-shift font loading, edge-cached content, and semantic HTML.",
     "highlights": [
-      "Implemented policy-based model rollouts with staged promotion gates.",
-      "Built observability dashboards for latency, token spend, and quality drift.",
-      "Reduced release rollback time from 45 minutes to under 8 minutes."
+      "Engineered a cost-effective 'Headless CMS' solution using Airtable and Incremental Static Regeneration (ISR).",
+      "Secured public infrastructure with a defence-in-depth strategy (Fixed-window rate limiting, Honeypot, Zod schemas).",
+      "Mitigated critical React2Shell exposure (CVE-2025-55182) via zero-downtime upgrade.",
+      "Orchestrated automated SEO pipelines generating dynamic sitemaps, RSS feeds, and Open Graph metadata."
     ],
-    "stack": ["TypeScript", "Python", "Kubernetes", "PostgreSQL"],
-    "repoUrl": "https://github.com/Cynwell-Liao/llm-control-plane",
-    "liveUrl": "https://cynwell-liao.github.io/llm-control-plane/"
+    "stack": [
+      "TypeScript",
+      "Next.js 16",
+      "React 19",
+      "Tailwind CSS",
+      "Vitest"
+    ],
+    "liveUrl": "https://parkpie-landing.vercel.app"
   },
   {
-    "id": "cost-sentinel",
-    "title": "Cloud Cost Sentinel",
-    "summary": "FinOps automation toolkit that detects cost anomalies and opens actionable optimization pull requests for shared infrastructure.",
+    "id": "cheap-guide",
+    "title": "Cheap.Guide App Backend",
+    "summary": "Served as Principal Backend Engineer & Solution Architect delivering a Spring Boot backend with REST APIs for auth, posts, geospatial search, AI moderation, and notifications.",
     "highlights": [
-      "Automated daily anomaly checks across compute, storage, and network spend.",
-      "Generated right-sizing recommendations with confidence scoring.",
-      "Cut monthly infrastructure waste by 22% in the first quarter."
+      "Integrated Firebase Auth (JWT) with role-based access control across 30+ endpoints.",
+      "Replaced Redis with Caffeine in-memory caching, saving ~$400/year while achieving sub-millisecond retrieval.",
+      "Set up async workflows with Google Pub/Sub handling 16 concurrent threads.",
+      "Provisioned GCP infrastructure via Terraform and established CI/CD with GitHub Actions and multi-stage Docker builds."
     ],
-    "stack": ["AWS", "Terraform", "GitHub Actions", "Python"],
-    "repoUrl": "https://github.com/Cynwell-Liao/cloud-cost-sentinel"
+    "stack": [
+      "Java",
+      "Spring Boot",
+      "MySQL",
+      "Terraform",
+      "GCP",
+      "Docker"
+    ],
+    "liveUrl": "https://www.cheap.guide"
   },
   {
-    "id": "incident-copilot",
-    "title": "Incident Response Copilot",
-    "summary": "A private on-call assistant that combines runbook retrieval and timeline summarization for faster incident triage.",
+    "id": "parkpie-app",
+    "title": "ParkPie App Backend",
+    "summary": "Led backend and AI development for a geospatial-first Django + PostGIS backend with optimised spatial queries.",
     "highlights": [
-      "Integrated event ingestion from logs and tracing metadata.",
-      "Created deterministic runbook grounding to prevent hallucinated steps.",
-      "Improved mean time to mitigation by 31%."
+      "Pioneered an agentic AI pipeline with LangGraph and LangChain for multi-step reasoning (hybrid cloud/local inference).",
+      "Deployed a scalable vector database with pgvector in PostgreSQL 17 to power semantic RAG search.",
+      "Configured CI/CD with Docker Compose and GitHub Actions, enforcing TDD, mypy, and ruff.",
+      "Added observability with LangSmith and OpenTelemetry + LGTM stack to monitor agent workflows."
     ],
-    "stack": ["React", "TypeScript", "PyTorch", "Docker"],
-    "repoUrl": "https://github.com/Cynwell-Liao/incident-response-copilot"
+    "stack": [
+      "Python",
+      "Django",
+      "PostgreSQL",
+      "LangChain",
+      "Docker",
+      "AWS"
+    ],
+    "repoUrl": "https://github.com/parkpie-app"
   },
   {
-    "id": "edge-observatory",
-    "title": "Edge AI Observatory",
-    "summary": "Monitoring suite for edge inference workloads with synthetic checks, deployment metrics, and upgrade safety scoring.",
+    "id": "social-media-analytics",
+    "title": "Social Media Analytics System",
+    "summary": "Spearheaded a team to deliver a cloud-native analytics system for the Australian federal election, coordinating sprint planning and cross-module integration.",
     "highlights": [
-      "Built unified telemetry collectors for heterogeneous edge nodes.",
-      "Added release risk scoring before regional rollouts.",
-      "Enabled 24/7 visibility into hardware and model health."
+      "Developed a scalable Reddit harvester with Fission, ingesting and normalising 168k+ posts in real-time.",
+      "Built a comment-tree collector enriching sentiment analysis, exposed via an Elasticsearch REST API.",
+      "Created interactive Jupyter Notebook visualisations for filtering and trend analysis."
     ],
-    "stack": ["TypeScript", "Kubernetes", "AWS", "GitHub Actions"],
-    "repoUrl": "https://github.com/Cynwell-Liao/edge-ai-observatory"
+    "stack": [
+      "Python",
+      "Flask",
+      "Kubernetes",
+      "Elasticsearch",
+      "Redis"
+    ],
+    "liveUrl": "https://www.youtube.com/watch?v=gWLpV47mN3w"
   }
 ]

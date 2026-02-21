@@ -29,9 +29,9 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
             whileInView={{ opacity: 1, y: 0 }}
           >
             {/* Hover glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-accent-500/5 to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl pointer-events-none" />
+            <div className="absolute inset-0 bg-gradient-to-br from-accent-500/5 to-secondary-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl pointer-events-none" />
 
-            <h3 className="text-xl font-bold tracking-tight text-white mb-8 border-b border-white/10 pb-4">
+            <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-8 border-b border-slate-200 dark:border-white/10 pb-4">
               {category.title}
             </h3>
 
@@ -47,14 +47,14 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
                     transition={{ duration: 0.4, delay: (categoryIndex * 0.1) + (itemIndex * 0.1) }}
                     viewport={{ once: true }}
                   >
-                    <span className="flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-white/5 border border-white/10 text-accent-300 shadow-[0_0_15px_rgba(125,215,197,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-500/30">
+                    <span className="flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-accent-600 dark:text-accent-300 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-400/50 dark:group-hover:border-accent-500/30">
                       <Icon className="h-6 w-6" />
                     </span>
                     <div>
-                      <span className="block text-base font-semibold text-slate-100">
+                      <span className="block text-base font-semibold text-slate-900 dark:text-slate-100">
                         {item.name}
                       </span>
-                      <span className="block text-sm text-slate-400 font-light mt-1 leading-snug">
+                      <span className="block text-sm text-slate-500 dark:text-slate-400 font-light mt-1 leading-snug">
                         {item.note}
                       </span>
                     </div>

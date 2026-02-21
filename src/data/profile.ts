@@ -4,33 +4,28 @@ import {
   SiGithubactions,
   SiKubernetes,
   SiPostgresql,
-  SiPytorch,
-  SiPython,
   SiReact,
-  SiTailwindcss,
   SiTerraform,
   SiTypescript,
-  SiFramer,
+  SiSpringboot,
+  SiDjango,
+  SiGooglecloud,
+  SiNodedotjs,
 } from 'react-icons/si'
 import type { NavLink, ProfileData, SkillCategory } from '../types/portfolio'
 
 export const profile: ProfileData = {
   name: 'Cynwell Liao',
-  title: 'AI & Cloud Engineer',
+  title: 'Software Engineer',
   tagline:
-    'Designing resilient AI products and cloud platforms with reliability, velocity, and clean developer experience.',
+    'Building production backend systems and event-driven RAG pipelines with reliability, velocity, and observability.',
   about: [
-    'I focus on production-grade AI systems where model quality, observability, and platform reliability matter as much as shipping speed.',
-    'My work spans cloud architecture, infrastructure automation, and developer tooling so teams can deliver AI features with lower risk.',
+    'I am a Graduate/Junior Software Engineer based in Melbourne, Australia, actively working at the intersection of backend architecture and AI engineering.',
+    'My work spans full-stack implementation, event-driven pipelines (webhooks, queues/outbox), scalable cloud architecture (GCP, AWS), and LLM-enabled systems.',
   ],
   githubUsername: 'Cynwell-Liao',
   githubUrl: 'https://github.com/Cynwell-Liao',
   resumePath: '/resume.pdf',
-  stats: [
-    { label: 'Production AI Projects', value: '12+' },
-    { label: 'Cloud Regions Deployed', value: '9' },
-    { label: 'Automation Coverage', value: '93%' },
-  ],
 }
 
 export const navLinks: NavLink[] = [
@@ -42,30 +37,30 @@ export const navLinks: NavLink[] = [
 
 export const skillCategories: SkillCategory[] = [
   {
-    title: 'Cloud Platform',
+    title: 'Languages & Frameworks',
     items: [
-      { name: 'AWS', note: 'Multi-account platform design', icon: SiAmazonwebservices },
-      { name: 'Kubernetes', note: 'Container orchestration at scale', icon: SiKubernetes },
-      { name: 'Terraform', note: 'Reusable infrastructure modules', icon: SiTerraform },
+      { name: 'Java & Spring Boot', note: 'Robust APIs and microservices', icon: SiSpringboot },
+      { name: 'Python & Django', note: 'Data pipelines and AI integration', icon: SiDjango },
+      { name: 'TypeScript & Next.js', note: 'High-performance full-stack apps', icon: SiTypescript },
+      { name: 'Node.js', note: 'Server-side application logic', icon: SiNodedotjs },
+    ],
+  },
+  {
+    title: 'Cloud & Infrastructure',
+    items: [
+      { name: 'Google Cloud Platform', note: 'Cloud Run, Pub/Sub, Cloud Storage', icon: SiGooglecloud },
+      { name: 'AWS', note: 'EC2, RDS, S3, Lambda', icon: SiAmazonwebservices },
+      { name: 'Terraform', note: 'Verifiable Infrastructure-as-Code', icon: SiTerraform },
       { name: 'Docker', note: 'Reproducible build pipelines', icon: SiDocker },
     ],
   },
   {
-    title: 'AI & Data',
+    title: 'Data & Observability',
     items: [
-      { name: 'PyTorch', note: 'Model training and optimization', icon: SiPytorch },
-      { name: 'Python', note: 'Data pipelines and API tooling', icon: SiPython },
-      { name: 'PostgreSQL', note: 'Analytical and operational data', icon: SiPostgresql },
+      { name: 'PostgreSQL & pgvector', note: 'Relational & vector datastores', icon: SiPostgresql },
       { name: 'GitHub Actions', note: 'CI/CD and automation workflows', icon: SiGithubactions },
-    ],
-  },
-  {
-    title: 'Frontend & Product',
-    items: [
-      { name: 'TypeScript', note: 'Strongly typed application layers', icon: SiTypescript },
-      { name: 'React', note: 'Accessible interface engineering', icon: SiReact },
-      { name: 'Tailwind CSS', note: 'Scalable design system delivery', icon: SiTailwindcss },
-      { name: 'Framer Motion', note: 'Meaningful motion and transitions', icon: SiFramer },
+      { name: 'Kubernetes', note: 'Container orchestration at scale', icon: SiKubernetes },
+      { name: 'React & Tailwind', note: 'Scalable interface engineering', icon: SiReact },
     ],
   },
 ]

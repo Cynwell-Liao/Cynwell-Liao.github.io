@@ -10,16 +10,28 @@ export default {
       },
       colors: {
         accent: {
-          50: '#eefbf8',
-          100: '#d5f4ee',
-          200: '#aee8dc',
-          300: '#7dd7c5',
-          400: '#46bca7',
-          500: '#1f9d8c',
-          600: '#157f72',
-          700: '#14655d',
-          800: '#144f4a',
-          900: '#133f3b',
+          50: '#fcf3f8',
+          100: '#f9e6f0',
+          200: '#f4cde0',
+          300: '#efa2c7',
+          400: '#e86aa7',
+          500: '#e384b2', // Primary Logo Pink
+          600: '#c52875',
+          700: '#a31a59',
+          800: '#87194d',
+          900: '#711a43',
+        },
+        secondary: {
+          50: '#f0f9fb',
+          100: '#daf1f6',
+          200: '#b8e3ef',
+          300: '#87cfe4',
+          400: '#4fb4d1',
+          500: '#37bedc', // Secondary Logo Cyan
+          600: '#2b7b96',
+          700: '#26637a',
+          800: '#265165',
+          900: '#234455',
         },
         primary: {
           DEFAULT: '#ffffff',
@@ -28,12 +40,12 @@ export default {
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
-        'hero-glow': 'conic-gradient(from 180deg at 50% 50%, #2a8af6 0deg, #a853ba 180deg, #e92a67 360deg)',
+        'hero-glow': 'conic-gradient(from 180deg at 50% 50%, #37bedc 0deg, #a853ba 180deg, #e384b2 360deg)',
       },
       boxShadow: {
         soft: '0 16px 40px -24px rgba(15, 23, 42, 0.45)',
-        glow: '0 0 20px rgba(125, 215, 197, 0.4)',
-        'glow-lg': '0 0 40px rgba(125, 215, 197, 0.6)',
+        glow: '0 0 20px rgba(227, 132, 178, 0.4)',
+        'glow-lg': '0 0 40px rgba(227, 132, 178, 0.6)',
       },
       animation: {
         'blob': 'blob 7s infinite',

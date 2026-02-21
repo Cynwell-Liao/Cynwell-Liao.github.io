@@ -34,8 +34,8 @@ function App() {
   return (
     <div className="relative overflow-x-hidden">
       <div className="pointer-events-none absolute inset-x-0 top-[-8rem] -z-10 flex justify-between px-6">
-        <div className="h-72 w-72 rounded-full bg-accent-200/60 blur-3xl dark:bg-accent-500/20" />
-        <div className="h-72 w-72 rounded-full bg-cyan-200/60 blur-3xl dark:bg-cyan-500/20" />
+        <div className="h-72 w-72 rounded-full bg-accent-500/20 blur-3xl" />
+        <div className="h-72 w-72 rounded-full bg-secondary-500/10 blur-3xl" />
       </div>
       <Navbar
         githubUrl={profile.githubUrl}

@@ -13,7 +13,7 @@ export interface Project {
   summary: string
   highlights: string[]
   stack: string[]
-  repoUrl: string
+  repoUrl?: string
   liveUrl?: string
 }
 
@@ -28,10 +28,6 @@ export interface SkillCategory {
   items: SkillItem[]
 }
 
-export interface StatItem {
-  label: string
-  value: string
-}
 
 export interface ProfileData {
   name: string
@@ -41,5 +37,4 @@ export interface ProfileData {
   githubUsername: string
   githubUrl: string
   resumePath: string
-  stats: StatItem[]
 }

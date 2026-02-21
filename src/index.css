@@ -20,16 +20,20 @@
   body {
     @apply min-h-screen bg-slate-50 font-sans text-slate-800 transition-colors duration-500 selection:bg-accent-200 selection:text-slate-900;
     background-image:
-      radial-gradient(circle at 15% 10%, rgba(204, 251, 241, 0.4), transparent 45%),
-      radial-gradient(circle at 85% 20%, rgba(224, 242, 254, 0.4), transparent 50%),
-      radial-gradient(circle at 50% 100%, rgba(204, 251, 241, 0.3), transparent 60%);
+      radial-gradient(circle at 15% 10%, rgba(227, 132, 178, 0.4), transparent 45%),
+      /* Pink */
+      radial-gradient(circle at 85% 20%, rgba(55, 190, 220, 0.4), transparent 50%),
+      /* Cyan */
+      radial-gradient(circle at 50% 100%, rgba(227, 132, 178, 0.3), transparent 60%);
   }
 
   html.dark body {
     @apply bg-[#030712] text-slate-200 selection:bg-accent-500/40 selection:text-white;
     background-image:
-      radial-gradient(circle at 15% 10%, rgba(20, 184, 166, 0.08), transparent 45%),
-      radial-gradient(circle at 85% 20%, rgba(56, 189, 248, 0.08), transparent 50%),
+      radial-gradient(circle at 15% 10%, rgba(227, 132, 178, 0.1), transparent 45%),
+      /* Pink */
+      radial-gradient(circle at 85% 20%, rgba(55, 190, 220, 0.1), transparent 50%),
+      /* Cyan */
       radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.05), transparent 60%);
   }
 
@@ -40,7 +44,7 @@
   ::selection {
     @apply bg-accent-200 text-slate-900;
   }
-  
+
   html.dark ::selection {
     @apply bg-accent-500/40 text-slate-100;
   }
@@ -52,15 +56,15 @@
   }
 
   .glass-panel {
-    @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-[0_8px_32px_0_rgba(31,38,135,0.07)] backdrop-blur-xl transition-all duration-300 hover:border-white/40
-    dark:border-white/10 dark:bg-slate-900/40 dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] dark:hover:border-white/20;
+    @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-all duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
   }
-  
+
   .glass-panel::before {
     content: '';
     @apply pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 transition-opacity duration-300 dark:from-white/5;
   }
-  
+
   .glass-panel:hover::before {
     @apply opacity-100;
   }
