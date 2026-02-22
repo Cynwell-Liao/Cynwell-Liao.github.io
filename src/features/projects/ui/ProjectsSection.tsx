@@ -7,15 +7,27 @@ import type { Project } from '../model/project.types'
 
 interface ProjectsSectionProps {
   projects: Project[]
+  headingEyebrow: string
+  headingTitle: string
+  headingDescription: string
+  liveLabel: string
+  sourceLabel: string
 }
 
-export function ProjectsSection({ projects }: ProjectsSectionProps) {
+export function ProjectsSection({
+  projects,
+  headingEyebrow,
+  headingTitle,
+  headingDescription,
+  liveLabel,
+  sourceLabel,
+}: ProjectsSectionProps) {
   return (
     <section className="section-wrap py-24 relative" id="projects">
       <SectionHeading
-        description="Selected projects focused on production AI, cloud architecture, and engineering enablement."
-        eyebrow="Projects"
-        title="Portfolio highlights"
+        description={headingDescription}
+        eyebrow={headingEyebrow}
+        title={headingTitle}
       />
       <div className="grid gap-8 md:grid-cols-2 mt-12">
         {projects.map((project, index) => (
@@ -42,7 +54,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       href={project.liveUrl}
                       rel="noreferrer"
                       target="_blank"
-                      title="View Live"
+                      title={liveLabel}
                     >
                       <FiExternalLink className="w-5 h-5" />
                     </a>
@@ -53,7 +65,7 @@ export function ProjectsSection({ projects }: ProjectsSectionProps) {
                       href={project.repoUrl}
                       rel="noreferrer"
                       target="_blank"
-                      title="View Source"
+                      title={sourceLabel}
                     >
                       <FiGithub className="w-5 h-5" />
                     </a>

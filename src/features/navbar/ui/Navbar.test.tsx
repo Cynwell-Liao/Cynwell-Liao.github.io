@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import { profile } from '@content/profile'
+
 import { Navbar } from './Navbar'
 
 import type { NavLink } from '@features/navbar'
@@ -17,7 +19,9 @@ describe('Navbar', () => {
 
     render(
       <Navbar
-        githubUrl="https://github.com/Cynwell-Liao"
+        brandName={profile.brandName}
+        githubLabel={profile.githubLabel}
+        githubUrl={profile.githubUrl}
         links={links}
         onToggleTheme={onToggleTheme}
         theme="light"
@@ -35,7 +39,9 @@ describe('Navbar', () => {
   it('shows the correct accessibility label for current theme', () => {
     const { rerender } = render(
       <Navbar
-        githubUrl="https://github.com/Cynwell-Liao"
+        brandName={profile.brandName}
+        githubLabel={profile.githubLabel}
+        githubUrl={profile.githubUrl}
         links={links}
         onToggleTheme={() => {
           return undefined
@@ -50,7 +56,9 @@ describe('Navbar', () => {
 
     rerender(
       <Navbar
-        githubUrl="https://github.com/Cynwell-Liao"
+        brandName={profile.brandName}
+        githubLabel={profile.githubLabel}
+        githubUrl={profile.githubUrl}
         links={links}
         onToggleTheme={() => {
           return undefined

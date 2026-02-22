@@ -3,9 +3,21 @@ import { FiDownload, FiExternalLink } from 'react-icons/fi'
 
 interface ResumeSectionProps {
   resumePath: string
+  headingLead: string
+  headingAccent: string
+  description: string
+  downloadLabel: string
+  openLabel: string
 }
 
-export function ResumeSection({ resumePath }: ResumeSectionProps) {
+export function ResumeSection({
+  resumePath,
+  headingLead,
+  headingAccent,
+  description,
+  downloadLabel,
+  openLabel,
+}: ResumeSectionProps) {
   return (
     <section className="section-wrap py-24 relative" id="resume">
       <motion.div
@@ -19,14 +31,13 @@ export function ResumeSection({ resumePath }: ResumeSectionProps) {
 
         <div className="relative z-10 w-full md:w-2/3">
           <h2 className="text-3xl font-bold tracking-tight text-slate-900 dark:text-white mb-4">
-            Ready to build something{' '}
+            {headingLead}{' '}
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-600 to-secondary-600 dark:from-accent-400 dark:to-secondary-400">
-              resilient?
+              {headingAccent}
             </span>
           </h2>
           <p className="text-slate-600 dark:text-slate-300 text-lg font-light leading-relaxed">
-            Grab a copy of my resume for a detailed look at my experience in cloud
-            infrastructure, AI engineering, and product development.
+            {description}
           </p>
         </div>
 
@@ -37,7 +48,7 @@ export function ResumeSection({ resumePath }: ResumeSectionProps) {
             href={resumePath}
           >
             <FiDownload className="h-5 w-5 transition-transform group-hover:-translate-y-1" />
-            Download PDF
+            {downloadLabel}
           </a>
           <a
             className="inline-flex items-center justify-center gap-3 rounded-full border border-slate-300 dark:border-white/20 bg-slate-100/50 dark:bg-white/5 px-8 py-4 text-sm font-bold text-slate-800 dark:text-white backdrop-blur-md transition-all hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-slate-400 dark:hover:border-white/40"
@@ -46,7 +57,7 @@ export function ResumeSection({ resumePath }: ResumeSectionProps) {
             target="_blank"
           >
             <FiExternalLink className="h-5 w-5" />
-            Open
+            {openLabel}
           </a>
         </div>
       </motion.div>

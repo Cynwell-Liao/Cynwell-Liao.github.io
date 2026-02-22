@@ -2,6 +2,8 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
+import { profile } from '@content/profile'
+
 import App from './App'
 
 describe('App', () => {
@@ -24,7 +26,7 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining('Cynwell-Liao.json')
+        expect.stringContaining(`${profile.githubUsername}.json`)
       )
     })
   })

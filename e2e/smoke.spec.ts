@@ -24,7 +24,5 @@ test('theme toggle switches dark mode class', async ({ page }) => {
 
 test('mobile navbar keeps the brand text visible @mobile', async ({ page }) => {
   await page.goto('/')
-  await expect(
-    page.locator('header span').filter({ hasText: /^Cynwell-Liao$/ })
-  ).toBeVisible()
+  await expect(page.getByTestId('navbar-brand')).toBeVisible()
 })

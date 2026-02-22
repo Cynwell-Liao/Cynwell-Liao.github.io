@@ -22,6 +22,8 @@ function App() {
         <div className="h-72 w-72 rounded-full bg-secondary-500/10 blur-3xl" />
       </div>
       <Navbar
+        brandName={profile.brandName}
+        githubLabel={profile.githubLabel}
         githubUrl={profile.githubUrl}
         links={navLinks}
         onToggleTheme={toggleTheme}
@@ -29,13 +31,46 @@ function App() {
       />
       <main>
         <HeroSection profile={profile} />
-        <AboutSection paragraphs={profile.about} />
-        <TechStackSection categories={skillCategories} />
-        <ProjectsSection projects={projects} />
-        <EducationSection education={education} />
-        <ResumeSection resumePath={profile.resumePath} />
+        <AboutSection
+          headingAccent={profile.aboutHeadingAccent}
+          headingLead={profile.aboutHeadingLead}
+          intro={profile.aboutIntro}
+          paragraphs={profile.about}
+        />
+        <TechStackSection
+          categories={skillCategories}
+          headingDescription={profile.techStackSectionDescription}
+          headingEyebrow={profile.techStackSectionEyebrow}
+          headingTitle={profile.techStackSectionTitle}
+        />
+        <ProjectsSection
+          headingDescription={profile.projectsSectionDescription}
+          headingEyebrow={profile.projectsSectionEyebrow}
+          headingTitle={profile.projectsSectionTitle}
+          liveLabel={profile.projectLiveLabel}
+          projects={projects}
+          sourceLabel={profile.projectSourceLabel}
+        />
+        <EducationSection
+          education={education}
+          headingDescription={profile.educationSectionDescription}
+          headingEyebrow={profile.educationSectionEyebrow}
+          headingTitle={profile.educationSectionTitle}
+        />
+        <ResumeSection
+          description={profile.resumeDescription}
+          downloadLabel={profile.resumeDownloadLabel}
+          headingAccent={profile.resumeHeadingAccent}
+          headingLead={profile.resumeHeadingLead}
+          openLabel={profile.resumeOpenLabel}
+          resumePath={profile.resumePath}
+        />
       </main>
-      <Footer githubUrl={profile.githubUrl} name={profile.name} />
+      <Footer
+        attribution={profile.footerAttribution}
+        githubUrl={profile.githubUrl}
+        name={profile.name}
+      />
     </div>
   )
 }

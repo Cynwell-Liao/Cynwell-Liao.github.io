@@ -42,6 +42,7 @@ import type {
 
 export const profile: ProfileData = {
   name: 'Cynwell Liao',
+  brandName: 'Cynwell-Liao',
   title: 'Software Engineer',
   tagline:
     'Building production backend systems and event-driven RAG pipelines with reliability, velocity, and observability.',
@@ -53,6 +54,40 @@ export const profile: ProfileData = {
   ],
   githubUsername: 'Cynwell-Liao',
   githubUrl: 'https://github.com/Cynwell-Liao',
+  githubLabel: 'GitHub',
+  linkedinUrl: 'https://www.linkedin.com/in/cynwell-liao',
+  linkedinLabel: 'LinkedIn Profile',
+  heroStatusLabel: 'SYSTEMS ONLINE',
+  heroTerminalPath: '~/stack',
+  heroTerminalDirectories: ['AI Models', 'Cloud Native', 'Developer Exp'],
+  heroTerminalPrompt: '_',
+  contributionsLoadingLabel: 'Loading contributions...',
+  contributionsSuffixLabel: 'contributions in the last year',
+  aboutHeadingLead: 'Engineering mindset,',
+  aboutHeadingAccent: 'product velocity.',
+  aboutIntro:
+    'I work at the intersection of AI reliability and cloud infrastructure, turning complex systems into practical product outcomes.',
+  techStackSectionEyebrow: 'Tech Stack',
+  techStackSectionTitle: 'Production-ready toolkit',
+  techStackSectionDescription:
+    'Tools and platforms I rely on to build robust AI and cloud systems.',
+  projectsSectionEyebrow: 'Projects',
+  projectsSectionTitle: 'Portfolio highlights',
+  projectsSectionDescription:
+    'Selected projects focused on production AI, cloud architecture, and engineering enablement.',
+  projectLiveLabel: 'View Live',
+  projectSourceLabel: 'View Source',
+  educationSectionEyebrow: 'Education',
+  educationSectionTitle: 'Academic foundations',
+  educationSectionDescription:
+    'My academic background driving engineering excellence and systems thinking.',
+  resumeHeadingLead: 'Ready to build something',
+  resumeHeadingAccent: 'resilient?',
+  resumeDescription:
+    'Grab a copy of my resume for a detailed look at my experience in cloud infrastructure, AI engineering, and product development.',
+  resumeDownloadLabel: 'Download PDF',
+  resumeOpenLabel: 'Open',
+  footerAttribution: 'Engineered with React, Tailwind, and Framer Motion.',
   resumePath: '/resume.pdf',
 }
 

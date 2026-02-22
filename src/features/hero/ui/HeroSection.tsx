@@ -66,7 +66,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            SYSTEMS ONLINE
+            {profile.heroStatusLabel}
           </div>
 
           <h1 className="text-5xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1]">
@@ -82,12 +82,12 @@ export function HeroSection({ profile }: HeroSectionProps) {
           <div className="mt-10 flex flex-wrap gap-5">
             <a
               className="group relative inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition-all hover:scale-105 hover:shadow-glow"
-              href="https://www.linkedin.com/in/cynwell-liao"
+              href={profile.linkedinUrl}
               rel="noreferrer"
               target="_blank"
             >
               <SiLinkedin className="h-5 w-5 text-[#0A66C2]" />
-              LinkedIn Profile
+              {profile.linkedinLabel}
             </a>
 
             <a
@@ -97,7 +97,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
               target="_blank"
             >
               <FiGithub className="h-5 w-5" />
-              GitHub
+              {profile.githubLabel}
             </a>
           </div>
         </motion.div>
@@ -120,19 +120,21 @@ export function HeroSection({ profile }: HeroSectionProps) {
               <FiTerminal className="text-slate-500 dark:text-slate-400" />
             </div>
             <div className="font-mono text-sm leading-relaxed text-slate-600 dark:text-slate-300 mt-2">
-              <span className="text-accent-600 dark:text-accent-400">~/stack</span> $ ls
-              -la
-              <br />
-              drwxr-xr-x AI Models
-              <br />
-              drwxr-xr-x Cloud Native
-              <br />
-              drwxr-xr-x Developer Exp
-              <br />
-              <span className="text-accent-600 dark:text-accent-400 mt-2 block">
-                ~/stack
+              <span className="text-accent-600 dark:text-accent-400">
+                {profile.heroTerminalPath}
               </span>{' '}
-              $ <span className="animate-pulse">_</span>
+              $ ls -la
+              <br />
+              {profile.heroTerminalDirectories.map((directory) => (
+                <span key={directory}>
+                  drwxr-xr-x {directory}
+                  <br />
+                </span>
+              ))}
+              <span className="text-accent-600 dark:text-accent-400 mt-2 block">
+                {profile.heroTerminalPath}
+              </span>{' '}
+              $ <span className="animate-pulse">{profile.heroTerminalPrompt}</span>
             </div>
           </motion.div>
 
@@ -157,10 +159,10 @@ export function HeroSection({ profile }: HeroSectionProps) {
                     <span className="font-bold text-lg text-accent-600 dark:text-accent-400">
                       {contributions}
                     </span>
-                    <span>contributions in the last year</span>
+                    <span>{profile.contributionsSuffixLabel}</span>
                   </>
                 ) : (
-                  'Loading contributions...'
+                  profile.contributionsLoadingLabel
                 )}
               </h2>
             </div>

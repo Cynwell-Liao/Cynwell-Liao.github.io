@@ -6,18 +6,26 @@ import type { SkillCategory } from '../model/skill.types'
 
 interface TechStackSectionProps {
   categories: SkillCategory[]
+  headingEyebrow: string
+  headingTitle: string
+  headingDescription: string
 }
 
-export function TechStackSection({ categories }: TechStackSectionProps) {
+export function TechStackSection({
+  categories,
+  headingEyebrow,
+  headingTitle,
+  headingDescription,
+}: TechStackSectionProps) {
   return (
     <section className="section-wrap py-24 relative" id="tech-stack">
       {/* Background ambient light */}
       <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent-500/10 rounded-full mix-blend-screen filter blur-[150px] pointer-events-none" />
 
       <SectionHeading
-        description="Tools and platforms I rely on to build robust AI and cloud systems."
-        eyebrow="Tech Stack"
-        title="Production-ready toolkit"
+        description={headingDescription}
+        eyebrow={headingEyebrow}
+        title={headingTitle}
       />
 
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12 relative z-10">

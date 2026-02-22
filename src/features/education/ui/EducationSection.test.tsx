@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react'
 import { LuGraduationCap } from 'react-icons/lu'
 import { describe, expect, it } from 'vitest'
 
+import { profile } from '@content/profile'
+
 import { EducationSection } from './EducationSection'
 
 import type { EducationItem } from '@features/education'
@@ -19,7 +21,14 @@ describe('EducationSection', () => {
       },
     ]
 
-    render(<EducationSection education={education} />)
+    render(
+      <EducationSection
+        education={education}
+        headingDescription={profile.educationSectionDescription}
+        headingEyebrow={profile.educationSectionEyebrow}
+        headingTitle={profile.educationSectionTitle}
+      />
+    )
 
     const logoImage = screen.getByRole('img', { name: 'Harvard University' })
     expect(logoImage).toBeInTheDocument()
@@ -41,7 +50,14 @@ describe('EducationSection', () => {
       },
     ]
 
-    render(<EducationSection education={education} />)
+    render(
+      <EducationSection
+        education={education}
+        headingDescription={profile.educationSectionDescription}
+        headingEyebrow={profile.educationSectionEyebrow}
+        headingTitle={profile.educationSectionTitle}
+      />
+    )
 
     expect(
       screen.getByText('Queensland University of Technology (QUT)')

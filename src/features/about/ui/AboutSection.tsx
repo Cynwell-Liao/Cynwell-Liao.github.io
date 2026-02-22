@@ -2,10 +2,18 @@ import { motion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 
 interface AboutSectionProps {
+  headingLead: string
+  headingAccent: string
+  intro: string
   paragraphs: string[]
 }
 
-export function AboutSection({ paragraphs }: AboutSectionProps) {
+export function AboutSection({
+  headingLead,
+  headingAccent,
+  intro,
+  paragraphs,
+}: AboutSectionProps) {
   const containerRef = useRef<HTMLElement>(null)
 
   const { scrollYProgress } = useScroll({
@@ -27,15 +35,14 @@ export function AboutSection({ paragraphs }: AboutSectionProps) {
         <div className="lg:col-span-5 relative">
           <motion.div style={{ y }} className="sticky top-24">
             <h2 className="text-4xl lg:text-5xl font-bold tracking-tight text-slate-900 dark:text-white mb-6">
-              Engineering mindset,
+              {headingLead}
               <br />
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-600 to-secondary-600 dark:from-accent-400 dark:to-secondary-400">
-                product velocity.
+                {headingAccent}
               </span>
             </h2>
             <p className="text-lg text-slate-600 dark:text-slate-400 font-light max-w-md">
-              I work at the intersection of AI reliability and cloud infrastructure,
-              turning complex systems into practical product outcomes.
+              {intro}
             </p>
           </motion.div>
         </div>

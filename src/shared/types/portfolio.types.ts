@@ -2,11 +2,41 @@ import type { IconType } from 'react-icons'
 
 export interface ProfileData {
   name: string
+  brandName: string
   title: string
   tagline: string
   about: string[]
   githubUsername: string
   githubUrl: string
+  githubLabel: string
+  linkedinUrl: string
+  linkedinLabel: string
+  heroStatusLabel: string
+  heroTerminalPath: string
+  heroTerminalDirectories: string[]
+  heroTerminalPrompt: string
+  contributionsLoadingLabel: string
+  contributionsSuffixLabel: string
+  aboutHeadingLead: string
+  aboutHeadingAccent: string
+  aboutIntro: string
+  techStackSectionEyebrow: string
+  techStackSectionTitle: string
+  techStackSectionDescription: string
+  projectsSectionEyebrow: string
+  projectsSectionTitle: string
+  projectsSectionDescription: string
+  projectLiveLabel: string
+  projectSourceLabel: string
+  educationSectionEyebrow: string
+  educationSectionTitle: string
+  educationSectionDescription: string
+  resumeHeadingLead: string
+  resumeHeadingAccent: string
+  resumeDescription: string
+  resumeDownloadLabel: string
+  resumeOpenLabel: string
+  footerAttribution: string
   resumePath: string
 }
 

@@ -1,19 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
+import { profile } from '@content/profile'
+
 import { HeroSection } from './HeroSection'
-
-import type { ProfileData } from '../model/profile.types'
-
-const profile: ProfileData = {
-  name: 'Cynwell Liao',
-  title: 'Software Engineer',
-  tagline: 'Building production systems.',
-  about: [],
-  githubUsername: 'Cynwell-Liao',
-  githubUrl: 'https://github.com/Cynwell-Liao',
-  resumePath: '/resume.pdf',
-}
 
 describe('HeroSection', () => {
   it('renders contribution total when API returns valid payload', async () => {
@@ -31,7 +21,7 @@ describe('HeroSection', () => {
     })
 
     expect(await screen.findByText('42')).toBeInTheDocument()
-    expect(screen.getByText('contributions in the last year')).toBeInTheDocument()
+    expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
   })
 
   it('keeps loading state when API payload does not include contribution total', async () => {
@@ -48,7 +38,7 @@ describe('HeroSection', () => {
       expect(fetchMock).toHaveBeenCalled()
     })
 
-    expect(screen.getByText('Loading contributions...')).toBeInTheDocument()
+    expect(screen.getByText(profile.contributionsLoadingLabel)).toBeInTheDocument()
   })
 
   it('handles request failure without crashing', async () => {
@@ -63,7 +53,7 @@ describe('HeroSection', () => {
         expect(errorSpy).toHaveBeenCalled()
       })
 
-      expect(screen.getByText('Loading contributions...')).toBeInTheDocument()
+      expect(screen.getByText(profile.contributionsLoadingLabel)).toBeInTheDocument()
     } finally {
       errorSpy.mockRestore()
     }

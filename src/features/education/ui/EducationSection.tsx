@@ -6,18 +6,26 @@ import type { EducationItem } from '../model/education.types'
 
 interface EducationSectionProps {
   education: EducationItem[]
+  headingEyebrow: string
+  headingTitle: string
+  headingDescription: string
 }
 
-export function EducationSection({ education }: EducationSectionProps) {
+export function EducationSection({
+  education,
+  headingEyebrow,
+  headingTitle,
+  headingDescription,
+}: EducationSectionProps) {
   return (
     <section className="section-wrap py-24 relative z-10" id="education">
       {/* Background ambient light */}
       <div className="absolute top-1/2 left-0 w-96 h-96 bg-accent-500/10 rounded-full mix-blend-screen filter blur-[150px] pointer-events-none" />
 
       <SectionHeading
-        description="My academic background driving engineering excellence and systems thinking."
-        eyebrow="Education"
-        title="Academic foundations"
+        description={headingDescription}
+        eyebrow={headingEyebrow}
+        title={headingTitle}
       />
 
       <div className="mt-12 grid gap-6 md:grid-cols-2 lg:gap-8 relative z-10">
