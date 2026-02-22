@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { useState, useEffect } from 'react'
 import { FiArrowRight, FiGithub, FiTerminal } from 'react-icons/fi'
 import type { ProfileData } from '../types/portfolio'
 
@@ -7,6 +8,19 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({ profile }: HeroSectionProps) {
+  const [contributions, setContributions] = useState<number | null>(null);
+
+  useEffect(() => {
+    fetch(`https://github-contributions-api.deno.dev/${profile.githubUsername}.json`)
+      .then(res => res.json())
+      .then(data => {
+        if (data && typeof data.totalContributions === 'number') {
+          setContributions(data.totalContributions);
+        }
+      })
+      .catch(console.error);
+  }, [profile.githubUsername]);
+
   return (
     <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20 pb-12 lg:pt-0" id="home">
 
@@ -26,16 +40,15 @@ export function HeroSection({ profile }: HeroSectionProps) {
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/5 px-4 py-1.5 text-xs font-mono tracking-widest text-accent-300 backdrop-blur-md mb-8 w-fit shadow-[0_0_15px_rgba(227,132,178,0.1)]">
+          <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-slate-100/50 dark:bg-white/5 px-4 py-1.5 text-xs font-mono tracking-widest text-emerald-500 dark:text-emerald-400 backdrop-blur-md mb-8 w-fit shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-accent-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-accent-500"></span>
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
             </span>
             SYSTEMS ONLINE
           </div>
 
           <h1 className="text-5xl font-bold tracking-tight text-slate-900 dark:text-white sm:text-7xl lg:text-[5.5rem] leading-[1.1]">
-            Building <br />
             <span className="text-transparent bg-clip-text bg-gradient-to-r from-accent-600 via-secondary-500 to-purple-600 dark:from-accent-400 dark:via-secondary-300 dark:to-purple-400">
               {profile.title}s
             </span>
@@ -67,7 +80,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
         </motion.div>
 
         {/* Bento Box Right Side */}
-        <div className="lg:col-span-5 grid grid-cols-2 gap-4 auto-rows-[minmax(0,1fr)]">
+        <div className="lg:col-span-5 grid grid-cols-2 gap-4">
 
           {/* Main Terminal Box */}
           <motion.div
@@ -95,23 +108,33 @@ export function HeroSection({ profile }: HeroSectionProps) {
 
           {/* GitHub Contributions Box */}
           <motion.div
-            className="col-span-2 glass-panel p-6 flex flex-col justify-center"
+            className="col-span-2 glass-panel p-6 relative overflow-hidden group flex flex-col justify-center items-center"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
           >
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 mb-4 flex items-center gap-2">
-              <FiGithub className="w-4 h-4" />
-              GitHub Contributions
-            </h3>
-            <div className="w-full overflow-hidden flex justify-center bg-slate-100/50 dark:bg-white/5 rounded-xl p-4 border border-slate-200 dark:border-white/10">
-              {/* Using ghchart to render contribution graph with default GitHub colors */}
-              <img
-                src={`https://ghchart.rshah.org/${profile.githubUsername}`}
-                alt={`${profile.name}'s Github chart`}
-                className="w-full max-w-[800px] object-cover dark:invert dark:hue-rotate-[180deg] opacity-90 dark:opacity-80"
-              />
+            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary-500/10 rounded-full blur-[80px] transition-opacity duration-500 opacity-0 group-hover:opacity-100" />
+
+            <div className="w-full max-w-[800px] mb-4 relative z-10">
+              <h2 tabIndex={-1} id="js-contribution-activity-description" className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2">
+                <FiGithub className="w-4 h-4" />
+                {contributions !== null ? (
+                  <>
+                    <span className="font-bold text-lg text-accent-600 dark:text-accent-400">{contributions}</span>
+                    <span>contributions in the last year</span>
+                  </>
+                ) : (
+                  'Loading contributions...'
+                )}
+              </h2>
             </div>
+
+            {/* Using ghchart to render contribution graph with default GitHub colors */}
+            <img
+              src={`https://ghchart.rshah.org/${profile.githubUsername}`}
+              alt={`${profile.name}'s Github chart`}
+              className="w-full max-w-[800px] object-cover dark:invert dark:hue-rotate-[180deg] opacity-90 dark:opacity-80 relative z-10"
+            />
           </motion.div>
 
         </div>

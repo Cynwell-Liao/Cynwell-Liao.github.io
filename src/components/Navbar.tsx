@@ -36,13 +36,20 @@ export function Navbar({ links, theme, githubUrl, onToggleTheme }: NavbarProps) 
             : "bg-transparent border-transparent w-full max-w-6xl"
         )}
       >
-        <a
-          className="text-sm font-bold tracking-widest text-slate-900 dark:text-white group relative overflow-hidden flex items-center gap-2"
-          href="#home"
-        >
-          <span className="w-2 h-2 rounded-full bg-accent-400 block shadow-[0_0_8px_rgba(227,132,178,0.8)]" />
-          CYNWELL
-        </a>
+        {/* Brand Container */}
+        <div className="flex items-center gap-4">
+          {/* Favicon / Logo Image */}
+          <a href="#home" className="transition-transform hover:scale-105">
+            <img src="/favicon.ico" alt="Logo" className="w-9 h-9 rounded-sm" />
+          </a>
+
+          <div className="w-px h-4 bg-slate-300 dark:bg-white/20 hidden sm:block" />
+
+          {/* Text Brand */}
+          <span className="text-sm font-bold tracking-widest text-slate-900 dark:text-white group relative overflow-hidden hidden sm:flex items-center gap-2">
+            Cynwell-Liao
+          </span>
+        </div>
 
         <nav className="hidden items-center gap-8 md:flex absolute left-1/2 -translate-x-1/2">
           {links.map((link) => (
