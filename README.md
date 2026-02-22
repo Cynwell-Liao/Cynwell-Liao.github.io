@@ -39,7 +39,7 @@ Update these files first:
 - `src/content/profile/profile.ts`: name, title, tagline, bio paragraphs, social links, section labels, education items, skills.
 - `src/content/projects/projects.json`: project cards (title, summary, highlights, stack, links).
 - `public/resume.pdf`: your resume file.
-- `index.html`: SEO metadata (`title`, `description`, `author`, canonical URL, `og:*`, `twitter:*`).
+- `index.html`: SEO metadata (`title`, `description`, `author`, canonical URL, `og:*`).
 - `public/favicon.ico` and `public/assets/og-cover.svg`: branding and social preview image.
 
 ## Deploy Your Fork to GitHub Pages
