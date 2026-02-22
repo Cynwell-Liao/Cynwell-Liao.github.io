@@ -2,36 +2,61 @@
 
 [![CI Quality Gates](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml)
 
-Modern personal portfolio built with React 18, Vite, TypeScript, Tailwind CSS, and Framer Motion.  
-This repository is a single static app (no backend, no API routes).
+Modern personal portfolio built with React 18, Vite, TypeScript, Tailwind CSS, and Framer Motion.
+This is a static frontend app with no backend/API routes.
 
-This project is primarily maintained as a personal portfolio.
-Bug fixes and small improvements are welcome.
+This project is open source under MIT and is also used as a personal portfolio.
+Forks and small improvements are welcome.
 
 ## Tech Stack
 
-- React 18 + TypeScript + Vite
+- React 18
+- Vite
+- TypeScript (strict)
 - Tailwind CSS
 - Framer Motion
-- GitHub Actions for:
-  - CI quality gates
-  - GitHub Pages build and deployment
+- GitHub Actions (CI + CD)
+- GitHub Pages
 
-## Local Development
+## Fork and Run
+
+1. Fork this repository on GitHub.
+2. Clone your fork locally.
 
 ```bash
+git clone https://github.com/<your-username>/<your-repo>.git
+cd <your-repo>
 npm install
 npm run dev
 ```
 
-## Build
+3. Open `http://localhost:5173`.
 
-```bash
-npm run build
-npm run preview
-```
+## Customize for Your Portfolio
 
-## Quality Gates
+Update these files first:
+
+- `src/content/profile/profile.ts`: name, title, tagline, bio paragraphs, social links, section labels, education items, skills.
+- `src/content/projects/projects.json`: project cards (title, summary, highlights, stack, links).
+- `public/resume.pdf`: your resume file.
+- `index.html`: SEO metadata (`title`, `description`, `author`, canonical URL, `og:*`, `twitter:*`).
+- `public/favicon.ico` and `public/assets/og-cover.svg`: branding and social preview image.
+
+## Deploy Your Fork to GitHub Pages
+
+The deployment workflow is already included in `.github/workflows/cd.yml`.
+
+Use one of these modes:
+
+- User site repository (`<username>.github.io`): keep `base: '/'` in `vite.config.ts`.
+- Project site repository (`<repo-name>`): change Vite base in `vite.config.ts` to `'/<repo-name>/'` and update `index.html` canonical/Open Graph URLs to your final Pages URL.
+
+Then:
+
+1. In GitHub: `Settings` -> `Pages` -> `Build and deployment` -> `Source: GitHub Actions`.
+2. Push to `main` (or run `cd.yml` manually with workflow dispatch).
+
+## Quality Commands
 
 ```bash
 npm run lint
@@ -42,78 +67,32 @@ npm run test:e2e
 npm run check
 ```
 
-Pre-commit checks run via Husky + lint-staged.
-
-## Key Files
-
-- `src/app/App.tsx`: application composition root
-- `src/content/projects/projects.json`: local project source data
-- `src/content/projects/loadProjects.ts`: runtime project data validation (Zod)
-- `src/content/profile/profile.ts`: profile, navigation, education, and skill content
-- `public/resume.pdf`: downloadable static resume
-- `.github/workflows/cd.yml`: GitHub Pages deployment workflow
-- `.github/workflows/ci.yml`: lint, typecheck, unit coverage, Playwright smoke tests
-
-## Architecture
+## Architecture Overview
 
 `src` is organized by app shell, feature modules, shared utilities, and content:
 
-- `src/app`: entrypoint and app composition
+- `src/app`: app entry and composition
 - `src/features`: feature modules (`about`, `hero`, `projects`, `education`, etc.)
-- `src/shared`: shared UI primitives and reusable logic
-- `src/content`: static content and validated content loaders
+- `src/shared`: shared UI and reusable logic
+- `src/content`: static content and validated loaders
 
-Import aliases are enabled and expected:
+Import aliases:
 
 - `@app/*`
 - `@features/*`
 - `@shared/*`
 - `@content/*`
 
-Feature boundaries:
-
-- Cross-feature imports should use feature public APIs (`@features/<feature>`).
-- Internal feature files should be imported via relative paths inside the same feature.
-- Content consumers should use content public APIs (`@content/<slice>`).
-
-## GitHub Pages Deployment
-
-Workflow: `.github/workflows/cd.yml`
-
-How it works:
-
-1. Triggers after `CI Quality Gates` succeeds on `main`/`master`, plus manual dispatch.
-2. Installs dependencies with `npm ci`.
-3. Runs `npm run check` (lint, typecheck, unit coverage, production build, and e2e).
-4. Uploads `dist/` and deploys using official GitHub Pages actions.
-
-Setup:
-
-1. Repository should be `username.github.io`.
-2. In GitHub Settings -> Pages, select **GitHub Actions** as the source.
-3. Keep Vite base as `/` for user-site root deployment.
-
 ## Open Source Governance
 
 - License: [MIT](LICENSE)
-- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
-- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
-- Security reporting: [SECURITY.md](SECURITY.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security: [SECURITY.md](SECURITY.md)
+- Community discussion and reporting: [GitHub Discussions](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/discussions)
 
-## Recommended Repository Settings (GitHub UI)
+## Recommended GitHub Repository Settings
 
-Set these once in GitHub repository settings:
-
-1. Enable **Issues**.
-2. Enable **Discussions** only if you plan to actively moderate them.
-3. Add a branch protection rule (or ruleset) for `main`:
-   - Require pull requests before merge.
-   - Require status checks to pass:
-     - `quality`
-     - `e2e-smoke`
-
-## Customize
-
-1. Update profile data in `src/content/profile/profile.ts`.
-2. Replace project entries in `src/content/projects/projects.json`.
-3. Replace `public/resume.pdf` with your actual resume.
+- Enable `Issues`.
+- Enable `Discussions`.
+- Protect `main` with pull requests and required checks: `quality`, `e2e-smoke`.
