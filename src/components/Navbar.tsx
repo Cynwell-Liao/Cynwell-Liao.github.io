@@ -46,7 +46,7 @@ export function Navbar({ links, theme, githubUrl, onToggleTheme }: NavbarProps) 
           <div className="w-px h-4 bg-slate-300 dark:bg-white/20 hidden sm:block" />
 
           {/* Text Brand */}
-          <span className="text-sm font-bold tracking-widest text-slate-900 dark:text-white group relative overflow-hidden hidden sm:flex items-center gap-2">
+          <span className="text-sm font-bold tracking-widest text-slate-900 dark:text-white group relative overflow-hidden flex items-center gap-2">
             Cynwell-Liao
           </span>
         </div>
