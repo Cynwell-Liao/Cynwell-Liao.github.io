@@ -22,3 +22,19 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Testing
+/coverage
+
+# Caches
+.eslintcache
+tsconfig.tsbuildinfo
+vite.config.ts.timestamp-*
+
+# OS generated files
+Thumbs.db
