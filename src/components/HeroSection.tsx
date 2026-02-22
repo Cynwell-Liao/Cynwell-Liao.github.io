@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { FiArrowRight, FiGithub, FiTerminal } from 'react-icons/fi'
+import { FiGithub, FiTerminal } from 'react-icons/fi'
+import { SiLinkedin } from 'react-icons/si'
 import type { ProfileData } from '../types/portfolio'
 
 interface HeroSectionProps {
@@ -61,10 +62,12 @@ export function HeroSection({ profile }: HeroSectionProps) {
           <div className="mt-10 flex flex-wrap gap-5">
             <a
               className="group relative inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition-all hover:scale-105 hover:shadow-glow"
-              href="#projects"
+              href="https://www.linkedin.com/in/cynwell-liao"
+              target="_blank"
+              rel="noreferrer"
             >
-              Explore Architecture
-              <FiArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
+              <SiLinkedin className="h-5 w-5 text-[#0A66C2]" />
+              LinkedIn Profile
             </a>
 
             <a
