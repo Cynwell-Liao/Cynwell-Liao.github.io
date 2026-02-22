@@ -30,11 +30,14 @@ dist-ssr
 
 # Testing
 /coverage
+/playwright-report
+/test-results
 
 # Caches
 .eslintcache
 tsconfig.tsbuildinfo
 vite.config.ts.timestamp-*
+.husky/_
 
 # OS generated files
 Thumbs.db

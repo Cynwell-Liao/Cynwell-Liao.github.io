@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+
 import { AboutSection } from './components/AboutSection'
 import { EducationSection } from './components/EducationSection'
 import { Footer } from './components/Footer'
@@ -7,8 +8,9 @@ import { Navbar } from './components/Navbar'
 import { ProjectsSection } from './components/ProjectsSection'
 import { ResumeSection } from './components/ResumeSection'
 import { TechStackSection } from './components/TechStackSection'
-import projectsData from './data/projects.json'
 import { navLinks, profile, skillCategories, education } from './data/profile'
+import projectsData from './data/projects.json'
+
 import type { Project, ThemeMode } from './types/portfolio'
 
 const THEME_STORAGE_KEY = 'portfolio-theme'
@@ -18,9 +20,7 @@ const getInitialTheme = (): ThemeMode => {
   if (savedTheme === 'light' || savedTheme === 'dark') {
     return savedTheme
   }
-  return window.matchMedia('(prefers-color-scheme: dark)').matches
-    ? 'dark'
-    : 'light'
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'
 }
 
 function App() {
@@ -41,11 +41,9 @@ function App() {
       <Navbar
         githubUrl={profile.githubUrl}
         links={navLinks}
-        onToggleTheme={() =>
-          setTheme((currentTheme) =>
-            currentTheme === 'dark' ? 'light' : 'dark',
-          )
-        }
+        onToggleTheme={() => {
+          setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'))
+        }}
         theme={theme}
       />
       <main>

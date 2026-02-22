@@ -1,6 +1,8 @@
 import { motion } from 'framer-motion'
-import type { SkillCategory } from '../types/portfolio'
+
 import { SectionHeading } from './SectionHeading'
+
+import type { SkillCategory } from '../types/portfolio'
 
 interface TechStackSectionProps {
   categories: SkillCategory[]
@@ -24,7 +26,11 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
             className="glass-panel p-8 group relative"
             initial={{ opacity: 0, y: 30 }}
             key={category.title}
-            transition={{ duration: 0.6, delay: categoryIndex * 0.1, ease: [0.16, 1, 0.3, 1] }}
+            transition={{
+              duration: 0.6,
+              delay: categoryIndex * 0.1,
+              ease: [0.16, 1, 0.3, 1],
+            }}
             viewport={{ once: true, amount: 0.2 }}
             whileInView={{ opacity: 1, y: 0 }}
           >
@@ -44,12 +50,16 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
                     key={item.name}
                     initial={{ opacity: 0, x: -10 }}
                     whileInView={{ opacity: 1, x: 0 }}
-                    transition={{ duration: 0.4, delay: (categoryIndex * 0.1) + (itemIndex * 0.1) }}
+                    transition={{
+                      duration: 0.4,
+                      delay: categoryIndex * 0.1 + itemIndex * 0.1,
+                    }}
                     viewport={{ once: true }}
                   >
                     <span
-                      className={`flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-400/50 dark:group-hover:border-accent-500/30 ${!item.color ? 'text-slate-700 dark:text-slate-300' : ''
-                        }`}
+                      className={`flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-400/50 dark:group-hover:border-accent-500/30 ${
+                        !item.color ? 'text-slate-700 dark:text-slate-300' : ''
+                      }`}
                       style={item.color ? { color: item.color } : {}}
                     >
                       <Icon className="h-6 w-6" />

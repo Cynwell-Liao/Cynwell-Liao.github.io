@@ -1,7 +1,7 @@
 # Cynwell Portfolio (GitHub Pages)
 
 Modern personal portfolio built with React 18, Vite, TypeScript, Tailwind CSS, and Framer Motion.  
-This repository is a single static app (no backend, no API routes, no runtime external API calls).
+This repository is a single static app (no backend, no API routes).
 
 ## Tech Stack
 
@@ -26,6 +26,18 @@ npm run build
 npm run preview
 ```
 
+## Quality Gates
+
+```bash
+npm run lint
+npm run typecheck
+npm run test:coverage
+npm run test:e2e
+npm run check
+```
+
+Pre-commit checks run via Husky + lint-staged.
+
 ## Key Files
 
 - `src/data/projects.json`: local project source data
@@ -35,6 +47,7 @@ npm run preview
 - `scripts/generate-github-contrib.mjs`: graph generation script
 - `.github/workflows/update-github-contrib.yml`: contribution update workflow
 - `.github/workflows/deploy-pages.yml`: GitHub Pages deployment workflow
+- `.github/workflows/ci.yml`: lint, typecheck, unit coverage, Playwright smoke tests
 
 ## Contribution Graph Workflow
 

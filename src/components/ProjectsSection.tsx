@@ -1,7 +1,9 @@
 import { motion } from 'framer-motion'
 import { FiExternalLink, FiGithub } from 'react-icons/fi'
-import type { Project } from '../types/portfolio'
+
 import { SectionHeading } from './SectionHeading'
+
+import type { Project } from '../types/portfolio'
 
 interface ProjectsSectionProps {
   projects: Project[]
