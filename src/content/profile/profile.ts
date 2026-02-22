@@ -33,10 +33,12 @@ import {
   SiPytest,
 } from 'react-icons/si'
 
-import type { EducationItem } from '@features/education'
-import type { ProfileData } from '@features/hero'
-import type { NavLink } from '@features/navbar'
-import type { SkillCategory } from '@features/tech-stack'
+import type {
+  EducationItem,
+  NavLink,
+  ProfileData,
+  SkillCategory,
+} from '@shared/types/portfolio.types'
 
 export const profile: ProfileData = {
   name: 'Cynwell Liao',
@@ -76,6 +78,18 @@ export const education: EducationItem[] = [
     color: '#094183', // Unimelb Blue
   },
   {
+    institution: 'Harvard University',
+    location: 'Cambridge, MA, USA',
+    degree: 'Short-term Exchange, Project Management',
+    duration: 'Jul. 2025 \u2014 Aug. 2025',
+    achievements: [
+      'Awarded Engineering Exchange Scholarship issued by FEIT, University of Melbourne',
+    ],
+    icon: LuBookOpen,
+    logoUrl: 'https://www.google.com/s2/favicons?sz=256&domain=harvard.edu',
+    color: '#A51C30', // Harvard Crimson
+  },
+  {
     institution: 'Queensland University of Technology (QUT)',
     location: 'Brisbane, QLD, Australia',
     degree: 'Bachelor of Business (International Business)',
@@ -88,18 +102,6 @@ export const education: EducationItem[] = [
     icon: LuGraduationCap,
     logoUrl: 'https://www.google.com/s2/favicons?sz=256&domain=qut.edu.au',
     color: '#003C71', // QUT Blue
-  },
-  {
-    institution: 'Harvard University',
-    location: 'Cambridge, MA, USA',
-    degree: 'Short-term Exchange, Project Management',
-    duration: 'Jul. 2025 \u2014 Aug. 2025',
-    achievements: [
-      'Awarded Engineering Exchange Scholarship issued by FEIT, University of Melbourne',
-    ],
-    icon: LuBookOpen,
-    logoUrl: 'https://www.google.com/s2/favicons?sz=256&domain=harvard.edu',
-    color: '#A51C30', // Harvard Crimson
   },
 ]
 

@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import { LuGraduationCap } from 'react-icons/lu'
 import { describe, expect, it } from 'vitest'
 
 import { EducationSection } from './EducationSection'
@@ -27,5 +28,25 @@ describe('EducationSection', () => {
       'https://www.google.com/s2/favicons?sz=256&domain=harvard.edu'
     )
     expect(logoImage).toHaveClass('object-cover')
+  })
+
+  it('falls back to icon rendering when no logoUrl is provided', () => {
+    const education: EducationItem[] = [
+      {
+        institution: 'Queensland University of Technology (QUT)',
+        degree: 'Bachelor of Business',
+        duration: '2020 - 2024',
+        achievements: ['Academic Excellence'],
+        icon: LuGraduationCap,
+      },
+    ]
+
+    render(<EducationSection education={education} />)
+
+    expect(
+      screen.getByText('Queensland University of Technology (QUT)')
+    ).toBeInTheDocument()
+    expect(screen.queryByRole('img')).not.toBeInTheDocument()
+    expect(screen.getByText('Bachelor of Business')).toBeInTheDocument()
   })
 })

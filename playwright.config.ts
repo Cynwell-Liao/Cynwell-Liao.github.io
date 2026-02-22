@@ -25,10 +25,12 @@ export default defineConfig({
   projects: [
     {
       name: 'chromium',
+      grepInvert: /@mobile/,
       use: { ...devices['Desktop Chrome'] },
     },
     {
       name: 'mobile-chrome',
+      grepInvert: /@desktop/,
       use: { ...devices['Pixel 7'] },
     },
   ],

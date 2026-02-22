@@ -13,7 +13,7 @@
     "test:coverage": "vitest run --coverage",
     "test:e2e": "playwright test",
     "test:e2e:headed": "playwright test --headed",
-    "check": "npm run lint && npm run typecheck && npm run test:coverage",
+    "check": "npm run lint && npm run typecheck && npm run test:coverage && npm run build && npm run test:e2e",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",

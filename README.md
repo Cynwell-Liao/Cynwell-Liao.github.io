@@ -32,6 +32,7 @@ npm run preview
 npm run lint
 npm run typecheck
 npm run test:coverage
+npm run build
 npm run test:e2e
 npm run check
 ```
@@ -76,9 +77,9 @@ Workflow: `.github/workflows/cd.yml`
 
 How it works:
 
-1. Triggers on pushes to `main`/`master` and manual dispatch.
+1. Triggers after `CI Quality Gates` succeeds on `main`/`master`, plus manual dispatch.
 2. Installs dependencies with `npm ci`.
-3. Builds the static site with `npm run build`.
+3. Runs `npm run check` (lint, typecheck, unit coverage, production build, and e2e).
 4. Uploads `dist/` and deploys using official GitHub Pages actions.
 
 Setup:

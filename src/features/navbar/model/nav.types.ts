@@ -1,4 +1,1 @@
-export interface NavLink {
-  label: string
-  href: `#${string}`
-}
+export type { NavLink } from '@shared/types/portfolio.types'

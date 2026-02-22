@@ -62,6 +62,48 @@ export default defineConfig([
           ],
         },
       ],
+      'import/no-restricted-paths': [
+        'error',
+        {
+          zones: [
+            {
+              target: './src/shared',
+              from: './src/app',
+              message: 'Shared layer must not depend on app.',
+            },
+            {
+              target: './src/shared',
+              from: './src/features',
+              message: 'Shared layer must not depend on features.',
+            },
+            {
+              target: './src/shared',
+              from: './src/content',
+              message: 'Shared layer must not depend on content.',
+            },
+            {
+              target: './src/features',
+              from: './src/app',
+              message: 'Feature layer must not depend on app.',
+            },
+            {
+              target: './src/features',
+              from: './src/content',
+              message: 'Feature layer must not depend on content.',
+            },
+            {
+              target: './src/content',
+              from: './src/app',
+              message: 'Content layer must not depend on app.',
+            },
+            {
+              target: './src/content',
+              from: './src/features',
+              message: 'Content layer must not depend on features.',
+            },
+          ],
+        },
+      ],
       'import/no-default-export': 'off',
       'import/order': [
         'error',
