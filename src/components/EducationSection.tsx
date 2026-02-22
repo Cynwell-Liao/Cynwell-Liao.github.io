@@ -56,11 +56,12 @@ export function EducationSection({ education }: EducationSectionProps) {
                                     {(item.logoUrl || Icon) && (
                                         <div className="flex-shrink-0 mt-1 sm:mt-0">
                                             <span
-                                                className="inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 overflow-hidden p-1.5"
+                                                className={`inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-white dark:bg-slate-800 border border-slate-200 dark:border-white/10 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 overflow-hidden ${item.logoUrl ? 'p-0' : 'p-1.5'
+                                                    }`}
                                                 style={item.color && !item.logoUrl ? { color: item.color, borderColor: `${item.color}40` } : {}}
                                             >
                                                 {item.logoUrl ? (
-                                                    <img src={item.logoUrl} alt={item.institution} className="h-full w-full object-contain mix-blend-multiply dark:mix-blend-normal" />
+                                                    <img src={item.logoUrl} alt={item.institution} className="h-full w-full object-cover scale-110 mix-blend-multiply dark:mix-blend-normal" />
                                                 ) : Icon ? (
                                                     <Icon className="h-7 w-7" />
                                                 ) : null}

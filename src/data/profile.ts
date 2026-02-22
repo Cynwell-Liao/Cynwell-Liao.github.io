@@ -68,7 +68,7 @@ export const education: EducationItem[] = [
       'Led cross-functional teams in 2025 FEIT Hackathon (zoomies, Finalists) and 2024 FEIT Hackathon (levelfield.ai, Finalists), coordinating task delegation, design decisions, and demos under 3-day deadlines'
     ],
     icon: LuLibrary,
-    logoUrl: 'https://logo.clearbit.com/unimelb.edu.au',
+    logoUrl: 'https://www.google.com/s2/favicons?sz=256&domain=unimelb.edu.au',
     color: '#094183' // Unimelb Blue
   },
   {
@@ -82,7 +82,7 @@ export const education: EducationItem[] = [
       "Dual bachelor's degree program with Bachelor of Business Administration at FCU (GPA 4.0)"
     ],
     icon: LuGraduationCap,
-    logoUrl: 'https://logo.clearbit.com/qut.edu.au',
+    logoUrl: 'https://www.google.com/s2/favicons?sz=256&domain=qut.edu.au',
     color: '#003C71' // QUT Blue
   },
   {
@@ -94,7 +94,7 @@ export const education: EducationItem[] = [
       'Awarded Engineering Exchange Scholarship issued by FEIT, University of Melbourne'
     ],
     icon: LuBookOpen,
-    logoUrl: 'https://logo.clearbit.com/harvard.edu',
+    logoUrl: 'https://www.google.com/s2/favicons?sz=256&domain=harvard.edu',
     color: '#A51C30' // Harvard Crimson
   }
 ]
