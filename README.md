@@ -1,7 +1,12 @@
 # Cynwell Portfolio (GitHub Pages)
 
+[![CI Quality Gates](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml)
+
 Modern personal portfolio built with React 18, Vite, TypeScript, Tailwind CSS, and Framer Motion.  
 This repository is a single static app (no backend, no API routes).
+
+This project is primarily maintained as a personal portfolio.
+Bug fixes and small improvements are welcome.
 
 ## Tech Stack
 
@@ -85,8 +90,27 @@ How it works:
 Setup:
 
 1. Repository should be `username.github.io`.
-2. In GitHub Settings → Pages, select **GitHub Actions** as the source.
+2. In GitHub Settings -> Pages, select **GitHub Actions** as the source.
 3. Keep Vite base as `/` for user-site root deployment.
+
+## Open Source Governance
+
+- License: [MIT](LICENSE)
+- Contributing guide: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security reporting: [SECURITY.md](SECURITY.md)
+
+## Recommended Repository Settings (GitHub UI)
+
+Set these once in GitHub repository settings:
+
+1. Enable **Issues**.
+2. Enable **Discussions** only if you plan to actively moderate them.
+3. Add a branch protection rule (or ruleset) for `main`:
+   - Require pull requests before merge.
+   - Require status checks to pass:
+     - `quality`
+     - `e2e-smoke`
 
 ## Customize
 
