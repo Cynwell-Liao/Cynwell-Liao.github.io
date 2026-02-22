@@ -1,7 +1,15 @@
 import { motion } from 'framer-motion'
-import { type FormEvent, type KeyboardEvent, useEffect, useRef, useState } from 'react'
+import { type FormEvent, useEffect, useRef, useState } from 'react'
 import { FiGithub, FiTerminal } from 'react-icons/fi'
 import { SiLinkedin } from 'react-icons/si'
+
+import {
+  createInitialTerminalLines,
+  parseContributionTotal,
+  resolveTerminalCommand,
+  terminalToneClasses,
+  type TerminalLine,
+} from '../model/terminal'
 
 import type { ProfileData } from '../model/profile.types'
 import type { ThemeMode } from '@shared/types/common'
@@ -13,45 +21,6 @@ interface HeroSectionProps {
   theme: ThemeMode
   onToggleTheme: () => void
 }
-
-interface GithubContributionsResponse {
-  totalContributions?: unknown
-}
-
-type TerminalTone = 'default' | 'accent' | 'error' | 'success' | 'muted'
-
-interface TerminalLine {
-  text: string
-  tone?: TerminalTone
-}
-
-const parseContributionTotal = (value: unknown): number | null => {
-  if (typeof value !== 'object' || value === null) {
-    return null
-  }
-
-  const payload = value as GithubContributionsResponse
-
-  return typeof payload.totalContributions === 'number'
-    ? payload.totalContributions
-    : null
-}
-
-const terminalToneClasses: Record<TerminalTone, string> = {
-  default: 'text-slate-600 dark:text-slate-300',
-  accent: 'text-accent-600 dark:text-accent-400',
-  error: 'text-rose-600 dark:text-rose-400',
-  success: 'text-emerald-600 dark:text-emerald-400',
-  muted: 'text-slate-500 dark:text-slate-400',
-}
-
-const createInitialTerminalLines = (profile: ProfileData): TerminalLine[] => [
-  { text: "Type 'help' to explore commands.", tone: 'muted' },
-  { text: `${profile.heroTerminalPath} $ ls -la`, tone: 'accent' },
-  ...profile.heroTerminalDirectories.map((directory) => ({
-    text: `drwxr-xr-x ${directory}`,
-  })),
-]
 
 export function HeroSection({
   profile,
@@ -66,6 +35,10 @@ export function HeroSection({
   )
   const [commandHistory, setCommandHistory] = useState<string[]>([])
   const terminalOutputRef = useRef<HTMLDivElement>(null)
+  const certificationMarqueeItems = [
+    ...profile.heroCertifications,
+    ...profile.heroCertifications,
+  ]
 
   useEffect(() => {
     fetch(`https://github-contributions-api.deno.dev/${profile.githubUsername}.json`)
@@ -94,174 +67,38 @@ export function HeroSection({
     ])
   }
 
-  const openProjectLink = (token: string): TerminalLine[] => {
-    const normalizedToken = token.toLowerCase()
-    const index = Number.parseInt(normalizedToken, 10)
-
-    const selectedProject =
-      Number.isInteger(index) && index >= 1 && index <= projects.length
-        ? projects[index - 1]
-        : projects.find((project) => project.id.toLowerCase() === normalizedToken)
-
-    if (!selectedProject) {
-      return [
-        {
-          text: `Project '${token}' not found. Use 'projects' to list available entries.`,
-          tone: 'error',
-        },
-      ]
-    }
-
-    const targetUrl = selectedProject.liveUrl ?? selectedProject.repoUrl
-    if (!targetUrl) {
-      return [
-        {
-          text: `Project '${selectedProject.id}' has no configured link to open.`,
-          tone: 'error',
-        },
-      ]
-    }
-
-    window.open(targetUrl, '_blank', 'noopener,noreferrer')
-    return [{ text: `Opening ${selectedProject.title}...`, tone: 'success' }]
-  }
-
-  const resolveThemeOutput = (target: string): TerminalLine[] => {
-    if (target === 'toggle') {
-      onToggleTheme()
-      return [
-        {
-          text: `Theme toggled to ${theme === 'dark' ? 'light' : 'dark'}.`,
-          tone: 'success',
-        },
-      ]
-    }
-
-    if (target !== 'dark' && target !== 'light') {
-      return [
-        {
-          text: 'Usage: theme <dark|light|toggle>',
-          tone: 'error',
-        },
-      ]
-    }
-
-    if (target === theme) {
-      return [{ text: `Theme already set to ${theme}.`, tone: 'muted' }]
-    }
-
-    onToggleTheme()
-    return [{ text: `Theme set to ${target}.`, tone: 'success' }]
-  }
-
   const runCommand = (rawInput: string) => {
-    const input = rawInput.trim()
-    if (!input) {
+    const commandResult = resolveTerminalCommand({
+      rawInput,
+      profile,
+      projects,
+      theme,
+      commandHistory,
+    })
+
+    if (!commandResult) {
       return
     }
 
-    const nextCommandHistory = [...commandHistory, input]
-    setCommandHistory(nextCommandHistory)
+    setCommandHistory(commandResult.nextCommandHistory)
 
-    const [command, ...args] = input.split(/\s+/)
-    const normalizedCommand = command.toLowerCase()
+    if (commandResult.shouldToggleTheme) {
+      onToggleTheme()
+    }
 
-    if (normalizedCommand === 'clear') {
+    if (commandResult.openUrl) {
+      window.open(commandResult.openUrl, '_blank', 'noopener,noreferrer')
+    }
+
+    if (commandResult.shouldClear) {
       setTerminalLines([])
       return
     }
 
-    switch (normalizedCommand) {
-      case 'help':
-        pushTerminalOutput(input, [
-          { text: 'Available commands:' },
-          { text: 'help, ls, pwd, whoami, cat about.txt', tone: 'muted' },
-          {
-            text: 'projects, open <id|index>, theme <dark|light|toggle>',
-            tone: 'muted',
-          },
-          { text: 'history, clear', tone: 'muted' },
-        ])
-        return
-      case 'ls':
-        pushTerminalOutput(input, [
-          ...profile.heroTerminalDirectories.map((directory) => ({
-            text: `drwxr-xr-x ${directory}`,
-          })),
-          { text: '-rw-r--r-- about.txt' },
-        ])
-        return
-      case 'pwd':
-        pushTerminalOutput(input, [{ text: profile.heroTerminalPath }])
-        return
-      case 'whoami':
-        pushTerminalOutput(input, [{ text: `${profile.name} (${profile.title})` }])
-        return
-      case 'cat':
-        if (args[0]?.toLowerCase() === 'about.txt') {
-          pushTerminalOutput(
-            input,
-            profile.about.map((line) => ({ text: `- ${line}` }))
-          )
-          return
-        }
-        pushTerminalOutput(input, [
-          { text: "Only 'cat about.txt' is supported.", tone: 'error' },
-        ])
-        return
-      case 'projects':
-        pushTerminalOutput(
-          input,
-          projects.map((project, index) => ({
-            text: `[${String(index + 1)}] ${project.id} - ${project.title}`,
-          }))
-        )
-        return
-      case 'open':
-        if (!args[0]) {
-          pushTerminalOutput(input, [{ text: 'Usage: open <id|index>', tone: 'error' }])
-          return
-        }
-        pushTerminalOutput(input, openProjectLink(args[0]))
-        return
-      case 'theme':
-        if (!args[0]) {
-          pushTerminalOutput(input, [
-            { text: `Current theme: ${theme}` },
-            { text: 'Usage: theme <dark|light|toggle>', tone: 'muted' },
-          ])
-          return
-        }
-        pushTerminalOutput(input, resolveThemeOutput(args[0].toLowerCase()))
-        return
-      case 'history':
-        pushTerminalOutput(
-          input,
-          nextCommandHistory.map((previousCommand, index) => ({
-            text: `${String(index + 1)}  ${previousCommand}`,
-            tone: 'muted',
-          }))
-        )
-        return
-      default:
-        pushTerminalOutput(input, [
-          { text: `Command not found: ${command}`, tone: 'error' },
-          { text: "Try 'help' for available commands.", tone: 'muted' },
-        ])
-    }
+    pushTerminalOutput(commandResult.executedInput, commandResult.output)
   }
 
   const onTerminalSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    runCommand(terminalInput)
-    setTerminalInput('')
-  }
-
-  const onTerminalInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.key !== 'Enter') {
-      return
-    }
-
     event.preventDefault()
     runCommand(terminalInput)
     setTerminalInput('')
@@ -301,11 +138,43 @@ export function HeroSection({
             </span>
           </h1>
 
-          <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600 dark:text-slate-300 font-light">
-            {profile.name} — {profile.tagline}
-          </p>
+          <div className="mt-8 max-w-2xl">
+            <div className="mb-3">
+              <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500 dark:text-slate-400">
+                {profile.heroCertificationsHeading}
+              </p>
+            </div>
 
-          <div className="mt-10 flex flex-wrap gap-5">
+            <div
+              aria-label={profile.heroCertificationsHeading}
+              className="hero-cert-marquee"
+              role="region"
+            >
+              <div className="hero-cert-marquee__viewport">
+                <div className="hero-cert-marquee__track">
+                  {certificationMarqueeItems.map((certification, index) => (
+                    <a
+                      className="hero-cert-marquee__badge-link"
+                      href={certification.credentialUrl}
+                      key={`${certification.credentialUrl}-${String(index)}`}
+                      rel="noreferrer"
+                      target="_blank"
+                    >
+                      <img
+                        alt={certification.imageAlt}
+                        className="hero-cert-marquee__badge-image"
+                        height={certification.imageHeight ?? 105}
+                        src={certification.imageUrl}
+                        width={certification.imageWidth ?? 105}
+                      />
+                    </a>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="mt-8 flex flex-wrap gap-5">
             <a
               className="group relative inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition-all hover:scale-105 hover:shadow-glow"
               href={profile.linkedinUrl}
@@ -378,7 +247,6 @@ export function HeroSection({
                   autoComplete="off"
                   className="min-w-0 flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400 dark:text-slate-200 dark:placeholder:text-slate-500"
                   id="hero-terminal-input"
-                  onKeyDown={onTerminalInputKeyDown}
                   onChange={(event) => {
                     setTerminalInput(event.target.value)
                   }}

@@ -22,7 +22,6 @@ describe('App', () => {
     expect(document.getElementById('tech-stack')).toBeInTheDocument()
     expect(document.getElementById('projects')).toBeInTheDocument()
     expect(document.getElementById('education')).toBeInTheDocument()
-    expect(document.getElementById('resume')).toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(

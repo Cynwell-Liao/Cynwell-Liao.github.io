@@ -1,10 +1,10 @@
 interface FooterProps {
   name: string
-  githubUrl: string
+  repositoryUrl: string
   attribution: string
 }
 
-export function Footer({ name, githubUrl, attribution }: FooterProps) {
+export function Footer({ name, repositoryUrl, attribution }: FooterProps) {
   const currentYear = new Date().getFullYear()
 
   return (
@@ -15,11 +15,11 @@ export function Footer({ name, githubUrl, attribution }: FooterProps) {
         </p>
         <a
           className="font-medium text-slate-500 dark:text-slate-400 transition hover:text-accent-600 dark:hover:text-accent-300"
-          href={githubUrl}
+          href={repositoryUrl}
           rel="noreferrer"
           target="_blank"
         >
-          {githubUrl.replace('https://', '')}
+          {repositoryUrl.replace('https://', '')}
         </a>
       </div>
     </footer>

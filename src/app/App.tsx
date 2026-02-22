@@ -6,7 +6,6 @@ import { Footer } from '@features/footer'
 import { HeroSection } from '@features/hero'
 import { Navbar } from '@features/navbar'
 import { ProjectsSection } from '@features/projects'
-import { ResumeSection } from '@features/resume'
 import { TechStackSection } from '@features/tech-stack'
 import { useTheme } from '@shared/lib/theme/useTheme'
 
@@ -62,18 +61,10 @@ function App() {
           headingEyebrow={profile.educationSectionEyebrow}
           headingTitle={profile.educationSectionTitle}
         />
-        <ResumeSection
-          description={profile.resumeDescription}
-          downloadLabel={profile.resumeDownloadLabel}
-          headingAccent={profile.resumeHeadingAccent}
-          headingLead={profile.resumeHeadingLead}
-          openLabel={profile.resumeOpenLabel}
-          resumePath={profile.resumePath}
-        />
       </main>
       <Footer
         attribution={profile.footerAttribution}
-        githubUrl={profile.githubUrl}
+        repositoryUrl={profile.repositoryUrl}
         name={profile.name}
       />
     </div>

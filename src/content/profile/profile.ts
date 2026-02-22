@@ -54,6 +54,7 @@ export const profile: ProfileData = {
   ],
   githubUsername: 'Cynwell-Liao',
   githubUrl: 'https://github.com/Cynwell-Liao',
+  repositoryUrl: 'https://github.com/Cynwell-Liao/Cynwell-Liao.github.io',
   githubLabel: 'GitHub',
   linkedinUrl: 'https://www.linkedin.com/in/cynwell-liao',
   linkedinLabel: 'LinkedIn Profile',
@@ -61,6 +62,54 @@ export const profile: ProfileData = {
   heroTerminalPath: '~/stack',
   heroTerminalDirectories: ['AI Models', 'Cloud Native', 'Developer Exp'],
   heroTerminalPrompt: '_',
+  heroCertificationsHeading: 'Licenses & Certifications',
+  heroCertifications: [
+    {
+      credentialUrl:
+        'https://www.credly.com/badges/6c641dc5-0427-4183-ac72-3a8424636129/public_url',
+      imageUrl:
+        'https://images.credly.com/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png',
+      imageAlt: 'AWS Certified Solutions Architect - Associate badge',
+      imageWidth: 105,
+      imageHeight: 105,
+    },
+    {
+      credentialUrl:
+        'https://www.credly.com/badges/c1dac230-a051-4336-9cc5-761d6e6ff49d/public_url',
+      imageUrl:
+        'https://images.credly.com/images/efbdc0d6-b46e-4e3c-8cf8-2314d8a5b971/GCC_badge_python_1000x1000.png',
+      imageAlt: 'Google IT Automation with Python Professional Certificate badge',
+      imageWidth: 105,
+      imageHeight: 105,
+    },
+    {
+      credentialUrl:
+        'https://badges.parchment.au/public/assertions/K57ezYCYTEGgmFZNXV-80w',
+      imageUrl:
+        'https://badges.parchment.au/public/assertions/K57ezYCYTEGgmFZNXV-80w/image',
+      imageAlt: 'University of Melbourne badge K57ezYCYTEGgmFZNXV-80w',
+      imageWidth: 105,
+      imageHeight: 105,
+    },
+    {
+      credentialUrl:
+        'https://badges.parchment.au/public/assertions/FDSHlf8xT8CHnCJFmgezJg',
+      imageUrl:
+        'https://badges.parchment.au/public/assertions/FDSHlf8xT8CHnCJFmgezJg/image',
+      imageAlt: 'University of Melbourne badge FDSHlf8xT8CHnCJFmgezJg',
+      imageWidth: 105,
+      imageHeight: 105,
+    },
+    {
+      credentialUrl:
+        'https://badges.parchment.au/public/assertions/FaNgigLxTA6Nsda7foXpVw',
+      imageUrl:
+        'https://badges.parchment.au/public/assertions/FaNgigLxTA6Nsda7foXpVw/image',
+      imageAlt: 'University of Melbourne badge FaNgigLxTA6Nsda7foXpVw',
+      imageWidth: 105,
+      imageHeight: 105,
+    },
+  ],
   contributionsLoadingLabel: 'Loading contributions...',
   contributionsSuffixLabel: 'contributions in the last year',
   aboutHeadingLead: 'Engineering mindset,',
@@ -81,14 +130,7 @@ export const profile: ProfileData = {
   educationSectionTitle: 'Academic foundations',
   educationSectionDescription:
     'My academic background driving engineering excellence and systems thinking.',
-  resumeHeadingLead: 'Ready to build something',
-  resumeHeadingAccent: 'resilient?',
-  resumeDescription:
-    'Grab a copy of my resume for a detailed look at my experience in cloud infrastructure, AI engineering, and product development.',
-  resumeDownloadLabel: 'Download PDF',
-  resumeOpenLabel: 'Open',
   footerAttribution: 'Engineered with React, Tailwind, and Framer Motion.',
-  resumePath: '/resume.pdf',
 }
 
 export const navLinks: NavLink[] = [

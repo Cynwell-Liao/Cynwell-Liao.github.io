@@ -22,9 +22,9 @@
     background-image:
       radial-gradient(circle at 15% 10%, rgba(227, 132, 178, 0.4), transparent 45%),
       /* Pink */
-      radial-gradient(circle at 85% 20%, rgba(55, 190, 220, 0.4), transparent 50%),
+        radial-gradient(circle at 85% 20%, rgba(55, 190, 220, 0.4), transparent 50%),
       /* Cyan */
-      radial-gradient(circle at 50% 100%, rgba(227, 132, 178, 0.3), transparent 60%);
+        radial-gradient(circle at 50% 100%, rgba(227, 132, 178, 0.3), transparent 60%);
   }
 
   html.dark body {
@@ -32,9 +32,9 @@
     background-image:
       radial-gradient(circle at 15% 10%, rgba(227, 132, 178, 0.1), transparent 45%),
       /* Pink */
-      radial-gradient(circle at 85% 20%, rgba(55, 190, 220, 0.1), transparent 50%),
+        radial-gradient(circle at 85% 20%, rgba(55, 190, 220, 0.1), transparent 50%),
       /* Cyan */
-      radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.05), transparent 60%);
+        radial-gradient(circle at 50% 100%, rgba(139, 92, 246, 0.05), transparent 60%);
   }
 
   a {
@@ -68,4 +68,94 @@
   .glass-panel:hover::before {
     @apply opacity-100;
   }
+
+  .hero-cert-marquee {
+    @apply relative w-full;
+  }
+
+  .hero-cert-marquee__viewport {
+    @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 p-2 dark:border-white/10 dark:bg-slate-900/50;
+  }
+
+  .hero-cert-marquee__viewport::before,
+  .hero-cert-marquee__viewport::after {
+    content: '';
+    @apply pointer-events-none absolute inset-y-0 z-10 w-10;
+  }
+
+  .hero-cert-marquee__viewport::before {
+    @apply left-0;
+    background: linear-gradient(
+      to right,
+      rgba(248, 250, 252, 0.98),
+      rgba(248, 250, 252, 0)
+    );
+  }
+
+  .hero-cert-marquee__viewport::after {
+    @apply right-0;
+    background: linear-gradient(
+      to left,
+      rgba(248, 250, 252, 0.98),
+      rgba(248, 250, 252, 0)
+    );
+  }
+
+  .hero-cert-marquee__track {
+    display: flex;
+    width: max-content;
+    gap: 1rem;
+    animation: hero-cert-marquee-scroll 24s linear infinite;
+    will-change: transform;
+  }
+
+  .hero-cert-marquee:hover .hero-cert-marquee__track,
+  .hero-cert-marquee:focus-within .hero-cert-marquee__track {
+    animation-play-state: paused;
+  }
+
+  .hero-cert-marquee__badge-link {
+    @apply block shrink-0 transition-transform duration-300 hover:scale-105;
+    line-height: 0;
+  }
+
+  .hero-cert-marquee__badge-image {
+    display: block;
+  }
+}
+
+@keyframes hero-cert-marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@media (max-width: 768px) {
+  .hero-cert-marquee__track {
+    gap: 0.75rem;
+    animation-duration: 24s;
+  }
+
+  .hero-cert-marquee__viewport::before,
+  .hero-cert-marquee__viewport::after {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-cert-marquee__track {
+    animation: none;
+    transform: none;
+  }
+}
+
+html.dark .hero-cert-marquee__viewport::before {
+  background: linear-gradient(to right, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0));
+}
+
+html.dark .hero-cert-marquee__viewport::after {
+  background: linear-gradient(to left, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0));
 }

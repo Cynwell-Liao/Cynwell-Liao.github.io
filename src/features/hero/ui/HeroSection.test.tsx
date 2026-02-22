@@ -6,17 +6,20 @@ import { loadProjects } from '@content/projects'
 
 import { HeroSection } from './HeroSection'
 
+import type { Project } from '@shared/types/portfolio.types'
+
 const projects = loadProjects()
 
 const renderHeroSection = (overrides?: {
   theme?: 'light' | 'dark'
   onToggleTheme?: () => void
+  projects?: Project[]
 }) =>
   render(
     <HeroSection
       onToggleTheme={overrides?.onToggleTheme ?? vi.fn()}
       profile={profile}
-      projects={projects}
+      projects={overrides?.projects ?? projects}
       theme={overrides?.theme ?? 'light'}
     />
   )
@@ -75,7 +78,7 @@ describe('HeroSection', () => {
     }
   })
 
-  it('renders interactive terminal input with startup hint', async () => {
+  it('renders terminal startup hint', async () => {
     const fetchMock = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({}),
@@ -89,7 +92,9 @@ describe('HeroSection', () => {
       expect(fetchMock).toHaveBeenCalled()
     })
 
-    expect(screen.getByLabelText('Terminal command input')).toBeInTheDocument()
+    expect(
+      screen.getByLabelText<HTMLInputElement>('Terminal command input')
+    ).toBeInTheDocument()
     expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
   })
 })

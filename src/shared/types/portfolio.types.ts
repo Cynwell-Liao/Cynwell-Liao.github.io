@@ -1,5 +1,13 @@
 import type { IconType } from 'react-icons'
 
+export interface CertificationItem {
+  credentialUrl: string
+  imageUrl: string
+  imageAlt: string
+  imageWidth?: number
+  imageHeight?: number
+}
+
 export interface ProfileData {
   name: string
   brandName: string
@@ -8,6 +16,7 @@ export interface ProfileData {
   about: string[]
   githubUsername: string
   githubUrl: string
+  repositoryUrl: string
   githubLabel: string
   linkedinUrl: string
   linkedinLabel: string
@@ -15,6 +24,8 @@ export interface ProfileData {
   heroTerminalPath: string
   heroTerminalDirectories: string[]
   heroTerminalPrompt: string
+  heroCertificationsHeading: string
+  heroCertifications: CertificationItem[]
   contributionsLoadingLabel: string
   contributionsSuffixLabel: string
   aboutHeadingLead: string
@@ -31,13 +42,7 @@ export interface ProfileData {
   educationSectionEyebrow: string
   educationSectionTitle: string
   educationSectionDescription: string
-  resumeHeadingLead: string
-  resumeHeadingAccent: string
-  resumeDescription: string
-  resumeDownloadLabel: string
-  resumeOpenLabel: string
   footerAttribution: string
-  resumePath: string
 }
 
 export interface SocialLink {
