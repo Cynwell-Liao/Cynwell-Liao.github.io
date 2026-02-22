@@ -23,7 +23,7 @@ export function HeroSection({ profile }: HeroSectionProps) {
   }, [profile.githubUsername]);
 
   return (
-    <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-20 pb-12 lg:pt-0" id="home">
+    <section className="relative flex min-h-screen items-center justify-center overflow-hidden pt-28 pb-12 sm:pt-24 lg:pt-0" id="home">
 
       {/* Background Animated Orbs */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none">
