@@ -47,6 +47,21 @@ export default defineConfig([
         'error',
         { checksVoidReturn: { attributes: false } },
       ],
+      'no-restricted-imports': [
+        'error',
+        {
+          patterns: [
+            {
+              group: ['@features/*/ui/*', '@features/*/model/*'],
+              message: 'Import feature modules via @features/<feature> public API.',
+            },
+            {
+              group: ['@content/*/*'],
+              message: 'Import content via @content/<slice> public API.',
+            },
+          ],
+        },
+      ],
       'import/no-default-export': 'off',
       'import/order': [
         'error',

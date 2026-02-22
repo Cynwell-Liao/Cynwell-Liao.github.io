@@ -38,13 +38,12 @@
     />
     <title>Cynwell Liao | AI & Cloud Engineer</title>
     <script>
-      (() => {
+      ;(() => {
         const storageKey = 'portfolio-theme'
         const storedTheme = localStorage.getItem(storageKey)
         const shouldUseDark =
           storedTheme === 'dark' ||
-          (!storedTheme &&
-            window.matchMedia('(prefers-color-scheme: dark)').matches)
+          (!storedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)
         if (shouldUseDark) {
           document.documentElement.classList.add('dark')
         }
@@ -53,6 +52,6 @@
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
+    <script type="module" src="/src/app/main.tsx"></script>
   </body>
 </html>

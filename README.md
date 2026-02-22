@@ -9,7 +9,7 @@ This repository is a single static app (no backend, no API routes).
 - Tailwind CSS
 - Framer Motion
 - GitHub Actions for:
-  - contribution graph generation
+  - CI quality gates
   - GitHub Pages build and deployment
 
 ## Local Development
@@ -40,42 +40,39 @@ Pre-commit checks run via Husky + lint-staged.
 
 ## Key Files
 
-- `src/data/projects.json`: local project source data
-- `src/types/portfolio.ts`: TypeScript interfaces
-- `public/assets/github-contrib.svg`: locally served contribution graph
+- `src/app/App.tsx`: application composition root
+- `src/content/projects/projects.json`: local project source data
+- `src/content/projects/loadProjects.ts`: runtime project data validation (Zod)
+- `src/content/profile/profile.ts`: profile, navigation, education, and skill content
 - `public/resume.pdf`: downloadable static resume
-- `scripts/generate-github-contrib.mjs`: graph generation script
-- `.github/workflows/update-github-contrib.yml`: contribution update workflow
-- `.github/workflows/deploy-pages.yml`: GitHub Pages deployment workflow
+- `.github/workflows/cd.yml`: GitHub Pages deployment workflow
 - `.github/workflows/ci.yml`: lint, typecheck, unit coverage, Playwright smoke tests
 
-## Contribution Graph Workflow
+## Architecture
 
-Workflow: `.github/workflows/update-github-contrib.yml`
+`src` is organized by app shell, feature modules, shared utilities, and content:
 
-How it works:
+- `src/app`: entrypoint and app composition
+- `src/features`: feature modules (`about`, `hero`, `projects`, `education`, etc.)
+- `src/shared`: shared UI primitives and reusable logic
+- `src/content`: static content and validated content loaders
 
-1. Runs weekly and can be triggered manually from the Actions tab.
-2. Executes `node scripts/generate-github-contrib.mjs`.
-3. Script fetches real contribution activity levels from `https://github.com/users/<username>/contributions` (GitHub only).
-4. Saves SVG to `public/assets/github-contrib.svg`.
-5. Commits and pushes changes if the generated file changed.
+Import aliases are enabled and expected:
 
-Username source:
+- `@app/*`
+- `@features/*`
+- `@shared/*`
+- `@content/*`
 
-1. By default it uses `${{ github.repository_owner }}`.
-2. If your profile username differs, set repository variable `PORTFOLIO_GITHUB_USERNAME`.
+Feature boundaries:
 
-Manual trigger:
-
-1. Open the repo on GitHub.
-2. Go to **Actions**.
-3. Select **Update GitHub Contribution Graph**.
-4. Click **Run workflow**.
+- Cross-feature imports should use feature public APIs (`@features/<feature>`).
+- Internal feature files should be imported via relative paths inside the same feature.
+- Content consumers should use content public APIs (`@content/<slice>`).
 
 ## GitHub Pages Deployment
 
-Workflow: `.github/workflows/deploy-pages.yml`
+Workflow: `.github/workflows/cd.yml`
 
 How it works:
 
@@ -92,6 +89,6 @@ Setup:
 
 ## Customize
 
-1. Update profile data in `src/data/profile.ts`.
-2. Replace project entries in `src/data/projects.json`.
+1. Update profile data in `src/content/profile/profile.ts`.
+2. Replace project entries in `src/content/projects/projects.json`.
 3. Replace `public/resume.pdf` with your actual resume.
