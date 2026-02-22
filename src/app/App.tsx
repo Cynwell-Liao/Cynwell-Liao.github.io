@@ -30,7 +30,12 @@ function App() {
         theme={theme}
       />
       <main>
-        <HeroSection profile={profile} />
+        <HeroSection
+          onToggleTheme={toggleTheme}
+          profile={profile}
+          projects={projects}
+          theme={theme}
+        />
         <AboutSection
           headingAccent={profile.aboutHeadingAccent}
           headingLead={profile.aboutHeadingLead}

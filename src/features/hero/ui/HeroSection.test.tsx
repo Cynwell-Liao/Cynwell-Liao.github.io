@@ -2,8 +2,24 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { profile } from '@content/profile'
+import { loadProjects } from '@content/projects'
 
 import { HeroSection } from './HeroSection'
+
+const projects = loadProjects()
+
+const renderHeroSection = (overrides?: {
+  theme?: 'light' | 'dark'
+  onToggleTheme?: () => void
+}) =>
+  render(
+    <HeroSection
+      onToggleTheme={overrides?.onToggleTheme ?? vi.fn()}
+      profile={profile}
+      projects={projects}
+      theme={overrides?.theme ?? 'light'}
+    />
+  )
 
 describe('HeroSection', () => {
   it('renders contribution total when API returns valid payload', async () => {
@@ -14,7 +30,7 @@ describe('HeroSection', () => {
     )
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<HeroSection profile={profile} />)
+    renderHeroSection()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled()
@@ -32,7 +48,7 @@ describe('HeroSection', () => {
     )
     vi.stubGlobal('fetch', fetchMock)
 
-    render(<HeroSection profile={profile} />)
+    renderHeroSection()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled()
@@ -47,7 +63,7 @@ describe('HeroSection', () => {
     vi.stubGlobal('fetch', fetchMock)
 
     try {
-      render(<HeroSection profile={profile} />)
+      renderHeroSection()
 
       await waitFor(() => {
         expect(errorSpy).toHaveBeenCalled()
@@ -57,5 +73,23 @@ describe('HeroSection', () => {
     } finally {
       errorSpy.mockRestore()
     }
+  })
+
+  it('renders interactive terminal input with startup hint', async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({}),
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHeroSection()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled()
+    })
+
+    expect(screen.getByLabelText('Terminal command input')).toBeInTheDocument()
+    expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
   })
 })
