@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import { AboutSection } from './components/AboutSection'
+import { EducationSection } from './components/EducationSection'
 import { Footer } from './components/Footer'
 import { HeroSection } from './components/HeroSection'
 import { Navbar } from './components/Navbar'
@@ -7,7 +8,7 @@ import { ProjectsSection } from './components/ProjectsSection'
 import { ResumeSection } from './components/ResumeSection'
 import { TechStackSection } from './components/TechStackSection'
 import projectsData from './data/projects.json'
-import { navLinks, profile, skillCategories } from './data/profile'
+import { navLinks, profile, skillCategories, education } from './data/profile'
 import type { Project, ThemeMode } from './types/portfolio'
 
 const THEME_STORAGE_KEY = 'portfolio-theme'
@@ -50,8 +51,9 @@ function App() {
       <main>
         <HeroSection profile={profile} />
         <AboutSection paragraphs={profile.about} />
-        <ProjectsSection projects={projects} />
         <TechStackSection categories={skillCategories} />
+        <ProjectsSection projects={projects} />
+        <EducationSection education={education} />
         <ResumeSection resumePath={profile.resumePath} />
       </main>
       <Footer githubUrl={profile.githubUrl} name={profile.name} />

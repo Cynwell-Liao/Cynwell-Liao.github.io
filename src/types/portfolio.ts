@@ -24,6 +24,17 @@ export interface SkillItem {
   color?: string
 }
 
+export interface EducationItem {
+  institution: string
+  location?: string
+  degree: string
+  duration: string
+  achievements: string[]
+  icon?: IconType
+  logoUrl?: string
+  color?: string
+}
+
 export interface SkillCategory {
   title: string
   items: SkillItem[]

@@ -1,4 +1,5 @@
 import { FaJava, FaDatabase, FaDocker } from 'react-icons/fa'
+import { LuGraduationCap, LuLibrary, LuBookOpen } from 'react-icons/lu'
 import { DiMsqlServer } from 'react-icons/di'
 import {
   SiAmazonwebservices,
@@ -31,7 +32,7 @@ import {
   SiPrometheus,
   SiPytest,
 } from 'react-icons/si'
-import type { NavLink, ProfileData, SkillCategory } from '../types/portfolio'
+import type { NavLink, ProfileData, SkillCategory, EducationItem } from '../types/portfolio'
 
 export const profile: ProfileData = {
   name: 'Cynwell Liao',
@@ -51,9 +52,51 @@ export const profile: ProfileData = {
 
 export const navLinks: NavLink[] = [
   { label: 'About', href: '#about' },
-  { label: 'Projects', href: '#projects' },
   { label: 'Tech Stack', href: '#tech-stack' },
-  { label: 'Resume', href: '#resume' },
+  { label: 'Projects', href: '#projects' },
+  { label: 'Education', href: '#education' },
+]
+
+export const education: EducationItem[] = [
+  {
+    institution: 'The University of Melbourne',
+    location: 'Melbourne, VIC, Australia',
+    degree: 'Master of Information Technology (Computing)',
+    duration: 'Jul. 2024 \u2014 Aug. 2026',
+    achievements: [
+      'Mobile Computing Systems Programming \u2014 ParkPie (Best Project of the Year, formally commended by Prof. Vassilis Kostakos for Outstanding Idea and Implementation)',
+      'Led cross-functional teams in 2025 FEIT Hackathon (zoomies, Finalists) and 2024 FEIT Hackathon (levelfield.ai, Finalists), coordinating task delegation, design decisions, and demos under 3-day deadlines'
+    ],
+    icon: LuLibrary,
+    logoUrl: 'https://logo.clearbit.com/unimelb.edu.au',
+    color: '#094183' // Unimelb Blue
+  },
+  {
+    institution: 'Queensland University of Technology (QUT)',
+    location: 'Brisbane, QLD, Australia',
+    degree: 'Bachelor of Business (International Business)',
+    duration: 'Jul. 2020 \u2014 Aug. 2024',
+    achievements: [
+      "QUT Executive Dean's Commendation for Academic Excellence issued by Executive Dean, Jul. 2024",
+      "Recipient of Ministry of Education (Taiwan) Study Abroad Scholarship",
+      "Dual bachelor's degree program with Bachelor of Business Administration at FCU (GPA 4.0)"
+    ],
+    icon: LuGraduationCap,
+    logoUrl: 'https://logo.clearbit.com/qut.edu.au',
+    color: '#003C71' // QUT Blue
+  },
+  {
+    institution: 'Harvard University',
+    location: 'Cambridge, MA, USA',
+    degree: 'Short-term Exchange, Project Management',
+    duration: 'Jul. 2025 \u2014 Aug. 2025',
+    achievements: [
+      'Awarded Engineering Exchange Scholarship issued by FEIT, University of Melbourne'
+    ],
+    icon: LuBookOpen,
+    logoUrl: 'https://logo.clearbit.com/harvard.edu',
+    color: '#A51C30' // Harvard Crimson
+  }
 ]
 
 export const skillCategories: SkillCategory[] = [
