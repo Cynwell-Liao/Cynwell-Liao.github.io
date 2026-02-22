@@ -47,7 +47,11 @@ export function TechStackSection({ categories }: TechStackSectionProps) {
                     transition={{ duration: 0.4, delay: (categoryIndex * 0.1) + (itemIndex * 0.1) }}
                     viewport={{ once: true }}
                   >
-                    <span className="flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-accent-600 dark:text-accent-300 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-400/50 dark:group-hover:border-accent-500/30">
+                    <span
+                      className={`flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-400/50 dark:group-hover:border-accent-500/30 ${!item.color ? 'text-slate-700 dark:text-slate-300' : ''
+                        }`}
+                      style={item.color ? { color: item.color } : {}}
+                    >
                       <Icon className="h-6 w-6" />
                     </span>
                     <div>
