@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" role="img" aria-label="Cynwell Liao portfolio social card">
+  <defs>
+    <linearGradient id="chip" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e384b2" />
+      <stop offset="100%" stop-color="#37bedc" />
+    </linearGradient>
+    <linearGradient id="textGlow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#e86aa7" />
+      <stop offset="100%" stop-color="#2b7b96" />
+    </linearGradient>
+    <linearGradient id="nameGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#db2777" /> <!-- Tailwind Pink-600 -->
+      <stop offset="50%" stop-color="#0284c7" /> <!-- Tailwind Light Blue-600 -->
+      <stop offset="100%" stop-color="#9333ea" /> <!-- Tailwind Purple-600 -->
+    </linearGradient>
+    <filter id="textDropShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#0f172a" flood-opacity="0.1" />
+    </filter>
+  </defs>
+  
+  <!-- Base Background matching slate-50 -->
+  <rect width="1200" height="630" fill="#f8fafc" />
+
+  <!-- Radial Glares matching body gradients -->
+  <circle cx="180" cy="63" r="540" fill="#e384b2" fill-opacity="0.4" filter="blur(80px)" />
+  <circle cx="1020" cy="126" r="600" fill="#37bedc" fill-opacity="0.4" filter="blur(80px)" />
+  <circle cx="600" cy="630" r="720" fill="#e384b2" fill-opacity="0.3" filter="blur(100px)" />
+
+  <!-- Glass Panel -->
+  <rect x="80" y="90" width="1040" height="450" rx="36" fill="#ffffff" fill-opacity="0.4" stroke="#ffffff" stroke-opacity="0.4" stroke-width="2" />
+
+  <text x="140" y="190" fill="#c52875" font-family="Sora, sans-serif" font-size="26" font-weight="700" letter-spacing="4">
+    AI SOFTWARE ENGINEER
+  </text>
+  <text x="140" y="290" fill="url(#nameGradient)" font-family="Sora, sans-serif" font-size="72" font-weight="700" filter="url(#textDropShadow)">
+    Cynwell Liao
+  </text>
+  <text x="140" y="340" fill="#334155" font-family="Sora, sans-serif" font-size="28">
+    Building production backend systems and event-driven
+  </text>
+  <text x="140" y="385" fill="#334155" font-family="Sora, sans-serif" font-size="28">
+    RAG pipelines with reliability, velocity, and observability.
+  </text>
+  
+  <rect x="140" y="440" width="410" height="64" rx="32" fill="url(#chip)" fill-opacity="0.2" stroke="url(#chip)" stroke-width="2" />
+  <text x="182" y="482" fill="#0f172a" font-family="JetBrains Mono, monospace" font-size="26" font-weight="700">
+    github.com/Cynwell-Liao
+  </text>
+
+  <!-- Decorative Logo Container -->
+  <g transform="translate(850, 220)">
+    <circle cx="100" cy="100" r="120" fill="#ffffff" fill-opacity="0.3" filter="blur(20px)" />
+    <circle cx="100" cy="100" r="100" fill="#f8fafc" stroke="url(#chip)" stroke-width="4" />
+    <image x="36" y="36" width="128" height="128" href="../favicon.ico" />
+  </g>
+</svg>
