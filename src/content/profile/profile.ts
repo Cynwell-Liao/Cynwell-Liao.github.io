@@ -3,6 +3,7 @@ import { FaJava, FaDatabase, FaDocker } from 'react-icons/fa'
 import { LuGraduationCap, LuLibrary, LuBookOpen } from 'react-icons/lu'
 import {
   SiAmazonwebservices,
+  SiDotnet,
   SiPostgresql,
   SiTerraform,
   SiTypescript,
@@ -25,12 +26,14 @@ import {
   SiHtml5,
   SiLangchain,
   SiDocker,
+  SiMongodb,
   SiPytorch,
   SiHuggingface,
   SiOpentelemetry,
   SiPrometheus,
   SiPytest,
 } from 'react-icons/si'
+import { TbBrandCSharp } from 'react-icons/tb'
 import { VscAzure } from 'react-icons/vsc'
 
 import type {
@@ -190,6 +193,12 @@ export const skillCategories: SkillCategory[] = [
         color: '#ED8B00',
       },
       {
+        name: 'C#',
+        note: 'Typed application development',
+        icon: TbBrandCSharp,
+        color: '#512BD4',
+      },
+      {
         name: 'Python',
         note: 'Data pipelines & ML scripting',
         icon: SiPython,
@@ -229,6 +238,12 @@ export const skillCategories: SkillCategory[] = [
         note: 'Robust APIs & microservices',
         icon: SiSpringboot,
         color: '#6DB33F',
+      },
+      {
+        name: '.NET',
+        note: 'Backend services & APIs',
+        icon: SiDotnet,
+        color: '#512BD4',
       },
       { name: 'Django', note: 'Python web scaffolding', icon: SiDjango },
       { name: 'Flask', note: 'Micro web framework', icon: SiFlask },
@@ -354,10 +369,22 @@ export const skillCategories: SkillCategory[] = [
         color: '#CC292B',
       },
       {
+        name: 'Cosmos DB',
+        note: 'Globally distributed NoSQL',
+        icon: VscAzure,
+        color: '#0089D6',
+      },
+      {
         name: 'Firestore',
         note: 'NoSQL document datastore',
         icon: SiFirebase,
         color: '#FFCA28',
+      },
+      {
+        name: 'MongoDB',
+        note: 'Document databases',
+        icon: SiMongodb,
+        color: '#47A248',
       },
       { name: 'Redis', note: 'In-memory caching', icon: SiRedis, color: '#DC382D' },
       {
