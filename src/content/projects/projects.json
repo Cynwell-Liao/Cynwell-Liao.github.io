@@ -1,7 +1,7 @@
 [
   {
-    "id": "cheap-guide",
-    "title": "cheap.guide App Backend",
+    "id": "cheapguide",
+    "title": "Cheapguide",
     "summary": "Served as Principal Backend Engineer & Solution Architect in a 4-person cross-functional team, architecting and shipping a Spring Boot backend with REST APIs for auth, posts, search, AI moderation, and notifications",
     "highlights": [
       "Integrated Firebase Auth (JWT) with role-based access control (RBAC), enforcing authorisation across 30+ protected endpoints serving 3 user roles",
@@ -13,40 +13,16 @@
     "liveUrl": "https://www.cheap.guide"
   },
   {
-    "id": "parkpie-app",
-    "title": "ParkPie App Backend",
-    "summary": "Led backend and AI development as AI & Backend Lead in a 6-person Agile co-founding team, driving SDLC from design to deployment for a geospatial-first Django + PostGIS backend with optimised spatial queries",
+    "id": "parkpie",
+    "title": "ParkPie",
+    "summary": "Led SDLC as AI & Backend Lead in a 6-person Agile team, architecting a geospatial-first Django backend leveraging AWS EC2, RDS (PostGIS), Cognito auth, and S3 for secure uploads",
     "highlights": [
-      "Pioneered an agentic AI pipeline with LangGraph and LangChain to orchestrate multi-step reasoning for parking sign interpretation, innovating a hybrid cloud/local inference approach with Google Gemini and Ollama",
-      "Deployed a scalable vector database with PGVector in PostgreSQL 17 to power semantic search for Retrieval-Augmented Generation (RAG) on parking regulations",
-      "Configured CI/CD with Docker Compose and GitHub Actions, enforcing Test-driven development (TDD) and quality gates with strict type-checking (Mypy), linting (ruff), and automated test suites",
-      "Added comprehensive monitoring and tracing with LangSmith for LLM tracing and OpenTelemetry + the LGTM stack (Loki, Grafana, Tempo, Mimir) to monitor complex agentic workflows and API performance"
+      "Designed a domain-driven PostgreSQL schema managing 1.9M+ geospatial records, separating runtime map state from immutable temporal history to ensure auditable data provenance via CQRS-inspired REST APIs",
+      "Pioneered an agentic AI pipeline with LangGraph and LangChain, combining a hybrid Gemini/Ollama inference model with PGVector semantic search for reliable Retrieval-Augmented Generation (RAG)",
+      "Engineered a DevSecOps CI/CD pipeline in GitHub Actions, enforcing Test-driven development across 350+ automated tests, Mypy strict type-checking, Bandit security scanning, and Docker builds to GHCR",
+      "Added comprehensive monitoring and tracing with LangSmith for LLM behaviour and OpenTelemetry + the LGTM stack (Loki, Grafana, Tempo, Mimir) to observe complex agentic workflows"
     ],
     "stack": ["Python", "Django", "PostgreSQL", "LangChain", "Docker", "AWS"],
-    "repoUrl": "https://github.com/parkpie-app"
-  },
-  {
-    "id": "parkpie-landing",
-    "title": "ParkPie Landing Website",
-    "summary": "Architected a high-performance marketing platform using Next.js 16 and React 19, achieving a 100% Lighthouse performance score via zero-layout-shift font loading, edge-cached content, and semantic HTML",
-    "highlights": [
-      "Engineered a cost-effective “Headless CMS” solution powered by Airtable and Incremental Static Regeneration (ISR), enabling non-technical teams to manage content while serving pages with sub-millisecond latency",
-      "Secured public infrastructure with a defence-in-depth strategy, combining IP-based fixed-window rate limiting, honeypot fields, and strict Zod schema validation to eliminate automated abuse vectors",
-      "Mitigated critical React2Shell exposure (CVE-2025-55182) by orchestrating a zero-downtime upgrade to Next.js 16 and enforcing stability via continuous regression testing"
-    ],
-    "stack": ["TypeScript", "Next.js", "React", "Tailwind CSS", "Vitest"],
     "liveUrl": "https://parkpie-landing.vercel.app"
-  },
-  {
-    "id": "social-media-analytics",
-    "title": "Social Media Analytics System",
-    "summary": "Spearheaded a 5-person team to deliver a cloud-native analytics system for the 2025 Australian federal election, coordinating sprint planning, code reviews, and cross-module integration (University of Melbourne)",
-    "highlights": [
-      "Developed a scalable Reddit harvester/processor with Fission, ingesting and normalising 168,000+ posts in real-time while managing API rate limits",
-      "Designed a comment-tree collector to enrich sentiment and engagement analysis; exposed data via a REST API backed by Elasticsearch",
-      "Created interactive Jupyter Notebook visualisations for filtering and trend analysis; presented findings to 400+ students in class"
-    ],
-    "stack": ["Python", "Flask", "Kubernetes", "Redis", "Elasticsearch"],
-    "liveUrl": "https://www.youtube.com/watch?v=gWLpV47mN3w"
   }
 ]

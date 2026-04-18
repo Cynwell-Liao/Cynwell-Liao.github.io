@@ -104,7 +104,7 @@ describe('terminal', () => {
     expect(byIndex?.output[0].tone).toBe('success')
 
     const byId = runCommand(`open ${projects[1].id.toUpperCase()}`)
-    expect(byId?.openUrl).toBe(projects[1].repoUrl)
+    expect(byId?.openUrl).toBe(projects[1].liveUrl ?? projects[1].repoUrl)
 
     const missing = runCommand('open missing')
     expect(missing?.output[0].text).toContain("Project 'missing' not found")
