@@ -245,15 +245,27 @@ export const skillCategories: SkillCategory[] = [
         icon: SiDotnet,
         color: '#512BD4',
       },
-      { name: 'Django', note: 'Python web scaffolding', icon: SiDjango },
-      { name: 'Flask', note: 'Micro web framework', icon: SiFlask },
+      {
+        name: 'Django',
+        note: 'Python web scaffolding',
+        icon: SiDjango,
+      },
+      {
+        name: 'Flask',
+        note: 'Micro web framework',
+        icon: SiFlask,
+      },
       {
         name: 'Node.js',
         note: 'Server-side runtimes',
         icon: SiNodedotjs,
         color: '#339939',
       },
-      { name: 'Next.js', note: 'React meta-framework', icon: SiNextdotjs },
+      {
+        name: 'Next.js',
+        note: 'React meta-framework',
+        icon: SiNextdotjs,
+      },
     ],
   },
   {
@@ -265,8 +277,21 @@ export const skillCategories: SkillCategory[] = [
         icon: SiGooglegemini,
         color: '#8E75B2',
       },
-      { name: 'Ollama', note: 'Local LLM APIs', icon: SiOllama },
-      { name: 'LangChain', note: 'Agentic orchestration', icon: SiLangchain },
+      {
+        name: 'Ollama',
+        note: 'Local LLM APIs',
+        icon: SiOllama,
+      },
+      {
+        name: 'LangChain',
+        note: 'Agentic orchestration',
+        icon: SiLangchain,
+      },
+      {
+        name: 'LangGraph',
+        note: 'Stateful agent workflows',
+        icon: SiLangchain,
+      },
       {
         name: 'Transformers',
         note: 'Hugging Face models',
@@ -337,7 +362,12 @@ export const skillCategories: SkillCategory[] = [
         icon: VscAzure,
         color: '#0089D6',
       },
-      { name: 'Docker', note: 'Containerization', icon: SiDocker, color: '#2496ED' },
+      {
+        name: 'Docker',
+        note: 'Containerization',
+        icon: SiDocker,
+        color: '#2496ED',
+      },
       {
         name: 'Kubernetes',
         note: 'Container orchestration',
@@ -361,7 +391,12 @@ export const skillCategories: SkillCategory[] = [
         icon: SiPostgresql,
         color: '#336791',
       },
-      { name: 'MySQL', note: 'Relational databases', icon: SiMysql, color: '#4479A1' },
+      {
+        name: 'MySQL',
+        note: 'Relational databases',
+        icon: SiMysql,
+        color: '#4479A1',
+      },
       {
         name: 'Microsoft SQL Server',
         note: 'Relational databases',
@@ -380,7 +415,12 @@ export const skillCategories: SkillCategory[] = [
         icon: SiMongodb,
         color: '#47A248',
       },
-      { name: 'Redis', note: 'In-memory caching', icon: SiRedis, color: '#DC382D' },
+      {
+        name: 'Redis',
+        note: 'In-memory caching',
+        icon: SiRedis,
+        color: '#DC382D',
+      },
       {
         name: 'Elasticsearch',
         note: 'High-performance search',
