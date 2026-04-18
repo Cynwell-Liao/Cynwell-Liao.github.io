@@ -1,6 +1,9 @@
-# Cynwell Portfolio (GitHub Pages)
+# Open-Source Portfolio (GitHub Pages)
 
-[![CI Quality Gates](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml)
+[![CI](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml)
+[![CD](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/cd.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/cd.yml)
+[![release](https://img.shields.io/github/v/release/Cynwell-Liao/Cynwell-Liao.github.io?sort=semver)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/releases)
+[![license](https://img.shields.io/github/license/Cynwell-Liao/Cynwell-Liao.github.io)](LICENSE)
 
 Modern personal portfolio built with React 18, Vite, TypeScript, Tailwind CSS, and Framer Motion.
 This is a static frontend app with no backend/API routes.
