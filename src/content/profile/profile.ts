@@ -194,7 +194,7 @@ export const skillCategories: SkillCategory[] = [
       },
       {
         name: 'C#',
-        note: 'Typed application development',
+        note: 'Typed applications',
         icon: TbBrandCSharp,
         color: '#512BD4',
       },
@@ -367,12 +367,6 @@ export const skillCategories: SkillCategory[] = [
         note: 'Relational databases',
         icon: DiMsqlServer,
         color: '#CC292B',
-      },
-      {
-        name: 'Cosmos DB',
-        note: 'Globally distributed NoSQL',
-        icon: VscAzure,
-        color: '#0089D6',
       },
       {
         name: 'Firestore',
