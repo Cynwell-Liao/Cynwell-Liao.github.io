@@ -110,6 +110,15 @@ export const profile: ProfileData = {
       imageWidth: 105,
       imageHeight: 105,
     },
+    {
+      credentialUrl:
+        'https://badges.parchment.au/public/assertions/Z3oQHZFZRii2MHUgAe0WYA',
+      imageUrl:
+        'https://badges.parchment.au/public/assertions/Z3oQHZFZRii2MHUgAe0WYA/image',
+      imageAlt: 'University of Melbourne badge Z3oQHZFZRii2MHUgAe0WYA',
+      imageWidth: 105,
+      imageHeight: 105,
+    },
   ],
   contributionsLoadingLabel: 'Loading contributions...',
   contributionsSuffixLabel: 'contributions in the last year',
