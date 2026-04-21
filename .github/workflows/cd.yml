@@ -1,9 +1,9 @@
-name: Deploy Portfolio to GitHub Pages
+name: cd
 
 on:
   workflow_run:
     workflows:
-      - CI Quality Gates
+      - ci
     types:
       - completed
     branches:
