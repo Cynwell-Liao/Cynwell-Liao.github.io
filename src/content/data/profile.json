@@ -1,0 +1,94 @@
+{
+  "name": "Cynwell Liao",
+  "brandName": "Cynwell-Liao",
+  "title": "AI Software Engineer",
+  "tagline": "Building production backend systems and event-driven RAG pipelines with reliability, velocity, and observability.",
+  "githubUsername": "Cynwell-Liao",
+  "githubUrl": "https://github.com/Cynwell-Liao",
+  "repositoryUrl": "https://github.com/Cynwell-Liao/Cynwell-Liao.github.io",
+  "linkedinUrl": "https://www.linkedin.com/in/cynwell-liao",
+  "about": {
+    "headingLead": "Engineering mindset,",
+    "headingAccent": "product velocity.",
+    "intro": "I work at the intersection of AI reliability and cloud infrastructure, turning complex systems into practical product outcomes.",
+    "paragraphs": [
+      "Currently pursuing a Master of Information Technology at the University of Melbourne with a focus on computing, supported by a strong foundation in business from a Bachelor of Business at QUT. Gained additional skills in project management through a short-term exchange program at Harvard University and certifications, including the AWS Certified Solutions Architect – Associate and Google IT Automation with Python Professional Certificate.",
+      "As a Data Analytics Teaching Assistant at TibaMe, mentor learners in data analytics and visualization with tools like Power BI and SQL Server, focusing on problem-solving and workflow optimization. Recently contributed as an AI Software Engineer Intern at Startupbootcamp, developing RAG pipelines and streamlining data synchronization using React, Node.js, and TypeScript. Skilled in software development, solution architecture, and project management, with a focus on delivering reliable, user-driven solutions."
+    ]
+  },
+  "hero": {
+    "statusLabel": "SYSTEMS ONLINE",
+    "terminalPath": "~/stack",
+    "terminalDirectories": ["AI Models", "Cloud Native", "Developer Exp"],
+    "terminalPrompt": "_",
+    "certificationsHeading": "Licenses & Certifications"
+  },
+  "certifications": [
+    {
+      "credentialUrl": "https://www.credly.com/badges/6c641dc5-0427-4183-ac72-3a8424636129/public_url",
+      "imageUrl": "https://images.credly.com/images/0e284c3f-5164-4b21-8660-0d84737941bc/image.png",
+      "imageAlt": "AWS Certified Solutions Architect - Associate badge",
+      "imageWidth": 105,
+      "imageHeight": 105
+    },
+    {
+      "credentialUrl": "https://www.credly.com/badges/c1dac230-a051-4336-9cc5-761d6e6ff49d/public_url",
+      "imageUrl": "https://images.credly.com/images/efbdc0d6-b46e-4e3c-8cf8-2314d8a5b971/GCC_badge_python_1000x1000.png",
+      "imageAlt": "Google IT Automation with Python Professional Certificate badge",
+      "imageWidth": 105,
+      "imageHeight": 105
+    },
+    {
+      "credentialUrl": "https://badges.parchment.au/public/assertions/K57ezYCYTEGgmFZNXV-80w",
+      "imageUrl": "https://badges.parchment.au/public/assertions/K57ezYCYTEGgmFZNXV-80w/image",
+      "imageAlt": "University of Melbourne badge K57ezYCYTEGgmFZNXV-80w",
+      "imageWidth": 105,
+      "imageHeight": 105
+    },
+    {
+      "credentialUrl": "https://badges.parchment.au/public/assertions/FDSHlf8xT8CHnCJFmgezJg",
+      "imageUrl": "https://badges.parchment.au/public/assertions/FDSHlf8xT8CHnCJFmgezJg/image",
+      "imageAlt": "University of Melbourne badge FDSHlf8xT8CHnCJFmgezJg",
+      "imageWidth": 105,
+      "imageHeight": 105
+    },
+    {
+      "credentialUrl": "https://badges.parchment.au/public/assertions/FaNgigLxTA6Nsda7foXpVw",
+      "imageUrl": "https://badges.parchment.au/public/assertions/FaNgigLxTA6Nsda7foXpVw/image",
+      "imageAlt": "University of Melbourne badge FaNgigLxTA6Nsda7foXpVw",
+      "imageWidth": 105,
+      "imageHeight": 105
+    },
+    {
+      "credentialUrl": "https://badges.parchment.au/public/assertions/Z3oQHZFZRii2MHUgAe0WYA",
+      "imageUrl": "https://badges.parchment.au/public/assertions/Z3oQHZFZRii2MHUgAe0WYA/image",
+      "imageAlt": "University of Melbourne badge Z3oQHZFZRii2MHUgAe0WYA",
+      "imageWidth": 105,
+      "imageHeight": 105
+    }
+  ],
+  "navLinks": [
+    { "label": "About", "href": "#about" },
+    { "label": "Tech Stack", "href": "#tech-stack" },
+    { "label": "Projects", "href": "#projects" },
+    { "label": "Education", "href": "#education" }
+  ],
+  "labels": {
+    "githubLabel": "GitHub",
+    "linkedinLabel": "LinkedIn Profile",
+    "contributionsLoadingLabel": "Loading contributions...",
+    "contributionsSuffixLabel": "contributions in the last year",
+    "techStackSectionEyebrow": "Tech Stack",
+    "techStackSectionTitle": "Production-ready toolkit",
+    "techStackSectionDescription": "Tools and platforms I rely on to build robust AI and cloud systems.",
+    "projectsSectionEyebrow": "Projects",
+    "projectsSectionTitle": "Portfolio highlights",
+    "projectsSectionDescription": "Selected projects focused on production AI, cloud architecture, and engineering enablement.",
+    "projectLiveLabel": "View Live",
+    "projectSourceLabel": "View Source",
+    "educationSectionEyebrow": "Education",
+    "educationSectionTitle": "Academic foundations",
+    "educationSectionDescription": "My academic background driving engineering excellence and systems thinking.",
+    "footerAttribution": "Engineered with React, Tailwind, and Framer Motion."
+  }
+}

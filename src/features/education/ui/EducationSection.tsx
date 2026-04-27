@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 
+import { resolveIcon } from '@shared/lib/icons'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { EducationItem } from '../model/education.types'
@@ -30,7 +31,7 @@ export function EducationSection({
 
       <div className="mt-12 grid gap-6 md:grid-cols-2 lg:gap-8 relative z-10">
         {education.map((item, index) => {
-          const Icon = item.icon
+          const Icon = resolveIcon(item.icon)
           // The first item (Master's) spans two columns on medium screens and up
           const isHero = index === 0
 

@@ -1,5 +1,5 @@
-import { projectsSchema } from './model/project.schema'
-import rawProjects from './projects.json'
+import rawProjects from '../data/projects.json'
+import { projectsSchema } from '../schemas/project.schema'
 
 import type { Project } from '@shared/types/portfolio.types'
 
@@ -11,7 +11,7 @@ export const parseProjects = (input: unknown): Project[] => {
       .map((issue) => `${issue.path.join('.') || '<root>'}: ${issue.message}`)
       .join('; ')
 
-    throw new Error(`Invalid content/projects/projects.json: ${issueSummary}`)
+    throw new Error(`Invalid content/data/projects.json: ${issueSummary}`)
   }
 
   return parseResult.data

@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react'
-import { LuGraduationCap } from 'react-icons/lu'
 import { describe, expect, it } from 'vitest'
 
-import { profile } from '@content/profile'
+import { profile } from '@content'
 
 import { EducationSection } from './EducationSection'
 
@@ -46,7 +45,7 @@ describe('EducationSection', () => {
         degree: 'Bachelor of Business',
         duration: '2020 - 2024',
         achievements: ['Academic Excellence'],
-        icon: LuGraduationCap,
+        icon: 'graduation-cap',
       },
     ]
 

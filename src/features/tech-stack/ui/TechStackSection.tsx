@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 
+import { resolveIcon } from '@shared/lib/icons'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { SkillCategory } from '../model/skill.types'
@@ -51,7 +52,7 @@ export function TechStackSection({
 
             <ul className="space-y-6">
               {category.items.map((item, itemIndex) => {
-                const Icon = item.icon
+                const Icon = resolveIcon(item.icon)
                 return (
                   <motion.li
                     className="flex items-start gap-4"
@@ -70,7 +71,7 @@ export function TechStackSection({
                       }`}
                       style={item.color ? { color: item.color } : {}}
                     >
-                      <Icon className="h-6 w-6" />
+                      {Icon ? <Icon className="h-6 w-6" /> : null}
                     </span>
                     <div>
                       <span className="block text-base font-semibold text-slate-900 dark:text-slate-100">

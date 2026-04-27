@@ -1,8 +1,7 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { profile } from '@content/profile'
-import { loadProjects } from '@content/projects'
+import { loadProjects, profile } from '@content'
 
 import { HeroSection } from './HeroSection'
 

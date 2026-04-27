@@ -56,8 +56,9 @@ export default defineConfig([
               message: 'Import feature modules via @features/<feature> public API.',
             },
             {
-              group: ['@content/*/*'],
-              message: 'Import content via @content/<slice> public API.',
+              group: ['@content/data/*', '@content/loaders/*', '@content/schemas/*'],
+              message:
+                'Import content only via @content barrel — never reach into data/, loaders/, or schemas/ directly.',
             },
           ],
         },

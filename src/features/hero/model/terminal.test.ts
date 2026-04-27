@@ -1,7 +1,6 @@
 import { describe, expect, it } from 'vitest'
 
-import { profile } from '@content/profile'
-import { loadProjects } from '@content/projects'
+import { loadProjects, profile } from '@content'
 
 import {
   createInitialTerminalLines,

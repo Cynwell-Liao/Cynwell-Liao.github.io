@@ -12,6 +12,7 @@
       "@app/*": ["./src/app/*"],
       "@features/*": ["./src/features/*"],
       "@shared/*": ["./src/shared/*"],
+      "@content": ["./src/content/index.ts"],
       "@content/*": ["./src/content/*"]
     },
 

@@ -1,5 +1,3 @@
-import type { IconType } from 'react-icons'
-
 export interface CertificationItem {
   credentialUrl: string
   imageUrl: string
@@ -48,7 +46,7 @@ export interface ProfileData {
 export interface SocialLink {
   label: string
   href: string
-  icon?: IconType
+  icon?: string
 }
 
 export interface NavLink {
@@ -62,7 +60,7 @@ export interface EducationItem {
   degree: string
   duration: string
   achievements: string[]
-  icon?: IconType
+  icon?: string
   logoUrl?: string
   color?: string
 }
@@ -70,7 +68,7 @@ export interface EducationItem {
 export interface SkillItem {
   name: string
   note: string
-  icon: IconType
+  icon: string
   color?: string
 }
 

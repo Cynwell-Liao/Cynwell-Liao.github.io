@@ -1,5 +1,4 @@
-import { education, navLinks, profile, skillCategories } from '@content/profile'
-import { loadProjects } from '@content/projects'
+import { loadEducation, loadProjects, loadSkills, navLinks, profile } from '@content'
 import { AboutSection } from '@features/about'
 import { EducationSection } from '@features/education'
 import { Footer } from '@features/footer'
@@ -10,6 +9,8 @@ import { TechStackSection } from '@features/tech-stack'
 import { useTheme } from '@shared/lib/theme/useTheme'
 
 const projects = loadProjects()
+const skillCategories = loadSkills()
+const education = loadEducation()
 
 function App() {
   const { theme, toggleTheme } = useTheme()

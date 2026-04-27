@@ -1,0 +1,40 @@
+[
+  {
+    "institution": "The University of Melbourne",
+    "location": "Melbourne, VIC, Australia",
+    "degree": "Master of Information Technology (Computing)",
+    "duration": "Jul. 2024 \u2014 Jul. 2026",
+    "achievements": [
+      "Mobile Computing Systems Programming \u2014 ParkPie (Best Project of the Year, formally commended by Prof. Vassilis Kostakos for Outstanding Idea and Implementation)",
+      "Led cross-functional teams in 2025 FEIT Hackathon (Finalists) and 2024 FEIT Hackathon (Finalists), coordinating task delegation, design decisions, and demos under 3-day deadlines"
+    ],
+    "icon": "library",
+    "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=unimelb.edu.au",
+    "color": "#094183"
+  },
+  {
+    "institution": "Harvard University",
+    "location": "Cambridge, MA, USA",
+    "degree": "Short-term Exchange, Project Management",
+    "duration": "Jul. 2025 \u2014 Aug. 2025",
+    "achievements": [
+      "Awarded Engineering Exchange Scholarship issued by FEIT, University of Melbourne"
+    ],
+    "icon": "book-open",
+    "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=harvard.edu",
+    "color": "#A51C30"
+  },
+  {
+    "institution": "Queensland University of Technology (QUT)",
+    "location": "Brisbane, QLD, Australia",
+    "degree": "Bachelor of Business (International Business)",
+    "duration": "Jul. 2020 \u2014 Jul. 2024",
+    "achievements": [
+      "QUT Executive Dean's Commendation for Academic Excellence issued by Executive Dean, Jul. 2024",
+      "Recipient of Ministry of Education (Taiwan) Study Abroad Scholarship"
+    ],
+    "icon": "graduation-cap",
+    "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=qut.edu.au",
+    "color": "#003C71"
+  }
+]

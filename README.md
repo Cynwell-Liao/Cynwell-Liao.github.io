@@ -37,12 +37,40 @@ npm run dev
 
 ## Customize for Your Portfolio
 
-Update these files first:
+### Step 1 — Personal Information _(required)_
 
-- `src/content/profile/profile.ts`: name, title, tagline, bio paragraphs, social links, section labels, education items, internship highlights, skills.
-- `src/content/projects/projects.json`: project cards (title, summary, highlights, stack, links).
-- `index.html`: SEO metadata (`title`, `description`, `author`, canonical URL, `og:*`).
-- `public/favicon.ico` and `public/assets/og-cover.svg`: branding and social preview image.
+Edit `src/content/data/profile.json`:
+
+- **`name` / `title` / `tagline`** — core identity.
+- **`about`** — biography paragraphs.
+- **`hero`** — terminal prompt and directories.
+- **`certifications`** — certification badge URLs.
+- **`navLinks`** — top navigation links.
+- **`labels`** _(optional)_ — section headings and button text.
+
+### Step 2 — Projects _(required)_
+
+Edit `src/content/data/projects.json` — title, summary, highlights, stack, links.
+
+### Step 3 — Skills & Education _(required)_
+
+Edit `src/content/data/skills.json` — tech stack categories. Icons reference keys from `src/shared/lib/icons/iconRegistry.ts`.
+Edit `src/content/data/education.json` — academic background and achievements.
+
+### Step 4 — SEO Metadata _(required)_
+
+Edit `site-meta.json` (project root) — name, site URL, description, keywords, Google verification. These values are injected into `index.html` at build time.
+
+### Step 5 — Branding _(optional)_
+
+- Replace `public/favicon.ico` and `public/assets/og-cover.png`.
+- Update `public/sitemap.xml` and `public/robots.txt` with your site URL.
+
+### Adding New Skill Icons
+
+1. Install/import the icon component in `src/shared/lib/icons/iconRegistry.ts`.
+2. Add a key-value entry (e.g., `react: SiReact`).
+3. Use the key in `skills.json` (`"icon": "react"`).
 
 ## Deploy Your Fork to GitHub Pages
 
@@ -51,7 +79,7 @@ The deployment workflow is already included in `.github/workflows/cd.yml`.
 Use one of these modes:
 
 - User site repository (`<username>.github.io`): keep `base: '/'` in `vite.config.ts`.
-- Project site repository (`<repo-name>`): change Vite base in `vite.config.ts` to `'/<repo-name>/'` and update `index.html` canonical/Open Graph URLs to your final Pages URL.
+- Project site repository (`<repo-name>`): change Vite base in `vite.config.ts` to `'/<repo-name>/'` and update `site-meta.json` `siteUrl` to your final Pages URL.
 
 Then:
 
