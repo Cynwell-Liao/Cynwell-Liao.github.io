@@ -61,15 +61,30 @@
         "icon": "dotnet",
         "color": "#512BD4"
       },
-      { "name": "Django", "note": "Python web scaffolding", "icon": "django" },
-      { "name": "Flask", "note": "Micro web framework", "icon": "flask" },
+      {
+        "name": "Django",
+        "note": "Python web scaffolding",
+        "icon": "django",
+        "color": "#092E20"
+      },
+      {
+        "name": "Flask",
+        "note": "Micro web framework",
+        "icon": "flask",
+        "color": "#000000"
+      },
       {
         "name": "Node.js",
         "note": "Server-side runtimes",
         "icon": "nodejs",
         "color": "#339939"
       },
-      { "name": "Next.js", "note": "React meta-framework", "icon": "nextjs" }
+      {
+        "name": "Next.js",
+        "note": "React meta-framework",
+        "icon": "nextjs",
+        "color": "#000000"
+      }
     ]
   },
   {
@@ -81,9 +96,24 @@
         "icon": "gemini",
         "color": "#8E75B2"
       },
-      { "name": "Ollama", "note": "Local LLM APIs", "icon": "ollama" },
-      { "name": "LangChain", "note": "Agentic orchestration", "icon": "langchain" },
-      { "name": "LangGraph", "note": "Stateful agent workflows", "icon": "langchain" },
+      {
+        "name": "Ollama",
+        "note": "Local LLM APIs",
+        "icon": "ollama",
+        "color": "#000000"
+      },
+      {
+        "name": "LangChain",
+        "note": "Agentic orchestration",
+        "icon": "langchain",
+        "color": "#1C3C3C"
+      },
+      {
+        "name": "LangGraph",
+        "note": "Stateful agent workflows",
+        "icon": "langchain",
+        "color": "#1C3C3C"
+      },
       {
         "name": "Transformers",
         "note": "Hugging Face models",
@@ -104,12 +134,14 @@
       {
         "name": "LangSmith",
         "note": "LLM evaluation and tracing",
-        "icon": "langchain"
+        "icon": "langchain",
+        "color": "#1C3C3C"
       },
       {
         "name": "OpenTelemetry",
         "note": "Distributed tracing system",
-        "icon": "opentelemetry"
+        "icon": "opentelemetry",
+        "color": "#000000"
       },
       {
         "name": "Prometheus",
