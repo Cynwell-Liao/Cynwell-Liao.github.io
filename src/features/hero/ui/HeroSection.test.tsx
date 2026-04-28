@@ -2,7 +2,6 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { loadProjects, profile } from '@content'
-import packageJson from '../../../../package.json'
 
 import { HeroSection } from './HeroSection'
 
@@ -22,11 +21,10 @@ const createFetchMock = (options?: {
           ? input.toString()
           : input.url
 
-    if (requestUrl.includes('version.json')) {
+    if (requestUrl.includes('/releases/latest')) {
       return Promise.resolve({
         ok: true,
-        json: () =>
-          Promise.resolve({ version: options?.deployVersion ?? packageJson.version }),
+        json: () => Promise.resolve({ tag_name: options?.deployVersion ?? 'v1.3.0' }),
       })
     }
 
@@ -127,7 +125,7 @@ describe('HeroSection', () => {
     })
 
     expect(screen.getByText(profile.heroStatusLabel)).toBeInTheDocument()
-    expect(screen.getByText(`v${packageJson.version}`)).toBeInTheDocument()
+    expect(screen.getByText('v1.3.0')).toBeInTheDocument()
   })
 
   it('updates the deploy version when a newer release is published', async () => {

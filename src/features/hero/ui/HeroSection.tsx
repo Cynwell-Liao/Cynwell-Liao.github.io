@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { type SyntheticEvent, useEffect, useRef, useState } from 'react'
+import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react'
 import { FaLinkedin } from 'react-icons/fa'
 import { FiGithub, FiTerminal } from 'react-icons/fi'
 
@@ -40,6 +40,10 @@ export function HeroSection({
   const [commandHistory, setCommandHistory] = useState<string[]>([])
   const terminalOutputRef = useRef<HTMLDivElement>(null)
   const [liveDeployVersion, setLiveDeployVersion] = useState<string | null>(null)
+  const githubRepositoryPath = useMemo(
+    () => new URL(profile.repositoryUrl).pathname.replace(/^\//, ''),
+    [profile.repositoryUrl]
+  )
   const certificationMarqueeItems = [
     ...profile.heroCertifications,
     ...profile.heroCertifications,
@@ -63,10 +67,17 @@ export function HeroSection({
 
     const refreshDeployVersion = async () => {
       try {
-        const response = await fetch(`${import.meta.env.BASE_URL}version.json`, {
-          cache: 'no-store',
-          signal: abortController.signal,
-        })
+        const response = await fetch(
+          `https://api.github.com/repos/${githubRepositoryPath}/releases/latest`,
+          {
+            cache: 'no-store',
+            signal: abortController.signal,
+            headers: {
+              Accept: 'application/vnd.github+json',
+              'X-GitHub-Api-Version': '2022-11-28',
+            },
+          }
+        )
 
         if (!response.ok) {
           return
@@ -93,7 +104,7 @@ export function HeroSection({
       abortController.abort()
       window.clearInterval(intervalId)
     }
-  }, [])
+  }, [githubRepositoryPath])
 
   useEffect(() => {
     if (terminalOutputRef.current) {

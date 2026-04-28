@@ -7,9 +7,6 @@ import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
-const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8')) as {
-  version: string
-}
 
 // https://vite.dev/config/
 export default defineConfig({
@@ -17,16 +14,6 @@ export default defineConfig({
   plugins: [
     tailwindcss(),
     react(),
-    {
-      name: 'emit-deploy-version-manifest',
-      generateBundle() {
-        this.emitFile({
-          type: 'asset',
-          fileName: 'version.json',
-          source: JSON.stringify({ version: packageJson.version }, null, 2),
-        })
-      },
-    },
     {
       name: 'inject-site-meta',
       transformIndexHtml: {
