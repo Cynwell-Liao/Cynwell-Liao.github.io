@@ -146,11 +146,49 @@ Key conventions that cannot be inferred from tool configs alone:
 
 ### Cutting a New Release
 
-To release a new version (patch, minor, or major), strictly follow these 6 steps in order to ensure the CI/CD pipeline and GitHub Releases stay perfectly synced:
+Follow these exact commands in order:
 
-1. **Validate:** Run `npm run check` locally to catch issues before pushing.
-2. **Bump Version:** Update `package.json` without auto-committing: `npm version <patch|minor|major> --no-git-tag-version`
-3. **Commit:** Commit the changes using the exact unified message format: `git commit -m "release: v<version>"`
-4. **Tag:** Create the SemVer tag: `git tag v<version>`
-5. **Push:** Push the commit and the tag to main: `git push origin main --tags`
-6. **Publish Release:** Create the GitHub Release object with auto-generated notes: `gh release create v<version> --generate-notes`
+1. Validate:
+
+```bash
+npm run check
+```
+
+2. Bump version (no commit/tag):
+
+```bash
+npm version <patch|minor|major> --no-git-tag-version
+```
+
+3. Commit:
+
+```bash
+git add .
+git commit -m "release: v<version>"
+```
+
+4. Tag:
+
+```bash
+git tag v<version>
+```
+
+5. Push:
+
+```bash
+git push origin main --follow-tags
+```
+
+6. Create GitHub Release:
+
+```bash
+gh release create v<version> --generate-notes
+```
+
+Conventions:
+
+- Commit message for release: `release: vX.Y.Z`
+- Tag format: `vX.Y.Z`
+- `package.json` version MUST match the tag.
+- Do not modify CI/CD workflows.
+- Do not bypass lint/typecheck/tests.

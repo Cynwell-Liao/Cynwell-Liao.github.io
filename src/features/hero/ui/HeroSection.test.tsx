@@ -2,12 +2,39 @@ import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
 import { loadProjects, profile } from '@content'
+import packageJson from '../../../../package.json'
 
 import { HeroSection } from './HeroSection'
 
 import type { Project } from '@shared/types/portfolio.types'
 
 const projects = loadProjects()
+
+const createFetchMock = (options?: {
+  deployVersion?: string
+  totalContributions?: number
+}) =>
+  vi.fn((input: RequestInfo | URL) => {
+    const requestUrl =
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url
+
+    if (requestUrl.includes('version.json')) {
+      return Promise.resolve({
+        ok: true,
+        json: () =>
+          Promise.resolve({ version: options?.deployVersion ?? packageJson.version }),
+      })
+    }
+
+    return Promise.resolve({
+      json: () =>
+        Promise.resolve({ totalContributions: options?.totalContributions ?? 123 }),
+    })
+  })
 
 const renderHeroSection = (overrides?: {
   theme?: 'light' | 'dark'
@@ -25,11 +52,7 @@ const renderHeroSection = (overrides?: {
 
 describe('HeroSection', () => {
   it('renders contribution total when API returns valid payload', async () => {
-    const fetchMock = vi.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ totalContributions: 42 }),
-      })
-    )
+    const fetchMock = createFetchMock({ totalContributions: 42 })
     vi.stubGlobal('fetch', fetchMock)
 
     renderHeroSection()
@@ -78,11 +101,7 @@ describe('HeroSection', () => {
   })
 
   it('renders terminal startup hint', async () => {
-    const fetchMock = vi.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({}),
-      })
-    )
+    const fetchMock = createFetchMock()
     vi.stubGlobal('fetch', fetchMock)
 
     renderHeroSection()
@@ -95,5 +114,30 @@ describe('HeroSection', () => {
       screen.getByLabelText<HTMLInputElement>('Terminal command input')
     ).toBeInTheDocument()
     expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
+  })
+
+  it('renders the deploy version beside the online status', async () => {
+    const fetchMock = createFetchMock()
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHeroSection()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled()
+    })
+
+    expect(screen.getByText(profile.heroStatusLabel)).toBeInTheDocument()
+    expect(screen.getByText(`v${packageJson.version}`)).toBeInTheDocument()
+  })
+
+  it('updates the deploy version when a newer release is published', async () => {
+    const fetchMock = createFetchMock({ deployVersion: 'v1.2.2' })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHeroSection()
+
+    await waitFor(() => {
+      expect(screen.getByText('v1.2.2')).toBeInTheDocument()
+    })
   })
 })

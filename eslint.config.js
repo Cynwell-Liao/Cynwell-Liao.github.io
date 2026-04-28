@@ -106,23 +106,6 @@ export default defineConfig([
         },
       ],
       'import/no-default-export': 'off',
-      'import/order': [
-        'error',
-        {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-            'object',
-            'type',
-          ],
-          alphabetize: { order: 'asc', caseInsensitive: true },
-          'newlines-between': 'always',
-        },
-      ],
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
@@ -156,23 +139,6 @@ export default defineConfig([
     },
     rules: {
       'import/no-default-export': 'off',
-      'import/order': [
-        'error',
-        {
-          groups: [
-            'builtin',
-            'external',
-            'internal',
-            'parent',
-            'sibling',
-            'index',
-            'object',
-            'type',
-          ],
-          alphabetize: { order: 'asc', caseInsensitive: true },
-          'newlines-between': 'always',
-        },
-      ],
     },
   },
 ])

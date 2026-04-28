@@ -10,6 +10,10 @@ import {
   terminalToneClasses,
   type TerminalLine,
 } from '../model/terminal'
+import {
+  DEPLOY_VERSION_POLL_INTERVAL_MS,
+  parseDeployVersion,
+} from '../model/deployVersion'
 
 import type { ProfileData } from '../model/profile.types'
 import type { ThemeMode } from '@shared/types/common'
@@ -35,6 +39,7 @@ export function HeroSection({
   )
   const [commandHistory, setCommandHistory] = useState<string[]>([])
   const terminalOutputRef = useRef<HTMLDivElement>(null)
+  const [liveDeployVersion, setLiveDeployVersion] = useState<string | null>(null)
   const certificationMarqueeItems = [
     ...profile.heroCertifications,
     ...profile.heroCertifications,
@@ -52,6 +57,43 @@ export function HeroSection({
       })
       .catch(console.error)
   }, [profile.githubUsername])
+
+  useEffect(() => {
+    const abortController = new AbortController()
+
+    const refreshDeployVersion = async () => {
+      try {
+        const response = await fetch(`${import.meta.env.BASE_URL}version.json`, {
+          cache: 'no-store',
+          signal: abortController.signal,
+        })
+
+        if (!response.ok) {
+          return
+        }
+
+        const latestVersion = parseDeployVersion((await response.json()) as unknown)
+        if (latestVersion) {
+          setLiveDeployVersion(latestVersion)
+        }
+      } catch (error) {
+        if (!abortController.signal.aborted) {
+          console.error(error)
+        }
+      }
+    }
+
+    void refreshDeployVersion()
+
+    const intervalId = window.setInterval(() => {
+      void refreshDeployVersion()
+    }, DEPLOY_VERSION_POLL_INTERVAL_MS)
+
+    return () => {
+      abortController.abort()
+      window.clearInterval(intervalId)
+    }
+  }, [])
 
   useEffect(() => {
     if (terminalOutputRef.current) {
@@ -124,12 +166,21 @@ export function HeroSection({
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
         >
-          <div className="inline-flex items-center gap-2 rounded-full border border-slate-300 dark:border-white/20 bg-slate-100/50 dark:bg-white/5 px-4 py-1.5 text-xs font-mono tracking-widest text-emerald-500 dark:text-emerald-400 backdrop-blur-md mb-8 w-fit shadow-[0_0_15px_rgba(16,185,129,0.2)]">
+          <div className="inline-flex items-center gap-3 rounded-full border border-slate-300 dark:border-white/20 bg-slate-100/50 dark:bg-white/5 px-4 py-1.5 text-xs font-mono tracking-widest backdrop-blur-md mb-8 w-fit shadow-[0_0_15px_rgba(16,185,129,0.2)]">
             <span className="relative flex h-2 w-2">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500" />
             </span>
-            {profile.heroStatusLabel}
+            <span className="flex items-center gap-2 whitespace-nowrap">
+              <span className="font-semibold tracking-[0.24em] text-emerald-600 dark:text-emerald-300">
+                {profile.heroStatusLabel}
+              </span>
+              {liveDeployVersion ? (
+                <span className="text-[0.68rem] font-medium tracking-[0.28em] text-slate-500 dark:text-slate-400">
+                  {liveDeployVersion}
+                </span>
+              ) : null}
+            </span>
           </div>
 
           <h1 className="text-5xl sm:text-6xl font-bold tracking-tight text-slate-900 dark:text-white md:text-7xl lg:text-[5.5rem] leading-[1.1] break-words">
