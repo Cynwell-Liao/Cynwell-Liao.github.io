@@ -48,6 +48,6 @@ describe('parseProfile', () => {
         navLinks: [],
         labels: {},
       })
-    ).toThrowError(/Invalid content\/data\/profile\.json/)
+    ).toThrow(/Invalid content\/data\/profile\.json/)
   })
 })

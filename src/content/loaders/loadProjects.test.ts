@@ -55,6 +55,6 @@ describe('parseProjects', () => {
           stack: [],
         },
       ])
-    ).toThrowError(/Invalid content\/data\/projects\.json/)
+    ).toThrow(/Invalid content\/data\/projects\.json/)
   })
 })

@@ -62,6 +62,6 @@ describe('parseSkills', () => {
           items: [],
         },
       ])
-    ).toThrowError(/Invalid content\/data\/skills\.json/)
+    ).toThrow(/Invalid content\/data\/skills\.json/)
   })
 })

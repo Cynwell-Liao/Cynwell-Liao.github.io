@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion'
-import { type FormEvent, useEffect, useRef, useState } from 'react'
+import { type SyntheticEvent, useEffect, useRef, useState } from 'react'
+import { FaLinkedin } from 'react-icons/fa'
 import { FiGithub, FiTerminal } from 'react-icons/fi'
-import { SiLinkedin } from 'react-icons/si'
 
 import {
   createInitialTerminalLines,
@@ -98,7 +98,7 @@ export function HeroSection({
     pushTerminalOutput(commandResult.executedInput, commandResult.output)
   }
 
-  const onTerminalSubmit = (event: FormEvent<HTMLFormElement>) => {
+  const onTerminalSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
     event.preventDefault()
     runCommand(terminalInput)
     setTerminalInput('')
@@ -181,7 +181,7 @@ export function HeroSection({
               rel="noreferrer"
               target="_blank"
             >
-              <SiLinkedin className="h-5 w-5 text-[#0A66C2]" />
+              <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
               {profile.linkedinLabel}
             </a>
 

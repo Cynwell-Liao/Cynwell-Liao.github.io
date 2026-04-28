@@ -1,8 +1,7 @@
 import { DiMsqlServer } from 'react-icons/di'
-import { FaDatabase, FaDocker, FaJava } from 'react-icons/fa'
+import { FaAws, FaDatabase, FaDocker, FaJava } from 'react-icons/fa'
 import { LuBookOpen, LuGraduationCap, LuLibrary } from 'react-icons/lu'
 import {
-  SiAmazonwebservices,
   SiDjango,
   SiDocker,
   SiDotnet,
@@ -77,7 +76,7 @@ const iconRegistry: Record<string, IconType> = {
 
   // ── Cloud & Kubernetes ──
   gcp: SiGooglecloud,
-  aws: SiAmazonwebservices,
+  aws: FaAws,
   azure: VscAzure,
   docker: SiDocker,
   'docker-alt': FaDocker,

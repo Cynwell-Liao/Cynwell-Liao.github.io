@@ -1,9 +1,185 @@
-@import '@fontsource-variable/sora';
-@import '@fontsource-variable/jetbrains-mono';
+@import '@fontsource-variable/sora' layer(base);
+@import '@fontsource-variable/jetbrains-mono' layer(base);
 
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import 'tailwindcss';
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: Inter, Sora Variable, ui-sans-serif, system-ui;
+  --font-mono: JetBrains Mono Variable, ui-monospace, SFMono-Regular;
+
+  --color-accent-50: #fcf3f8;
+  --color-accent-100: #f9e6f0;
+  --color-accent-200: #f4cde0;
+  --color-accent-300: #efa2c7;
+  --color-accent-400: #e86aa7;
+  --color-accent-500: #e384b2;
+  --color-accent-600: #c52875;
+  --color-accent-700: #a31a59;
+  --color-accent-800: #87194d;
+  --color-accent-900: #711a43;
+
+  --color-secondary-50: #f0f9fb;
+  --color-secondary-100: #daf1f6;
+  --color-secondary-200: #b8e3ef;
+  --color-secondary-300: #87cfe4;
+  --color-secondary-400: #4fb4d1;
+  --color-secondary-500: #37bedc;
+  --color-secondary-600: #2b7b96;
+  --color-secondary-700: #26637a;
+  --color-secondary-800: #265165;
+  --color-secondary-900: #234455;
+
+  --color-primary: #ffffff;
+  --color-primary-foreground: #0f172a;
+
+  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
+  --background-image-hero-glow: conic-gradient(
+    from 180deg at 50% 50%,
+    #37bedc 0deg,
+    #a853ba 180deg,
+    #e384b2 360deg
+  );
+
+  --shadow-soft: 0 16px 40px -24px rgba(15, 23, 42, 0.45);
+  --shadow-glow: 0 0 20px rgba(227, 132, 178, 0.4);
+  --shadow-glow-lg: 0 0 40px rgba(227, 132, 178, 0.6);
+
+  --animate-blob: blob 7s infinite;
+  --animate-fade-in: fadeIn 0.5s ease-out forwards;
+  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+
+  @keyframes blob {
+    0% {
+      transform: translate(0px, 0px) scale(1);
+    }
+    33% {
+      transform: translate(30px, -50px) scale(1.1);
+    }
+    66% {
+      transform: translate(-20px, 20px) scale(0.9);
+    }
+    100% {
+      transform: translate(0px, 0px) scale(1);
+    }
+  }
+  @keyframes fadeIn {
+    0% {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+}
+
+/*
+  The default border color has changed to `currentcolor` in Tailwind CSS v4,
+  so we've added these compatibility styles to make sure everything still
+  looks the same as it did with Tailwind CSS v3.
+
+  If we ever want to remove these styles, we need to add an explicit border
+  color utility to any element that depends on these defaults.
+*/
+@layer base {
+  *,
+  ::after,
+  ::before,
+  ::backdrop,
+  ::file-selector-button {
+    border-color: var(--color-gray-200, currentcolor);
+  }
+}
+
+@utility section-wrap {
+  @apply mx-auto w-full max-w-6xl px-6;
+}
+
+@utility glass-panel {
+  @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-all duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+
+  &::before {
+    content: '';
+    @apply pointer-events-none absolute inset-0 bg-linear-to-b from-white/10 to-transparent opacity-0 transition-opacity duration-300 dark:from-white/5;
+  }
+
+  &:hover::before {
+    @apply opacity-100;
+  }
+}
+
+@utility hero-cert-marquee {
+  @apply relative w-full;
+
+  &:hover .hero-cert-marquee__track {
+    animation-play-state: paused;
+  }
+
+  &:focus-within .hero-cert-marquee__track {
+    animation-play-state: paused;
+  }
+}
+
+@utility hero-cert-marquee__viewport {
+  @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 p-2 dark:border-white/10 dark:bg-slate-900/50;
+
+  &::before {
+    content: '';
+    @apply pointer-events-none absolute inset-y-0 z-10 w-10;
+  }
+
+  &::after {
+    content: '';
+    @apply pointer-events-none absolute inset-y-0 z-10 w-10;
+  }
+
+  &::before {
+    @apply left-0;
+    background: linear-gradient(
+      to right,
+      rgba(248, 250, 252, 0.98),
+      rgba(248, 250, 252, 0)
+    );
+  }
+
+  &::after {
+    @apply right-0;
+    background: linear-gradient(
+      to left,
+      rgba(248, 250, 252, 0.98),
+      rgba(248, 250, 252, 0)
+    );
+  }
+}
+
+@utility hero-cert-marquee__track {
+  display: flex;
+  width: max-content;
+  gap: 1rem;
+  animation: hero-cert-marquee-scroll 24s linear infinite;
+  will-change: transform;
+
+  .hero-cert-marquee:hover & {
+    animation-play-state: paused;
+  }
+
+  .hero-cert-marquee:focus-within & {
+    animation-play-state: paused;
+  }
+}
+
+@utility hero-cert-marquee__badge-link {
+  @apply block shrink-0 transition-transform duration-300 hover:scale-105;
+  line-height: 0;
+}
+
+@utility hero-cert-marquee__badge-image {
+  display: block;
+}
 
 @layer base {
   :root {
@@ -47,80 +223,6 @@
 
   html.dark ::selection {
     @apply bg-accent-500/40 text-slate-100;
-  }
-}
-
-@layer components {
-  .section-wrap {
-    @apply mx-auto w-full max-w-6xl px-6;
-  }
-
-  .glass-panel {
-    @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-all duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
-    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
-  }
-
-  .glass-panel::before {
-    content: '';
-    @apply pointer-events-none absolute inset-0 bg-gradient-to-b from-white/10 to-transparent opacity-0 transition-opacity duration-300 dark:from-white/5;
-  }
-
-  .glass-panel:hover::before {
-    @apply opacity-100;
-  }
-
-  .hero-cert-marquee {
-    @apply relative w-full;
-  }
-
-  .hero-cert-marquee__viewport {
-    @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 p-2 dark:border-white/10 dark:bg-slate-900/50;
-  }
-
-  .hero-cert-marquee__viewport::before,
-  .hero-cert-marquee__viewport::after {
-    content: '';
-    @apply pointer-events-none absolute inset-y-0 z-10 w-10;
-  }
-
-  .hero-cert-marquee__viewport::before {
-    @apply left-0;
-    background: linear-gradient(
-      to right,
-      rgba(248, 250, 252, 0.98),
-      rgba(248, 250, 252, 0)
-    );
-  }
-
-  .hero-cert-marquee__viewport::after {
-    @apply right-0;
-    background: linear-gradient(
-      to left,
-      rgba(248, 250, 252, 0.98),
-      rgba(248, 250, 252, 0)
-    );
-  }
-
-  .hero-cert-marquee__track {
-    display: flex;
-    width: max-content;
-    gap: 1rem;
-    animation: hero-cert-marquee-scroll 24s linear infinite;
-    will-change: transform;
-  }
-
-  .hero-cert-marquee:hover .hero-cert-marquee__track,
-  .hero-cert-marquee:focus-within .hero-cert-marquee__track {
-    animation-play-state: paused;
-  }
-
-  .hero-cert-marquee__badge-link {
-    @apply block shrink-0 transition-transform duration-300 hover:scale-105;
-    line-height: 0;
-  }
-
-  .hero-cert-marquee__badge-image {
-    display: block;
   }
 }
 

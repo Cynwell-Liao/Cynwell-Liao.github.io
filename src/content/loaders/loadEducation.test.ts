@@ -55,6 +55,6 @@ describe('parseEducation', () => {
           achievements: [],
         },
       ])
-    ).toThrowError(/Invalid content\/data\/education\.json/)
+    ).toThrow(/Invalid content\/data\/education\.json/)
   })
 })
