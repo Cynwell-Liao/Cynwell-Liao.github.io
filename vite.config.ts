@@ -8,9 +8,31 @@ import { defineConfig } from 'vite'
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
 
+interface PackageJson {
+  version?: unknown
+}
+
+const normalizeAppVersion = (version: string) =>
+  version.startsWith('v') ? version : `v${version}`
+
+const readAppVersion = () => {
+  const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8')) as PackageJson
+
+  if (typeof packageJson.version !== 'string' || packageJson.version.length === 0) {
+    throw new Error('package.json version must be a non-empty string')
+  }
+
+  return normalizeAppVersion(packageJson.version)
+}
+
+const appVersion = readAppVersion()
+
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+  },
   plugins: [
     tailwindcss(),
     react(),

@@ -143,8 +143,10 @@ Key conventions that cannot be inferred from tool configs alone:
 - **CD** (`cd.yml`): Triggers after successful CI on `main`. Runs full `npm run check`, builds `dist/`, and deploys to GitHub Pages.
 - **Branch protection:** `main` requires passing `quality` and `e2e-smoke` checks.
 - **Base URL:** `'/'` in `vite.config.ts` (user site at `<username>.github.io`).
+- **Release-only deploys:** Do not push a normal deploy commit to `main`. Every commit that lands on `main` must be a patch release commit, must bump `package.json`/`package-lock.json`, must be tagged, and must have a matching GitHub Release.
+- **Patch-only versioning:** Use the next patch version for every change in this repo. Do not use `minor` or `major` bumps unless explicitly instructed.
 
-### Cutting a New Release
+### Cutting a Patch Release
 
 Follow these exact commands in order:
 
@@ -157,7 +159,7 @@ npm run check
 2. Bump version (no commit/tag):
 
 ```bash
-npm version <patch|minor|major> --no-git-tag-version
+npm version patch --no-git-tag-version
 ```
 
 3. Commit:
@@ -190,5 +192,6 @@ Conventions:
 - Commit message for release: `release: vX.Y.Z`
 - Tag format: `vX.Y.Z`
 - `package.json` version MUST match the tag.
+- Every commit pushed to `main` MUST follow the release commit convention and have a matching tag and GitHub Release.
 - Do not modify CI/CD workflows.
 - Do not bypass lint/typecheck/tests.

@@ -31,6 +31,7 @@ function App() {
       />
       <main>
         <HeroSection
+          deployVersion={import.meta.env.VITE_APP_VERSION}
           onToggleTheme={toggleTheme}
           profile={profile}
           projects={projects}

@@ -9,24 +9,9 @@ import type { Project } from '@shared/types/portfolio.types'
 
 const projects = loadProjects()
 
-const createFetchMock = (options?: {
-  deployVersion?: string
-  totalContributions?: number
-}) =>
+const createFetchMock = (options?: { totalContributions?: number }) =>
   vi.fn((input: RequestInfo | URL) => {
-    const requestUrl =
-      typeof input === 'string'
-        ? input
-        : input instanceof URL
-          ? input.toString()
-          : input.url
-
-    if (requestUrl.includes('/releases/latest')) {
-      return Promise.resolve({
-        ok: true,
-        json: () => Promise.resolve({ tag_name: options?.deployVersion ?? 'v1.3.0' }),
-      })
-    }
+    void input
 
     return Promise.resolve({
       json: () =>
@@ -35,12 +20,14 @@ const createFetchMock = (options?: {
   })
 
 const renderHeroSection = (overrides?: {
+  deployVersion?: string
   theme?: 'light' | 'dark'
   onToggleTheme?: () => void
   projects?: Project[]
 }) =>
   render(
     <HeroSection
+      deployVersion={overrides?.deployVersion ?? import.meta.env.VITE_APP_VERSION}
       onToggleTheme={overrides?.onToggleTheme ?? vi.fn()}
       profile={profile}
       projects={overrides?.projects ?? projects}
@@ -114,28 +101,45 @@ describe('HeroSection', () => {
     expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
   })
 
-  it('renders the deploy version beside the online status', async () => {
+  it('renders the static deploy version beside the online status', async () => {
     const fetchMock = createFetchMock()
     vi.stubGlobal('fetch', fetchMock)
 
-    renderHeroSection()
+    renderHeroSection({ deployVersion: 'v9.9.9' })
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalled()
     })
 
     expect(screen.getByText(profile.heroStatusLabel)).toBeInTheDocument()
-    expect(screen.getByText('v1.3.0')).toBeInTheDocument()
+    expect(screen.getByText('v9.9.9')).toBeInTheDocument()
   })
 
-  it('updates the deploy version when a newer release is published', async () => {
-    const fetchMock = createFetchMock({ deployVersion: 'v1.2.2' })
+  it('does not request GitHub Releases for the deploy version', async () => {
+    const fetchMock = createFetchMock()
     vi.stubGlobal('fetch', fetchMock)
 
     renderHeroSection()
 
     await waitFor(() => {
-      expect(screen.getByText('v1.2.2')).toBeInTheDocument()
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining(`${profile.githubUsername}.json`)
+      )
     })
+
+    const requestedUrls = fetchMock.mock.calls.map(([input]) =>
+      typeof input === 'string'
+        ? input
+        : input instanceof URL
+          ? input.toString()
+          : input.url
+    )
+
+    expect(requestedUrls).not.toEqual(
+      expect.arrayContaining([expect.stringContaining('api.github.com')])
+    )
+    expect(requestedUrls).not.toEqual(
+      expect.arrayContaining([expect.stringContaining('/releases/latest')])
+    )
   })
 })

@@ -1,3 +1,4 @@
+import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
@@ -6,7 +7,29 @@ import { defineConfig } from 'vitest/config'
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
 
+interface PackageJson {
+  version?: unknown
+}
+
+const normalizeAppVersion = (version: string) =>
+  version.startsWith('v') ? version : `v${version}`
+
+const readAppVersion = () => {
+  const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8')) as PackageJson
+
+  if (typeof packageJson.version !== 'string' || packageJson.version.length === 0) {
+    throw new Error('package.json version must be a non-empty string')
+  }
+
+  return normalizeAppVersion(packageJson.version)
+}
+
+const appVersion = readAppVersion()
+
 export default defineConfig({
+  define: {
+    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
+  },
   plugins: [react()],
   resolve: {
     alias: {

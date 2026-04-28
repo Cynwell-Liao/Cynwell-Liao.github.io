@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { type SyntheticEvent, useEffect, useMemo, useRef, useState } from 'react'
+import { type SyntheticEvent, useEffect, useRef, useState } from 'react'
 import { FaLinkedin } from 'react-icons/fa'
 import { FiGithub, FiTerminal } from 'react-icons/fi'
 
@@ -10,16 +10,13 @@ import {
   terminalToneClasses,
   type TerminalLine,
 } from '../model/terminal'
-import {
-  DEPLOY_VERSION_POLL_INTERVAL_MS,
-  parseDeployVersion,
-} from '../model/deployVersion'
 
 import type { ProfileData } from '../model/profile.types'
 import type { ThemeMode } from '@shared/types/common'
 import type { Project } from '@shared/types/portfolio.types'
 
 interface HeroSectionProps {
+  deployVersion: string
   profile: ProfileData
   projects: Project[]
   theme: ThemeMode
@@ -27,6 +24,7 @@ interface HeroSectionProps {
 }
 
 export function HeroSection({
+  deployVersion,
   profile,
   projects,
   theme,
@@ -39,11 +37,6 @@ export function HeroSection({
   )
   const [commandHistory, setCommandHistory] = useState<string[]>([])
   const terminalOutputRef = useRef<HTMLDivElement>(null)
-  const [liveDeployVersion, setLiveDeployVersion] = useState<string | null>(null)
-  const githubRepositoryPath = useMemo(
-    () => new URL(profile.repositoryUrl).pathname.replace(/^\//, ''),
-    [profile.repositoryUrl]
-  )
   const certificationMarqueeItems = [
     ...profile.heroCertifications,
     ...profile.heroCertifications,
@@ -61,50 +54,6 @@ export function HeroSection({
       })
       .catch(console.error)
   }, [profile.githubUsername])
-
-  useEffect(() => {
-    const abortController = new AbortController()
-
-    const refreshDeployVersion = async () => {
-      try {
-        const response = await fetch(
-          `https://api.github.com/repos/${githubRepositoryPath}/releases/latest`,
-          {
-            cache: 'no-store',
-            signal: abortController.signal,
-            headers: {
-              Accept: 'application/vnd.github+json',
-              'X-GitHub-Api-Version': '2022-11-28',
-            },
-          }
-        )
-
-        if (!response.ok) {
-          return
-        }
-
-        const latestVersion = parseDeployVersion((await response.json()) as unknown)
-        if (latestVersion) {
-          setLiveDeployVersion(latestVersion)
-        }
-      } catch (error) {
-        if (!abortController.signal.aborted) {
-          console.error(error)
-        }
-      }
-    }
-
-    void refreshDeployVersion()
-
-    const intervalId = window.setInterval(() => {
-      void refreshDeployVersion()
-    }, DEPLOY_VERSION_POLL_INTERVAL_MS)
-
-    return () => {
-      abortController.abort()
-      window.clearInterval(intervalId)
-    }
-  }, [githubRepositoryPath])
 
   useEffect(() => {
     if (terminalOutputRef.current) {
@@ -186,11 +135,9 @@ export function HeroSection({
               <span className="font-semibold tracking-[0.24em] text-emerald-600 dark:text-emerald-300">
                 {profile.heroStatusLabel}
               </span>
-              {liveDeployVersion ? (
-                <span className="text-[0.68rem] font-medium tracking-[0.28em] text-slate-500 dark:text-slate-400">
-                  {liveDeployVersion}
-                </span>
-              ) : null}
+              <span className="text-[0.68rem] font-medium tracking-[0.28em] text-slate-500 dark:text-slate-400">
+                {deployVersion}
+              </span>
             </span>
           </div>
 
