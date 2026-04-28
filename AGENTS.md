@@ -7,10 +7,10 @@ It is deployed to GitHub Pages. Do not introduce server-side logic, API routes, 
 
 ## Tech Stack
 
-- React 18 · Vite 7 · TypeScript ~5.9 (strict) · Tailwind CSS 3 · Framer Motion 12
+- React 19 · Vite 8 · TypeScript ~6.0 (strict) · Tailwind CSS 4 · Framer Motion 12
 - Runtime content validation with Zod
-- CI/CD via GitHub Actions → GitHub Pages
-- Node 20 (pinned in CI)
+- CI/CD via GitHub Actions
+- Node 24 (pinned in CI)
 
 ## Setup & Commands
 
@@ -70,9 +70,9 @@ content  →  shared
 
 - `@app/*`, `@features/*`, `@shared/*`, `@content/*`
 
-## Content Configuration (Forker Guide)
+## Data & Content Mapping
 
-All personal data is centralized in content files — forkers never touch component code:
+All personal data is centralized in the following static content JSON files:
 
 | File                                               | Purpose                                                      | Format |
 | -------------------------------------------------- | ------------------------------------------------------------ | ------ |
@@ -104,7 +104,7 @@ Key conventions that cannot be inferred from tool configs alone:
 - Use `clsx` + `tailwind-merge` for conditional/merged Tailwind class names.
 - Framer Motion for all animations. It is globally mocked in unit tests (see `src/test/setup.ts`).
 - Import order: builtin → external → internal → parent → sibling → index → object → type (alphabetized, with blank lines between groups).
-- Tailwind design tokens: accent palette (pink, primary brand), secondary palette (cyan). Defined in `tailwind.config.js`.
+- Tailwind design tokens: accent palette (pink, primary brand), secondary palette (cyan). Defined via `@theme` variables in `src/index.css`.
 - Fonts: Sora Variable (sans-serif), JetBrains Mono Variable (monospace). Loaded via `@fontsource-variable`.
 
 ## Testing
@@ -135,7 +135,6 @@ Key conventions that cannot be inferred from tool configs alone:
 - **Governance files:** Do not modify `LICENSE`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, or `CONTRIBUTING.md` without explicit approval.
 - **CI/CD workflows:** Do not modify `.github/workflows/ci.yml` or `.github/workflows/cd.yml` without explicit approval.
 - **No secrets:** Never commit `.env` files, API keys, tokens, or credentials. Use `.env.example` for templates.
-- **No new backend logic:** This is a static SPA. Do not add Express, API routes, SSR, or server-side rendering.
 - **No weakening quality gates:** Do not disable ESLint rules, lower TypeScript strictness, reduce coverage thresholds, or skip pre-commit hooks.
 
 ## Deployment & Release
@@ -144,5 +143,14 @@ Key conventions that cannot be inferred from tool configs alone:
 - **CD** (`cd.yml`): Triggers after successful CI on `main`. Runs full `npm run check`, builds `dist/`, and deploys to GitHub Pages.
 - **Branch protection:** `main` requires passing `quality` and `e2e-smoke` checks.
 - **Base URL:** `'/'` in `vite.config.ts` (user site at `<username>.github.io`).
-- **Releases:** SemVer tags (`v1.0.x`), commit message format: `release: v<version>`.
-- **Pre-push validation:** Run `npm run check` locally to catch issues before CI.
+
+### Cutting a New Release
+
+To release a new version (patch, minor, or major), strictly follow these 6 steps in order to ensure the CI/CD pipeline and GitHub Releases stay perfectly synced:
+
+1. **Validate:** Run `npm run check` locally to catch issues before pushing.
+2. **Bump Version:** Update `package.json` without auto-committing: `npm version <patch|minor|major> --no-git-tag-version`
+3. **Commit:** Commit the changes using the exact unified message format: `git commit -m "release: v<version>"`
+4. **Tag:** Create the SemVer tag: `git tag v<version>`
+5. **Push:** Push the commit and the tag to main: `git push origin main --tags`
+6. **Publish Release:** Create the GitHub Release object with auto-generated notes: `gh release create v<version> --generate-notes`

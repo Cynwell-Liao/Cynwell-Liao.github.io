@@ -1,11 +1,11 @@
 # Open-Source Portfolio (GitHub Pages)
 
-[![CI](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml)
-[![CD](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/cd.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/cd.yml)
+[![ci](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/ci.yml)
+[![cd](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/cd.yml/badge.svg)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/actions/workflows/cd.yml)
 [![release](https://img.shields.io/github/v/release/Cynwell-Liao/Cynwell-Liao.github.io?sort=semver)](https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/releases)
 [![license](https://img.shields.io/github/license/Cynwell-Liao/Cynwell-Liao.github.io)](LICENSE)
 
-Modern personal portfolio built with React 18, Vite, TypeScript, Tailwind CSS, and Framer Motion.
+Modern personal portfolio built with React 19, Vite, TypeScript, Tailwind CSS, and Framer Motion.
 This is a static frontend app with no backend/API routes.
 
 This project is open source under MIT and is also used as a personal portfolio.
@@ -13,12 +13,12 @@ Forks and small improvements are welcome.
 
 ## Tech Stack
 
-- React 18
-- Vite
-- TypeScript (strict)
-- Tailwind CSS
-- Framer Motion
-- GitHub Actions (CI + CD)
+- React 19
+- Vite 8
+- TypeScript 6
+- Tailwind CSS 4
+- Framer Motion 12
+- GitHub Actions (CI/CD)
 - GitHub Pages
 
 ## Fork and Run
