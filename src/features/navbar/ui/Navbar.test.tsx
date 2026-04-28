@@ -18,9 +18,10 @@ describe('Navbar', () => {
     render(
       <Navbar
         brandName={profile.brandName}
-        githubLabel={profile.githubLabel}
-        githubUrl={profile.githubUrl}
         links={links}
+        onOpenTerminal={() => {
+          return undefined
+        }}
         onToggleTheme={() => {
           return undefined
         }}
@@ -40,9 +41,10 @@ describe('Navbar', () => {
     render(
       <Navbar
         brandName={profile.brandName}
-        githubLabel={profile.githubLabel}
-        githubUrl={profile.githubUrl}
         links={links}
+        onOpenTerminal={() => {
+          return undefined
+        }}
         onToggleTheme={onToggleTheme}
         theme="light"
       />
@@ -60,9 +62,10 @@ describe('Navbar', () => {
     const { rerender } = render(
       <Navbar
         brandName={profile.brandName}
-        githubLabel={profile.githubLabel}
-        githubUrl={profile.githubUrl}
         links={links}
+        onOpenTerminal={() => {
+          return undefined
+        }}
         onToggleTheme={() => {
           return undefined
         }}
@@ -77,9 +80,10 @@ describe('Navbar', () => {
     rerender(
       <Navbar
         brandName={profile.brandName}
-        githubLabel={profile.githubLabel}
-        githubUrl={profile.githubUrl}
         links={links}
+        onOpenTerminal={() => {
+          return undefined
+        }}
         onToggleTheme={() => {
           return undefined
         }}
@@ -90,5 +94,29 @@ describe('Navbar', () => {
     expect(
       screen.getByRole('button', { name: 'Switch to light mode' })
     ).toBeInTheDocument()
+  })
+
+  it('opens the floating terminal from the navbar button', async () => {
+    const onOpenTerminal = vi.fn()
+
+    render(
+      <Navbar
+        brandName={profile.brandName}
+        links={links}
+        onOpenTerminal={onOpenTerminal}
+        onToggleTheme={() => {
+          return undefined
+        }}
+        theme="light"
+      />
+    )
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Terminal' }))
+
+    expect(onOpenTerminal).toHaveBeenCalledTimes(1)
+    expect(
+      screen.queryByRole('link', { name: profile.githubLabel })
+    ).not.toBeInTheDocument()
   })
 })

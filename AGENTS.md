@@ -143,10 +143,10 @@ Key conventions that cannot be inferred from tool configs alone:
 - **CD** (`cd.yml`): Triggers after successful CI on `main`. Runs full `npm run check`, builds `dist/`, and deploys to GitHub Pages.
 - **Branch protection:** `main` requires passing `quality` and `e2e-smoke` checks.
 - **Base URL:** `'/'` in `vite.config.ts` (user site at `<username>.github.io`).
-- **Release-only deploys:** Do not push a normal deploy commit to `main`. Every commit that lands on `main` must be a patch release commit, must bump `package.json`/`package-lock.json`, must be tagged, and must have a matching GitHub Release.
-- **Patch-only versioning:** Use the next patch version for every change in this repo. Do not use `minor` or `major` bumps unless explicitly instructed.
+- **Release-only deploys:** Do not push a normal deploy commit to `main`. Every commit that lands on `main` must be a release commit, must bump `package.json`/`package-lock.json`, must be tagged, and must have a matching GitHub Release.
+- **SemVer bump selection:** Choose `patch`, `minor`, or `major` based on the change impact. Use `patch` for fixes, docs/config updates, small refactors, and UI polish; use `minor` for backward-compatible user-facing features; use `major` for breaking behavior, major redesigns, or incompatible public/deployment/release changes. If the user explicitly requests a bump level, follow that request.
 
-### Cutting a Patch Release
+### Cutting a Release
 
 Follow these exact commands in order:
 
@@ -159,7 +159,7 @@ npm run check
 2. Bump version (no commit/tag):
 
 ```bash
-npm version patch --no-git-tag-version
+npm version <patch|minor|major> --no-git-tag-version
 ```
 
 3. Commit:
@@ -178,7 +178,8 @@ git tag v<version>
 5. Push:
 
 ```bash
-git push origin main --follow-tags
+git push origin main
+git push origin v<version>
 ```
 
 6. Create GitHub Release:
@@ -193,5 +194,6 @@ Conventions:
 - Tag format: `vX.Y.Z`
 - `package.json` version MUST match the tag.
 - Every commit pushed to `main` MUST follow the release commit convention and have a matching tag and GitHub Release.
+- Every `main` commit is a release, but the release bump is not always a patch; choose it according to SemVer impact.
 - Do not modify CI/CD workflows.
 - Do not bypass lint/typecheck/tests.

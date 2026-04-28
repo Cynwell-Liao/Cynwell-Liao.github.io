@@ -2,12 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import { loadProjects, profile } from '@content'
 
-import {
-  createInitialTerminalLines,
-  parseContributionTotal,
-  resolveTerminalCommand,
-  terminalToneClasses,
-} from './terminal'
+import { createInitialTerminalLines, resolveTerminalCommand } from './terminal'
+import { getTerminalToneClass, terminalThemeClasses } from './terminalTheme'
 
 import type { Project } from '@shared/types/portfolio.types'
 
@@ -30,30 +26,27 @@ const runCommand = (
   })
 
 describe('terminal', () => {
-  it('defines known tone class mappings', () => {
-    expect(terminalToneClasses.default).toContain('text-slate-600')
-    expect(terminalToneClasses.accent).toContain('text-accent-600')
-    expect(terminalToneClasses.error).toContain('text-rose-600')
-    expect(terminalToneClasses.success).toContain('text-emerald-600')
-    expect(terminalToneClasses.muted).toContain('text-slate-500')
-  })
-
-  it('parses contribution totals safely', () => {
-    expect(parseContributionTotal({ totalContributions: 99 })).toBe(99)
-    expect(parseContributionTotal({ totalContributions: '99' })).toBeNull()
-    expect(parseContributionTotal({})).toBeNull()
-    expect(parseContributionTotal(null)).toBeNull()
-    expect(parseContributionTotal('bad')).toBeNull()
+  it('defines theme-aware tone class mappings', () => {
+    expect(getTerminalToneClass('default', 'light')).toContain('text-slate-800')
+    expect(getTerminalToneClass('default', 'dark')).toContain('text-slate-200')
+    expect(getTerminalToneClass('accent', 'light')).toContain('text-secondary-700')
+    expect(getTerminalToneClass('accent', 'dark')).toContain('text-cyan-300')
+    expect(terminalThemeClasses.light.body).toContain('bg-[#fbfbfb]')
+    expect(terminalThemeClasses.dark.body).toContain('bg-slate-950')
   })
 
   it('builds initial terminal lines from profile content', () => {
     const lines = createInitialTerminalLines(profile)
 
     expect(lines[0]).toEqual({
-      text: "Type 'help' to explore commands.",
+      text: 'Ubuntu 24.04.2 LTS portfolio tty1',
       tone: 'muted',
     })
     expect(lines[1]).toEqual({
+      text: "Type 'help' to explore commands.",
+      tone: 'muted',
+    })
+    expect(lines[2]).toEqual({
       text: `${profile.heroTerminalPath} $ ls -la`,
       tone: 'accent',
     })

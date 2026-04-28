@@ -1,42 +1,19 @@
 import { motion } from 'framer-motion'
-import { type SyntheticEvent, useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { FaLinkedin } from 'react-icons/fa'
-import { FiGithub, FiTerminal } from 'react-icons/fi'
+import { FiGithub } from 'react-icons/fi'
 
-import {
-  createInitialTerminalLines,
-  parseContributionTotal,
-  resolveTerminalCommand,
-  terminalToneClasses,
-  type TerminalLine,
-} from '../model/terminal'
+import { parseContributionTotal } from '../model/contributions'
 
 import type { ProfileData } from '../model/profile.types'
-import type { ThemeMode } from '@shared/types/common'
-import type { Project } from '@shared/types/portfolio.types'
 
 interface HeroSectionProps {
   deployVersion: string
   profile: ProfileData
-  projects: Project[]
-  theme: ThemeMode
-  onToggleTheme: () => void
 }
 
-export function HeroSection({
-  deployVersion,
-  profile,
-  projects,
-  theme,
-  onToggleTheme,
-}: HeroSectionProps) {
+export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
   const [contributions, setContributions] = useState<number | null>(null)
-  const [terminalInput, setTerminalInput] = useState('')
-  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>(() =>
-    createInitialTerminalLines(profile)
-  )
-  const [commandHistory, setCommandHistory] = useState<string[]>([])
-  const terminalOutputRef = useRef<HTMLDivElement>(null)
   const certificationMarqueeItems = [
     ...profile.heroCertifications,
     ...profile.heroCertifications,
@@ -54,57 +31,6 @@ export function HeroSection({
       })
       .catch(console.error)
   }, [profile.githubUsername])
-
-  useEffect(() => {
-    if (terminalOutputRef.current) {
-      terminalOutputRef.current.scrollTop = terminalOutputRef.current.scrollHeight
-    }
-  }, [terminalLines])
-
-  const pushTerminalOutput = (input: string, output: TerminalLine[]) => {
-    setTerminalLines((previousLines) => [
-      ...previousLines,
-      { text: `${profile.heroTerminalPath} $ ${input}`, tone: 'accent' },
-      ...output,
-    ])
-  }
-
-  const runCommand = (rawInput: string) => {
-    const commandResult = resolveTerminalCommand({
-      rawInput,
-      profile,
-      projects,
-      theme,
-      commandHistory,
-    })
-
-    if (!commandResult) {
-      return
-    }
-
-    setCommandHistory(commandResult.nextCommandHistory)
-
-    if (commandResult.shouldToggleTheme) {
-      onToggleTheme()
-    }
-
-    if (commandResult.openUrl) {
-      window.open(commandResult.openUrl, '_blank', 'noopener,noreferrer')
-    }
-
-    if (commandResult.shouldClear) {
-      setTerminalLines([])
-      return
-    }
-
-    pushTerminalOutput(commandResult.executedInput, commandResult.output)
-  }
-
-  const onTerminalSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    runCommand(terminalInput)
-    setTerminalInput('')
-  }
 
   return (
     <section
@@ -207,76 +133,10 @@ export function HeroSection({
         </motion.div>
 
         {/* Bento Box Right Side */}
-        <div className="lg:col-span-5 grid grid-cols-1 md:grid-cols-2 gap-4 w-full min-w-0">
-          {/* Main Terminal Box */}
-          <motion.div
-            className="md:col-span-2 glass-panel p-6 flex flex-col justify-between min-h-[220px] w-full min-w-0"
-            initial={{ opacity: 0, x: 30 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="flex items-center justify-between mb-4">
-              <div className="flex gap-2">
-                <div className="h-3 w-3 rounded-full bg-red-500/80" />
-                <div className="h-3 w-3 rounded-full bg-yellow-500/80" />
-                <div className="h-3 w-3 rounded-full bg-green-500/80" />
-              </div>
-              <FiTerminal className="text-slate-500 dark:text-slate-400" />
-            </div>
-            <div
-              className="font-mono text-sm leading-relaxed text-slate-600 dark:text-slate-300 mt-2 h-[140px] overflow-y-auto pr-1"
-              ref={terminalOutputRef}
-            >
-              {terminalLines.map((line, index) => {
-                const tone = line.tone ?? 'default'
-
-                return (
-                  <div
-                    className={`${terminalToneClasses[tone]} break-words`}
-                    key={`${line.text}-${String(index)}`}
-                  >
-                    {line.text}
-                  </div>
-                )
-              })}
-
-              <form
-                className="mt-2 flex flex-wrap sm:flex-nowrap items-center gap-2"
-                onSubmit={onTerminalSubmit}
-              >
-                <label className="sr-only" htmlFor="hero-terminal-input">
-                  Terminal command input
-                </label>
-                <span className="text-accent-600 dark:text-accent-400 break-all">
-                  {profile.heroTerminalPath}
-                </span>
-                <span>$</span>
-                <input
-                  aria-label="Terminal command input"
-                  autoComplete="off"
-                  className="min-w-0 flex-1 bg-transparent text-slate-700 outline-none placeholder:text-slate-400 dark:text-slate-200 dark:placeholder:text-slate-500"
-                  id="hero-terminal-input"
-                  onChange={(event) => {
-                    setTerminalInput(event.target.value)
-                  }}
-                  placeholder="help"
-                  spellCheck={false}
-                  type="text"
-                  value={terminalInput}
-                />
-                <span
-                  aria-hidden
-                  className="animate-pulse text-accent-600 dark:text-accent-400"
-                >
-                  {profile.heroTerminalPrompt}
-                </span>
-              </form>
-            </div>
-          </motion.div>
-
+        <div className="lg:col-span-5 flex w-full min-w-0 items-center">
           {/* GitHub Contributions Box */}
           <motion.div
-            className="md:col-span-2 glass-panel p-6 relative overflow-hidden group flex flex-col justify-center items-center w-full min-w-0"
+            className="glass-panel relative flex min-h-[320px] w-full min-w-0 flex-col items-center justify-center overflow-hidden p-6 group"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}

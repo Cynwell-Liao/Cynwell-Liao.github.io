@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { loadEducation, loadProjects, loadSkills, navLinks, profile } from '@content'
 import { AboutSection } from '@features/about'
 import { EducationSection } from '@features/education'
@@ -5,6 +7,7 @@ import { Footer } from '@features/footer'
 import { HeroSection } from '@features/hero'
 import { Navbar } from '@features/navbar'
 import { ProjectsSection } from '@features/projects'
+import { TerminalWindow } from '@features/terminal'
 import { TechStackSection } from '@features/tech-stack'
 import { useTheme } from '@shared/lib/theme/useTheme'
 
@@ -14,6 +17,7 @@ const education = loadEducation()
 
 function App() {
   const { theme, toggleTheme } = useTheme()
+  const [isTerminalOpen, setIsTerminalOpen] = useState(false)
 
   return (
     <div className="relative overflow-x-hidden">
@@ -23,19 +27,17 @@ function App() {
       </div>
       <Navbar
         brandName={profile.brandName}
-        githubLabel={profile.githubLabel}
-        githubUrl={profile.githubUrl}
         links={navLinks}
+        onOpenTerminal={() => {
+          setIsTerminalOpen(true)
+        }}
         onToggleTheme={toggleTheme}
         theme={theme}
       />
       <main>
         <HeroSection
           deployVersion={import.meta.env.VITE_APP_VERSION}
-          onToggleTheme={toggleTheme}
           profile={profile}
-          projects={projects}
-          theme={theme}
         />
         <AboutSection
           headingAccent={profile.aboutHeadingAccent}
@@ -69,6 +71,17 @@ function App() {
         repositoryUrl={profile.repositoryUrl}
         name={profile.name}
       />
+      {isTerminalOpen ? (
+        <TerminalWindow
+          onClose={() => {
+            setIsTerminalOpen(false)
+          }}
+          onToggleTheme={toggleTheme}
+          profile={profile}
+          projects={projects}
+          theme={theme}
+        />
+      ) : null}
     </div>
   )
 }

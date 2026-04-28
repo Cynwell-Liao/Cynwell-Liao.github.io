@@ -47,4 +47,37 @@ describe('App', () => {
       expect(localStorage.getItem('portfolio-theme')).toBe('light')
     })
   })
+
+  it('opens the floating terminal from the navbar', async () => {
+    render(<App />)
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Terminal' }))
+
+    expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toBeInTheDocument()
+    expect(
+      screen.getByLabelText<HTMLInputElement>('Terminal command input')
+    ).toHaveFocus()
+  })
+
+  it('keeps the floating terminal profile in sync with the site theme', async () => {
+    render(<App />)
+
+    const user = userEvent.setup()
+    await user.click(screen.getByRole('button', { name: 'Terminal' }))
+
+    expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toHaveAttribute(
+      'data-theme',
+      'light'
+    )
+
+    await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
+
+    await waitFor(() => {
+      expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toHaveAttribute(
+        'data-theme',
+        'dark'
+      )
+    })
+  })
 })

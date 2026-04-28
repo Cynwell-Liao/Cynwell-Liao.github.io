@@ -1,12 +1,9 @@
-import type { ProfileData } from './profile.types'
 import type { ThemeMode } from '@shared/types/common'
-import type { Project } from '@shared/types/portfolio.types'
+import type { ProfileData, Project } from '@shared/types/portfolio.types'
 
-interface GithubContributionsResponse {
-  totalContributions?: unknown
-}
+import type { TerminalTone } from './terminalTheme'
 
-export type TerminalTone = 'default' | 'accent' | 'error' | 'success' | 'muted'
+export type { TerminalTone } from './terminalTheme'
 
 export interface TerminalLine {
   text: string
@@ -30,27 +27,8 @@ interface ResolveTerminalCommandParams {
   commandHistory: string[]
 }
 
-export const terminalToneClasses: Record<TerminalTone, string> = {
-  default: 'text-slate-600 dark:text-slate-300',
-  accent: 'text-accent-600 dark:text-accent-400',
-  error: 'text-rose-600 dark:text-rose-400',
-  success: 'text-emerald-600 dark:text-emerald-400',
-  muted: 'text-slate-500 dark:text-slate-400',
-}
-
-export const parseContributionTotal = (value: unknown): number | null => {
-  if (typeof value !== 'object' || value === null) {
-    return null
-  }
-
-  const payload = value as GithubContributionsResponse
-
-  return typeof payload.totalContributions === 'number'
-    ? payload.totalContributions
-    : null
-}
-
 export const createInitialTerminalLines = (profile: ProfileData): TerminalLine[] => [
+  { text: 'Ubuntu 24.04.2 LTS portfolio tty1', tone: 'muted' },
   { text: "Type 'help' to explore commands.", tone: 'muted' },
   { text: `${profile.heroTerminalPath} $ ls -la`, tone: 'accent' },
   ...profile.heroTerminalDirectories.map((directory) => ({

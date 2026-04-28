@@ -12,10 +12,17 @@ const TRANSIENT_MOTION_PROPS = [
   'whileInView',
   'whileHover',
   'whileTap',
+  'whileDrag',
   'variants',
   'transition',
   'viewport',
   'layout',
+  'drag',
+  'dragConstraints',
+  'dragControls',
+  'dragElastic',
+  'dragListener',
+  'dragMomentum',
 ]
 
 type MockMotionProps = {
@@ -56,6 +63,17 @@ vi.mock('framer-motion', () => {
 
   return {
     motion,
+    useDragControls: () => ({
+      start: () => {
+        return undefined
+      },
+      stop: () => {
+        return undefined
+      },
+      cancel: () => {
+        return undefined
+      },
+    }),
     useScroll: () => ({
       scrollY: motionValue,
       scrollYProgress: motionValue,

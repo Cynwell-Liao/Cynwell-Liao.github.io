@@ -1,13 +1,9 @@
 import { render, screen, waitFor } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { loadProjects, profile } from '@content'
+import { profile } from '@content'
 
 import { HeroSection } from './HeroSection'
-
-import type { Project } from '@shared/types/portfolio.types'
-
-const projects = loadProjects()
 
 const createFetchMock = (options?: { totalContributions?: number }) =>
   vi.fn((input: RequestInfo | URL) => {
@@ -19,19 +15,11 @@ const createFetchMock = (options?: { totalContributions?: number }) =>
     })
   })
 
-const renderHeroSection = (overrides?: {
-  deployVersion?: string
-  theme?: 'light' | 'dark'
-  onToggleTheme?: () => void
-  projects?: Project[]
-}) =>
+const renderHeroSection = (overrides?: { deployVersion?: string }) =>
   render(
     <HeroSection
       deployVersion={overrides?.deployVersion ?? import.meta.env.VITE_APP_VERSION}
-      onToggleTheme={overrides?.onToggleTheme ?? vi.fn()}
       profile={profile}
-      projects={overrides?.projects ?? projects}
-      theme={overrides?.theme ?? 'light'}
     />
   )
 
@@ -83,22 +71,6 @@ describe('HeroSection', () => {
     } finally {
       errorSpy.mockRestore()
     }
-  })
-
-  it('renders terminal startup hint', async () => {
-    const fetchMock = createFetchMock()
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    expect(
-      screen.getByLabelText<HTMLInputElement>('Terminal command input')
-    ).toBeInTheDocument()
-    expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
   })
 
   it('renders the static deploy version beside the online status', async () => {

@@ -1,6 +1,6 @@
 import { motion, useScroll } from 'framer-motion'
 import { useState, useEffect } from 'react'
-import { FiMoon, FiSun } from 'react-icons/fi'
+import { FiMoon, FiSun, FiTerminal } from 'react-icons/fi'
 import { twMerge } from 'tailwind-merge'
 
 import type { NavLink } from '../model/nav.types'
@@ -10,8 +10,7 @@ interface NavbarProps {
   brandName: string
   links: NavLink[]
   theme: ThemeMode
-  githubUrl: string
-  githubLabel: string
+  onOpenTerminal: () => void
   onToggleTheme: () => void
 }
 
@@ -19,8 +18,7 @@ export function Navbar({
   brandName,
   links,
   theme,
-  githubUrl,
-  githubLabel,
+  onOpenTerminal,
   onToggleTheme,
 }: NavbarProps) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -80,14 +78,14 @@ export function Navbar({
         </nav>
 
         <div className="flex items-center gap-4">
-          <a
-            className="text-sm font-medium text-slate-600 dark:text-slate-300 transition-colors hover:text-slate-900 dark:hover:text-white hidden sm:block"
-            href={githubUrl}
-            rel="noreferrer"
-            target="_blank"
+          <button
+            className="hidden items-center gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white sm:inline-flex"
+            onClick={onOpenTerminal}
+            type="button"
           >
-            {githubLabel}
-          </a>
+            <FiTerminal className="h-4 w-4" />
+            Terminal
+          </button>
           <div className="w-px h-4 bg-slate-300 dark:bg-white/20 hidden sm:block" />
           <button
             aria-label={
