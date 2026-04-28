@@ -1,5 +1,5 @@
-@import '@fontsource-variable/sora' layer(base);
-@import '@fontsource-variable/jetbrains-mono' layer(base);
+@import '@fontsource-variable/sora';
+@import '@fontsource-variable/jetbrains-mono';
 
 @import 'tailwindcss';
 
@@ -110,6 +110,19 @@
   &:hover::before {
     @apply opacity-100;
   }
+}
+
+@utility social-icon-button {
+  @apply relative grid h-10 w-10 shrink-0 place-items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
+  transform-origin: center bottom;
+}
+
+@utility social-icon-button--linkedin {
+  @apply text-[#0a66c2] dark:text-white;
+}
+
+@utility social-icon-button--github {
+  @apply text-slate-900 dark:text-white;
 }
 
 @utility hero-cert-marquee {

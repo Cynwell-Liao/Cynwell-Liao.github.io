@@ -12,6 +12,7 @@ interface RawProfileData {
   githubUrl: string
   repositoryUrl: string
   linkedinUrl: string
+  linkedinConnectionCount: number
   about: {
     headingLead: string
     headingAccent: string
@@ -30,6 +31,7 @@ interface RawProfileData {
   labels: {
     githubLabel: string
     linkedinLabel: string
+    linkedinConnectionsLabel: string
     contributionsLoadingLabel: string
     contributionsSuffixLabel: string
     techStackSectionEyebrow: string
@@ -71,6 +73,7 @@ export const parseProfile = (
     githubUrl: raw.githubUrl,
     repositoryUrl: raw.repositoryUrl,
     linkedinUrl: raw.linkedinUrl,
+    linkedinConnectionCount: raw.linkedinConnectionCount,
     ...raw.labels,
     about: raw.about.paragraphs,
     aboutHeadingLead: raw.about.headingLead,

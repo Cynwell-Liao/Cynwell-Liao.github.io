@@ -31,6 +31,7 @@ const heroSchema = z.object({
 const labelsSchema = z.object({
   githubLabel: z.string().min(1),
   linkedinLabel: z.string().min(1),
+  linkedinConnectionsLabel: z.string().min(1),
   contributionsLoadingLabel: z.string().min(1),
   contributionsSuffixLabel: z.string().min(1),
   techStackSectionEyebrow: z.string().min(1),
@@ -56,6 +57,7 @@ export const profileSchema = z.object({
   githubUrl: z.url(),
   repositoryUrl: z.url(),
   linkedinUrl: z.url(),
+  linkedinConnectionCount: z.number().int().nonnegative(),
   about: aboutSchema,
   hero: heroSchema,
   certifications: z.array(certificationSchema),

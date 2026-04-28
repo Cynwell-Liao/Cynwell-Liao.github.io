@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { FaLinkedin } from 'react-icons/fa'
-import { FiGithub } from 'react-icons/fi'
 
 import { parseContributionTotal } from '../model/contributions'
+import { formatLinkedInConnectionCount } from '../model/linkedinConnections'
 
 import type { ProfileData } from '../model/profile.types'
 
@@ -12,12 +11,19 @@ interface HeroSectionProps {
   profile: ProfileData
 }
 
+const appIconHoverAnimation = {
+  scale: 1.05,
+}
+
 export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
   const [contributions, setContributions] = useState<number | null>(null)
   const certificationMarqueeItems = [
     ...profile.heroCertifications,
     ...profile.heroCertifications,
   ]
+  const linkedinConnectionCount = formatLinkedInConnectionCount(
+    profile.linkedinConnectionCount
+  )
 
   useEffect(() => {
     fetch(`https://github-contributions-api.deno.dev/${profile.githubUsername}.json`)
@@ -34,7 +40,7 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
 
   return (
     <section
-      className="relative flex min-h-screen items-center justify-center overflow-hidden pt-28 pb-12 sm:pt-24 lg:pt-0"
+      className="relative flex min-h-screen items-center justify-center overflow-hidden pt-32 pb-12 sm:pt-32 lg:pt-36"
       id="home"
     >
       {/* Background Animated Orbs */}
@@ -44,10 +50,10 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
         <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-secondary-500/15 rounded-full mix-blend-screen filter blur-[100px] animate-blob animation-delay-4000" />
       </div>
 
-      <div className="section-wrap relative z-10 grid w-full gap-8 lg:grid-cols-12 lg:gap-10">
+      <div className="section-wrap relative z-10 flex w-full flex-col gap-8">
         {/* Main Content Area */}
         <motion.div
-          className="lg:col-span-7 flex flex-col justify-center w-full min-w-0"
+          className="flex w-full min-w-0 flex-col justify-center"
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
@@ -72,6 +78,118 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
               {profile.title}
             </span>
           </h1>
+
+          <motion.div
+            className="mt-8 w-full"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          >
+            <h2
+              id="js-contribution-activity-description"
+              className="mb-3 flex flex-col items-start gap-3 text-sm font-semibold text-slate-800 dark:text-slate-200"
+              tabIndex={-1}
+            >
+              <span className="flex flex-col items-start gap-3">
+                <span className="flex flex-wrap items-center gap-3">
+                  <motion.a
+                    aria-label={profile.linkedinLabel}
+                    className="social-icon-button social-icon-button--linkedin group"
+                    href={profile.linkedinUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                    title={profile.linkedinLabel}
+                    whileHover={appIconHoverAnimation}
+                  >
+                    <svg
+                      aria-hidden="true"
+                      className="linkedin-bug"
+                      display="inline-block"
+                      fill="currentColor"
+                      focusable="false"
+                      height="32"
+                      overflow="visible"
+                      style={{ verticalAlign: 'text-bottom' }}
+                      viewBox="0 0 26.182 26.182"
+                      width="32"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M1.91 0h22.363a1.91 1.91 0 011.909 1.91v22.363a1.91 1.91 0 01-1.91 1.909H1.91A1.91 1.91 0 010 24.272V1.91A1.91 1.91 0 011.91 0zm1.908 22.364h3.818V9.818H3.818zM8.182 5.727a2.455 2.455 0 10-4.91 0 2.455 2.455 0 004.91 0zm2.182 4.091v12.546h3.818v-6.077c0-2.037.75-3.332 2.553-3.332 1.3 0 1.81 1.201 1.81 3.332v6.077h3.819v-6.93c0-3.74-.895-5.78-4.667-5.78-1.967 0-3.277.921-3.788 1.946V9.818z"
+                        fill="currentColor"
+                        fillRule="evenodd"
+                      />
+                    </svg>
+                  </motion.a>
+
+                  <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
+                    <span className="font-bold text-xl text-accent-600 sm:text-2xl dark:text-accent-400">
+                      {linkedinConnectionCount}
+                    </span>
+                    <span>{profile.linkedinConnectionsLabel}</span>
+                  </span>
+                </span>
+
+                <span className="flex flex-wrap items-center gap-3">
+                  <motion.a
+                    aria-label={profile.githubLabel}
+                    className="social-icon-button social-icon-button--github group"
+                    href={profile.githubUrl}
+                    rel="noreferrer"
+                    target="_blank"
+                    title={profile.githubLabel}
+                    whileHover={appIconHoverAnimation}
+                  >
+                    <svg
+                      data-component="Octicon"
+                      aria-hidden="true"
+                      className="octicon octicon-mark-github"
+                      display="inline-block"
+                      fill="currentColor"
+                      focusable="false"
+                      height="34"
+                      overflow="visible"
+                      style={{ verticalAlign: 'text-bottom' }}
+                      viewBox="0 0 24 24"
+                      width="34"
+                    >
+                      <path d="M10.226 17.284c-2.965-.36-5.054-2.493-5.054-5.256 0-1.123.404-2.336 1.078-3.144-.292-.741-.247-2.314.09-2.965.898-.112 2.111.36 2.83 1.01.853-.269 1.752-.404 2.853-.404 1.1 0 1.999.135 2.807.382.696-.629 1.932-1.1 2.83-.988.315.606.36 2.179.067 2.942.72.854 1.101 2 1.101 3.167 0 2.763-2.089 4.852-5.098 5.234.763.494 1.28 1.572 1.28 2.807v2.336c0 .674.561 1.056 1.235.786 4.066-1.55 7.255-5.615 7.255-10.646C23.5 6.188 18.334 1 11.978 1 5.62 1 .5 6.188.5 12.545c0 4.986 3.167 9.12 7.435 10.669.606.225 1.19-.18 1.19-.786V20.63a2.9 2.9 0 0 1-1.078.224c-1.483 0-2.359-.808-2.987-2.313-.247-.607-.517-.966-1.034-1.033-.27-.023-.359-.135-.359-.27 0-.27.45-.471.898-.471.652 0 1.213.404 1.797 1.235.45.651.921.943 1.483.943.561 0 .92-.202 1.437-.719.382-.381.674-.718.944-.943" />
+                    </svg>
+                  </motion.a>
+
+                  <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
+                    {contributions !== null ? (
+                      <>
+                        <span className="font-bold text-xl text-accent-600 sm:text-2xl dark:text-accent-400">
+                          {contributions}
+                        </span>
+                        <span>{profile.contributionsSuffixLabel}</span>
+                      </>
+                    ) : (
+                      profile.contributionsLoadingLabel
+                    )}
+                  </span>
+                </span>
+              </span>
+            </h2>
+
+            {/* GitHub Contributions Box */}
+            <div
+              aria-labelledby="js-contribution-activity-description"
+              className="glass-panel group relative flex w-full min-w-0 overflow-hidden p-3 sm:p-4"
+            >
+              <div className="absolute top-0 right-0 w-64 h-64 bg-secondary-500/10 rounded-full blur-[80px] transition-opacity duration-500 opacity-0 group-hover:opacity-100" />
+
+              {/* Using ghchart to render contribution graph with default GitHub colors */}
+              <div className="relative z-10 w-full overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
+                <img
+                  alt={`${profile.name}'s Github chart`}
+                  className="block h-auto min-w-[600px] w-full max-w-none object-contain opacity-90 dark:invert dark:hue-rotate-[180deg] dark:opacity-80"
+                  src={`https://ghchart.rshah.org/${profile.githubUsername}`}
+                />
+              </div>
+            </div>
+          </motion.div>
 
           <div className="mt-8 max-w-2xl">
             <div className="mb-3">
@@ -108,71 +226,7 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
               </div>
             </div>
           </div>
-
-          <div className="mt-8 flex flex-wrap gap-5">
-            <a
-              className="group relative inline-flex items-center gap-3 rounded-full bg-white px-8 py-4 text-sm font-semibold text-slate-900 transition-all hover:scale-105 hover:shadow-glow"
-              href={profile.linkedinUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <FaLinkedin className="h-5 w-5 text-[#0A66C2]" />
-              {profile.linkedinLabel}
-            </a>
-
-            <a
-              className="inline-flex items-center gap-3 rounded-full border border-slate-300 dark:border-white/20 bg-slate-100/50 dark:bg-white/5 px-8 py-4 text-sm font-semibold text-slate-800 dark:text-white backdrop-blur-md transition-all hover:bg-slate-200/50 dark:hover:bg-white/10 hover:border-slate-400 dark:hover:border-white/40"
-              href={profile.githubUrl}
-              rel="noreferrer"
-              target="_blank"
-            >
-              <FiGithub className="h-5 w-5" />
-              {profile.githubLabel}
-            </a>
-          </div>
         </motion.div>
-
-        {/* Bento Box Right Side */}
-        <div className="lg:col-span-5 flex w-full min-w-0 items-center">
-          {/* GitHub Contributions Box */}
-          <motion.div
-            className="glass-panel relative flex min-h-[320px] w-full min-w-0 flex-col items-center justify-center overflow-hidden p-6 group"
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          >
-            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary-500/10 rounded-full blur-[80px] transition-opacity duration-500 opacity-0 group-hover:opacity-100" />
-
-            <div className="w-full max-w-[800px] mb-4 relative z-10">
-              <h2
-                id="js-contribution-activity-description"
-                className="text-sm font-semibold text-slate-800 dark:text-slate-200 flex items-center gap-2"
-                tabIndex={-1}
-              >
-                <FiGithub className="w-4 h-4" />
-                {contributions !== null ? (
-                  <>
-                    <span className="font-bold text-lg text-accent-600 dark:text-accent-400">
-                      {contributions}
-                    </span>
-                    <span>{profile.contributionsSuffixLabel}</span>
-                  </>
-                ) : (
-                  profile.contributionsLoadingLabel
-                )}
-              </h2>
-            </div>
-
-            {/* Using ghchart to render contribution graph with default GitHub colors */}
-            <div className="w-full overflow-x-auto pb-2 -mx-2 px-2 sm:mx-0 sm:px-0 scrollbar-thin scrollbar-thumb-slate-300 dark:scrollbar-thumb-slate-700">
-              <img
-                alt={`${profile.name}'s Github chart`}
-                className="min-w-[600px] w-full max-w-[800px] object-contain dark:invert dark:hue-rotate-[180deg] opacity-90 dark:opacity-80 relative z-10"
-                src={`https://ghchart.rshah.org/${profile.githubUsername}`}
-              />
-            </div>
-          </motion.div>
-        </div>
       </div>
     </section>
   )

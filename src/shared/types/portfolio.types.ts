@@ -17,7 +17,9 @@ export interface ProfileData {
   repositoryUrl: string
   githubLabel: string
   linkedinUrl: string
+  linkedinConnectionCount: number
   linkedinLabel: string
+  linkedinConnectionsLabel: string
   heroStatusLabel: string
   heroTerminalPath: string
   heroTerminalDirectories: string[]
