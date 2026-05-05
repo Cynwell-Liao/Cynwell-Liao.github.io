@@ -1,8 +1,12 @@
-import { motion } from 'framer-motion'
+import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
+import { useCountUpNumber } from '../model/countUp'
 import { parseContributionTotal } from '../model/contributions'
-import { formatLinkedInConnectionCount } from '../model/linkedinConnections'
+import {
+  formatLinkedInConnectionCount,
+  getLinkedInConnectionCountTarget,
+} from '../model/linkedinConnections'
 
 import type { ProfileData } from '../model/profile.types'
 
@@ -15,14 +19,43 @@ const appIconHoverAnimation = {
   scale: 1.05,
 }
 
+const COUNT_UP_DURATION_MS = 1800
+const COUNT_UP_START_DELAY_MS = 450
+const LINKEDIN_PUBLIC_LIMIT_HOLD_MS = 260
+
 export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
+  const shouldReduceMotion = useReducedMotion()
   const [contributions, setContributions] = useState<number | null>(null)
   const certificationMarqueeItems = [
     ...profile.heroCertifications,
     ...profile.heroCertifications,
   ]
-  const linkedinConnectionCount = formatLinkedInConnectionCount(
+  const shouldAnimateCounts = shouldReduceMotion !== true
+  const linkedinConnectionTarget = getLinkedInConnectionCountTarget(
     profile.linkedinConnectionCount
+  )
+  const linkedinConnectionCountUp = useCountUpNumber({
+    target: contributions === null ? null : linkedinConnectionTarget,
+    shouldAnimate: shouldAnimateCounts,
+    durationMs: COUNT_UP_DURATION_MS,
+    startDelayMs: COUNT_UP_START_DELAY_MS,
+    finalHoldMs:
+      profile.linkedinConnectionCount > linkedinConnectionTarget
+        ? LINKEDIN_PUBLIC_LIMIT_HOLD_MS
+        : 0,
+  })
+  const contributionCountUp = useCountUpNumber({
+    target: contributions,
+    shouldAnimate: shouldAnimateCounts,
+    durationMs: COUNT_UP_DURATION_MS,
+    startDelayMs: COUNT_UP_START_DELAY_MS,
+  })
+  const linkedinConnectionCount = formatLinkedInConnectionCount(
+    linkedinConnectionCountUp.value,
+    {
+      actualConnectionCount: profile.linkedinConnectionCount,
+      phase: linkedinConnectionCountUp.phase,
+    }
   )
 
   useEffect(() => {
@@ -158,16 +191,10 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
                   </motion.a>
 
                   <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
-                    {contributions !== null ? (
-                      <>
-                        <span className="font-bold text-xl text-accent-600 sm:text-2xl dark:text-accent-400">
-                          {contributions}
-                        </span>
-                        <span>{profile.contributionsSuffixLabel}</span>
-                      </>
-                    ) : (
-                      profile.contributionsLoadingLabel
-                    )}
+                    <span className="font-bold text-xl text-accent-600 sm:text-2xl dark:text-accent-400">
+                      {contributionCountUp.value}
+                    </span>
+                    <span>{profile.contributionsSuffixLabel}</span>
                   </span>
                 </span>
               </span>

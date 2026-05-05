@@ -78,6 +78,7 @@ vi.mock('framer-motion', () => {
       scrollY: motionValue,
       scrollYProgress: motionValue,
     }),
+    useReducedMotion: () => true,
     useTransform: () => 0,
   }
 })

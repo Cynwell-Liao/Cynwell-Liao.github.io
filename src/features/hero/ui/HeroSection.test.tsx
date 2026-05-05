@@ -26,6 +26,50 @@ const renderHeroSection = (overrides?: { deployVersion?: string }) =>
   )
 
 describe('HeroSection', () => {
+  it('keeps both stat counters at zero while contributions are pending', async () => {
+    let resolveContributions: (value: { totalContributions: number }) => void = () => {
+      return undefined
+    }
+    const contributionPayload = new Promise<{ totalContributions: number }>(
+      (resolve) => {
+        resolveContributions = resolve
+      }
+    )
+    const fetchMock = vi.fn(() =>
+      Promise.resolve({
+        json: () => contributionPayload,
+      })
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHeroSection()
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalled()
+    })
+
+    const zeroCounters = screen.getAllByText('0')
+    expect(zeroCounters).toHaveLength(2)
+    for (const counter of zeroCounters) {
+      expect(counter).toHaveClass(
+        'font-bold',
+        'text-xl',
+        'text-accent-600',
+        'sm:text-2xl',
+        'dark:text-accent-400'
+      )
+    }
+    expect(
+      screen.queryByText(formatLinkedInConnectionCount(profile.linkedinConnectionCount))
+    ).not.toBeInTheDocument()
+    expect(screen.getByText(profile.linkedinConnectionsLabel)).toBeInTheDocument()
+    expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
+
+    resolveContributions({ totalContributions: 42 })
+
+    expect(await screen.findByText('42')).toBeInTheDocument()
+  })
+
   it('renders contribution total when API returns valid payload', async () => {
     const fetchMock = createFetchMock({ totalContributions: 42 })
     vi.stubGlobal('fetch', fetchMock)
@@ -40,7 +84,7 @@ describe('HeroSection', () => {
     expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
   })
 
-  it('keeps loading state when API payload does not include contribution total', async () => {
+  it('keeps the contribution count at zero when API payload is invalid', async () => {
     const fetchMock = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({}),
@@ -54,7 +98,11 @@ describe('HeroSection', () => {
       expect(fetchMock).toHaveBeenCalled()
     })
 
-    expect(screen.getByText(profile.contributionsLoadingLabel)).toBeInTheDocument()
+    expect(screen.getAllByText('0')).toHaveLength(2)
+    expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
+    expect(
+      screen.queryByText(profile.contributionsLoadingLabel)
+    ).not.toBeInTheDocument()
   })
 
   it('handles request failure without crashing', async () => {
@@ -69,7 +117,11 @@ describe('HeroSection', () => {
         expect(errorSpy).toHaveBeenCalled()
       })
 
-      expect(screen.getByText(profile.contributionsLoadingLabel)).toBeInTheDocument()
+      expect(screen.getAllByText('0')).toHaveLength(2)
+      expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
+      expect(
+        screen.queryByText(profile.contributionsLoadingLabel)
+      ).not.toBeInTheDocument()
     } finally {
       errorSpy.mockRestore()
     }
