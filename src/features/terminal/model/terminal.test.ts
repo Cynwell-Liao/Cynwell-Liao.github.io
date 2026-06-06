@@ -27,19 +27,19 @@ const runCommand = (
 
 describe('terminal', () => {
   it('defines theme-aware tone class mappings', () => {
-    expect(getTerminalToneClass('default', 'light')).toContain('text-slate-800')
-    expect(getTerminalToneClass('default', 'dark')).toContain('text-slate-200')
-    expect(getTerminalToneClass('accent', 'light')).toContain('text-secondary-700')
-    expect(getTerminalToneClass('accent', 'dark')).toContain('text-cyan-300')
-    expect(terminalThemeClasses.light.body).toContain('bg-[#fbfbfb]')
-    expect(terminalThemeClasses.dark.body).toContain('bg-slate-950')
+    expect(getTerminalToneClass('default', 'light')).toContain('text-slate-900')
+    expect(getTerminalToneClass('default', 'dark')).toContain('text-slate-100')
+    expect(getTerminalToneClass('accent', 'light')).toContain('text-blue-600')
+    expect(getTerminalToneClass('accent', 'dark')).toContain('text-blue-400')
+    expect(terminalThemeClasses.light.body).toContain('bg-transparent')
+    expect(terminalThemeClasses.dark.body).toContain('bg-transparent')
   })
 
   it('builds initial terminal lines from profile content', () => {
     const lines = createInitialTerminalLines(profile)
 
     expect(lines[0]).toEqual({
-      text: 'Ubuntu 24.04.2 LTS portfolio tty1',
+      text: 'Last login: Wed May 15 10:24:08 on ttys001',
       tone: 'muted',
     })
     expect(lines[1]).toEqual({
@@ -47,8 +47,8 @@ describe('terminal', () => {
       tone: 'muted',
     })
     expect(lines[2]).toEqual({
-      text: `${profile.heroTerminalPath} $ ls -la`,
-      tone: 'accent',
+      text: `${profile.heroTerminalPath} % ls -la`,
+      tone: 'default',
     })
     expect(lines).toContainEqual({
       text: `drwxr-xr-x ${profile.heroTerminalDirectories[0]}`,

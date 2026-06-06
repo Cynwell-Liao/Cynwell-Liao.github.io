@@ -46,7 +46,7 @@ describe('TerminalWindow', () => {
       'data-theme',
       'light'
     )
-    expect(screen.getByText('PORTFOLIO TERMINAL')).toBeInTheDocument()
+    expect(screen.getByText('cynwell — -zsh — 80x24')).toBeInTheDocument()
     expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
     expect(getTerminalInput()).toHaveFocus()
   })

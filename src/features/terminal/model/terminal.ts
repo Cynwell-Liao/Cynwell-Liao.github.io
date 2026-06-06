@@ -28,9 +28,9 @@ interface ResolveTerminalCommandParams {
 }
 
 export const createInitialTerminalLines = (profile: ProfileData): TerminalLine[] => [
-  { text: 'Ubuntu 24.04.2 LTS portfolio tty1', tone: 'muted' },
+  { text: 'Last login: Wed May 15 10:24:08 on ttys001', tone: 'muted' },
   { text: "Type 'help' to explore commands.", tone: 'muted' },
-  { text: `${profile.heroTerminalPath} $ ls -la`, tone: 'accent' },
+  { text: `${profile.heroTerminalPath} % ls -la`, tone: 'default' },
   ...profile.heroTerminalDirectories.map((directory) => ({
     text: `drwxr-xr-x ${directory}`,
   })),

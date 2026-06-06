@@ -7,7 +7,7 @@ import {
   useRef,
   useState,
 } from 'react'
-import { FiTerminal, FiX } from 'react-icons/fi'
+import { FiX } from 'react-icons/fi'
 
 import {
   createInitialTerminalLines,
@@ -76,7 +76,7 @@ export function TerminalWindow({
   const pushTerminalOutput = (input: string, output: TerminalLine[]) => {
     setTerminalLines((previousLines) => [
       ...previousLines,
-      { text: `${profile.heroTerminalPath} $ ${input}`, tone: 'accent' },
+      { text: `${profile.heroTerminalPath} % ${input}`, tone: 'default' },
       ...output,
     ])
   }
@@ -149,31 +149,27 @@ export function TerminalWindow({
         role="dialog"
       >
         <div
-          className={`flex cursor-grab touch-none items-center justify-between border-b px-4 py-2 active:cursor-grabbing ${terminalTheme.titleBar}`}
+          className={`relative flex h-11 cursor-grab touch-none items-center justify-center px-4 active:cursor-grabbing ${terminalTheme.titleBar}`}
           onPointerDown={startDrag}
         >
-          <div className="flex items-center gap-3">
-            <div className="flex gap-1.5" aria-hidden>
-              <span className="h-3 w-3 rounded-full bg-red-500" />
-              <span className="h-3 w-3 rounded-full bg-yellow-400" />
-              <span className="h-3 w-3 rounded-full bg-emerald-500" />
-            </div>
-            <div
-              className={`flex items-center gap-2 text-xs font-semibold tracking-[0.18em] ${terminalTheme.title}`}
+          <div className="absolute left-4 flex gap-2">
+            <button
+              aria-label="Close terminal"
+              className="group flex h-3 w-3 items-center justify-center rounded-full bg-[#ff5f56] transition-colors hover:bg-[#ff5f56]"
+              onClick={onClose}
+              type="button"
             >
-              <FiTerminal className={`h-4 w-4 ${terminalTheme.icon}`} />
-              <span>PORTFOLIO TERMINAL</span>
-            </div>
+              <FiX className="hidden h-2 w-2 text-black/60 group-hover:block" />
+            </button>
+            <div className="h-3 w-3 rounded-full bg-[#ffbd2e]" />
+            <div className="h-3 w-3 rounded-full bg-[#27c93f]" />
           </div>
 
-          <button
-            aria-label="Close terminal"
-            className={`inline-flex h-7 w-7 items-center justify-center rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 ${terminalTheme.closeButton}`}
-            onClick={onClose}
-            type="button"
+          <div
+            className={`flex items-center justify-center text-[13px] font-medium tracking-normal ${terminalTheme.title}`}
           >
-            <FiX className="h-4 w-4" />
-          </button>
+            <span>cynwell — -zsh — 80x24</span>
+          </div>
         </div>
 
         <div
@@ -204,7 +200,7 @@ export function TerminalWindow({
             <span className={`break-all ${terminalTheme.prompt}`}>
               {profile.heroTerminalPath}
             </span>
-            <span className={terminalTheme.promptSymbol}>$</span>
+            <span className={`mr-2 ${terminalTheme.promptSymbol}`}>%</span>
             <input
               aria-label="Terminal command input"
               autoComplete="off"
