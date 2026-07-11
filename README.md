@@ -63,7 +63,12 @@ Edit `site-meta.json` (project root) — name, site URL, description, keywords, 
 
 ### Step 5 — Branding _(optional)_
 
-- Replace `public/favicon.ico` and `public/assets/og-cover.png`.
+- Replace `public/favicon.ico`.
+- **Social Cover (OG Image):** We provide an automated pipeline to generate a pixel-perfect social cover image.
+  1. Add your own profile picture to `public/assets/profile-photo.png`.
+  2. Open `public/assets/og-cover.svg` in an editor and update the text elements (Name, Role, Tagline, GitHub URL) to match your profile.
+  3. Run `npm run update:og-avatar` — This automatically crops your `profile-photo.png` into a perfect circle and embeds it directly into the SVG template.
+  4. Run `npm run build:og-cover` — This uses a headless Chromium engine to snapshot the SVG into a perfectly rendered `public/assets/og-cover.png` using native Google Web Fonts.
 - Update `public/sitemap.xml` and `public/robots.txt` with your site URL.
 
 ### Adding New Skill Icons

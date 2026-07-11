@@ -6,7 +6,7 @@ describe('loadProfile', () => {
   it('returns a composed ProfileData with all required fields', () => {
     expect(profile.name).toBe('Cynwell Liao')
     expect(profile.brandName).toBe('Cynwell-Liao')
-    expect(profile.title).toBe('AI Software Engineer')
+    expect(profile.title).toBe('Software Engineer')
     expect(profile.githubUsername).toBe('Cynwell-Liao')
     expect(profile.linkedinConnectionCount).toEqual(expect.any(Number))
     expect(profile.linkedinConnectionCount).toBeGreaterThanOrEqual(0)

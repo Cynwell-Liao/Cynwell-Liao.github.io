@@ -6,7 +6,7 @@
         "name": "Java",
         "note": "Enterprise JVM applications",
         "icon": "java",
-        "color": "#ED8B00"
+        "color": "#F89820"
       },
       {
         "name": "Python",
@@ -59,7 +59,7 @@
         "name": "Node.js",
         "note": "Server-side runtimes",
         "icon": "nodejs",
-        "color": "#339939"
+        "color": "#5FA04E"
       },
       {
         "name": "Next.js",
@@ -73,16 +73,16 @@
     "title": "ML & AI",
     "items": [
       {
-        "name": "LangChain",
-        "note": "Agentic orchestration",
-        "icon": "langchain",
-        "color": "#1C3C3C"
-      },
-      {
         "name": "PyTorch",
         "note": "Deep learning framework",
         "icon": "pytorch",
         "color": "#EE4C2C"
+      },
+      {
+        "name": "LangChain",
+        "note": "Agentic orchestration",
+        "icon": "langchain",
+        "color": "#1C3C3C"
       },
       {
         "name": "Claude",
@@ -95,6 +95,12 @@
         "note": "Google LLM APIs",
         "icon": "gemini",
         "color": "#8E75B2"
+      },
+      {
+        "name": "GPT",
+        "note": "OpenAI LLM APIs",
+        "icon": "openai",
+        "color": "#10A37F"
       },
       {
         "name": "Ollama",
@@ -199,7 +205,7 @@
         "name": "PostgreSQL",
         "note": "Relational, pgvector, PostGIS",
         "icon": "postgresql",
-        "color": "#336791"
+        "color": "#4169E1"
       },
       {
         "name": "MongoDB",
@@ -211,7 +217,7 @@
         "name": "Redis",
         "note": "In-memory caching",
         "icon": "redis",
-        "color": "#DC382D"
+        "color": "#FF4438"
       },
       {
         "name": "Elasticsearch",

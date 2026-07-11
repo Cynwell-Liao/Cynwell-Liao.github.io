@@ -1,6 +1,6 @@
 {
   "name": "cynwell-liao-portfolio",
-  "version": "1.5.9",
+  "version": "1.5.10",
   "description": "Personal Portfolio and Resume Website",
   "author": "Cynwell Liao",
   "license": "MIT",
@@ -19,7 +19,9 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "preview": "vite preview",
-    "prepare": "husky"
+    "prepare": "husky",
+    "update:og-avatar": "node scripts/embed-og-avatar.js",
+    "build:og-cover": "node scripts/build-og-image.js"
   },
   "dependencies": {
     "@fontsource-variable/jetbrains-mono": "^5.2.8",
