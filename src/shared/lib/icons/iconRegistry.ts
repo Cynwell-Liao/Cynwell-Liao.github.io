@@ -2,6 +2,7 @@ import { DiMsqlServer } from 'react-icons/di'
 import { FaAws, FaDatabase, FaDocker, FaJava } from 'react-icons/fa'
 import { LuBookOpen, LuGraduationCap, LuLibrary } from 'react-icons/lu'
 import {
+  SiClaude,
   SiDjango,
   SiDocker,
   SiDotnet,
@@ -32,7 +33,7 @@ import {
   SiTerraform,
   SiTypescript,
 } from 'react-icons/si'
-import { TbBrandCSharp } from 'react-icons/tb'
+import { TbBrandCSharp, TbBrandGolang } from 'react-icons/tb'
 import { VscAzure } from 'react-icons/vsc'
 
 import type { IconType } from 'react-icons'
@@ -47,6 +48,7 @@ const iconRegistry: Record<string, IconType> = {
   // ── Languages ──
   java: FaJava,
   csharp: TbBrandCSharp,
+  go: TbBrandGolang,
   python: SiPython,
   typescript: SiTypescript,
   javascript: SiJavascript,
@@ -62,6 +64,7 @@ const iconRegistry: Record<string, IconType> = {
   nextjs: SiNextdotjs,
 
   // ── ML & AI ──
+  claude: SiClaude,
   gemini: SiGooglegemini,
   ollama: SiOllama,
   langchain: SiLangchain,

@@ -9,16 +9,16 @@
         "color": "#ED8B00"
       },
       {
-        "name": "C#",
-        "note": "Typed applications",
-        "icon": "csharp",
-        "color": "#512BD4"
-      },
-      {
         "name": "Python",
         "note": "Data pipelines & ML scripting",
         "icon": "python",
         "color": "#3776AB"
+      },
+      {
+        "name": "Go",
+        "note": "Concurrent systems & APIs",
+        "icon": "go",
+        "color": "#00ADD8"
       },
       {
         "name": "TypeScript",
@@ -37,12 +37,6 @@
         "note": "Database query language",
         "icon": "sql",
         "color": "#4479A1"
-      },
-      {
-        "name": "HTML",
-        "note": "Web page building blocks",
-        "icon": "html",
-        "color": "#E34F26"
       }
     ]
   },
@@ -56,22 +50,10 @@
         "color": "#6DB33F"
       },
       {
-        "name": ".NET",
-        "note": "Backend services & APIs",
-        "icon": "dotnet",
-        "color": "#512BD4"
-      },
-      {
         "name": "Django",
         "note": "Python web scaffolding",
         "icon": "django",
         "color": "#092E20"
-      },
-      {
-        "name": "Flask",
-        "note": "Micro web framework",
-        "icon": "flask",
-        "color": "#000000"
       },
       {
         "name": "Node.js",
@@ -91,8 +73,26 @@
     "title": "ML & AI",
     "items": [
       {
+        "name": "LangChain",
+        "note": "Agentic orchestration",
+        "icon": "langchain",
+        "color": "#1C3C3C"
+      },
+      {
+        "name": "PyTorch",
+        "note": "Deep learning framework",
+        "icon": "pytorch",
+        "color": "#EE4C2C"
+      },
+      {
+        "name": "Claude",
+        "note": "Anthropic LLM APIs",
+        "icon": "claude",
+        "color": "#D97757"
+      },
+      {
         "name": "Gemini",
-        "note": "Cloud LLM APIs",
+        "note": "Google LLM APIs",
         "icon": "gemini",
         "color": "#8E75B2"
       },
@@ -101,30 +101,6 @@
         "note": "Local LLM APIs",
         "icon": "ollama",
         "color": "#000000"
-      },
-      {
-        "name": "LangChain",
-        "note": "Agentic orchestration",
-        "icon": "langchain",
-        "color": "#1C3C3C"
-      },
-      {
-        "name": "LangGraph",
-        "note": "Stateful agent workflows",
-        "icon": "langchain",
-        "color": "#1C3C3C"
-      },
-      {
-        "name": "Transformers",
-        "note": "Hugging Face models",
-        "icon": "huggingface",
-        "color": "#FFD21E"
-      },
-      {
-        "name": "PyTorch",
-        "note": "Deep learning framework",
-        "icon": "pytorch",
-        "color": "#EE4C2C"
       }
     ]
   },
@@ -214,28 +190,16 @@
     "title": "Databases",
     "items": [
       {
-        "name": "PostgreSQL",
-        "note": "Relational, pgvector, PostGIS",
-        "icon": "postgresql",
-        "color": "#336791"
-      },
-      {
         "name": "MySQL",
         "note": "Relational databases",
         "icon": "mysql",
         "color": "#4479A1"
       },
       {
-        "name": "Microsoft SQL Server",
-        "note": "Relational databases",
-        "icon": "mssql",
-        "color": "#CC292B"
-      },
-      {
-        "name": "Firestore",
-        "note": "NoSQL document datastore",
-        "icon": "firestore",
-        "color": "#FFCA28"
+        "name": "PostgreSQL",
+        "note": "Relational, pgvector, PostGIS",
+        "icon": "postgresql",
+        "color": "#336791"
       },
       {
         "name": "MongoDB",
