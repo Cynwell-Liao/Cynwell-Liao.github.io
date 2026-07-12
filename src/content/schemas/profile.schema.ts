@@ -1,66 +1,102 @@
 import { z } from 'zod'
 
-const certificationSchema = z.object({
-  credentialUrl: z.url(),
-  imageUrl: z.url(),
-  imageAlt: z.string().min(1),
-  imageWidth: z.number().optional(),
-  imageHeight: z.number().optional(),
-})
+import {
+  httpsUrlSchema,
+  navigationFragmentSchema,
+  nonBlankTextSchema,
+  positiveDimensionSchema,
+} from './primitives'
 
-const navLinkSchema = z.object({
-  label: z.string().min(1),
-  href: z.string().startsWith('#'),
-})
+const certificationSchema = z
+  .object({
+    credentialUrl: httpsUrlSchema,
+    imageUrl: httpsUrlSchema,
+    imageAlt: nonBlankTextSchema,
+    imageWidth: positiveDimensionSchema.optional(),
+    imageHeight: positiveDimensionSchema.optional(),
+  })
+  .strict()
 
-const aboutSchema = z.object({
-  headingLead: z.string().min(1),
-  headingAccent: z.string().min(1),
-  intro: z.string().min(1),
-  paragraphs: z.array(z.string().min(1)).min(1),
-})
+const navLinkSchema = z
+  .object({
+    label: nonBlankTextSchema,
+    href: navigationFragmentSchema,
+  })
+  .strict()
 
-const heroSchema = z.object({
-  statusLabel: z.string().min(1),
-  terminalPath: z.string().min(1),
-  terminalDirectories: z.array(z.string()),
-  terminalPrompt: z.string().min(1),
-  certificationsHeading: z.string().min(1),
-})
+const aboutSchema = z
+  .object({
+    headingLead: nonBlankTextSchema,
+    headingAccent: nonBlankTextSchema,
+    intro: nonBlankTextSchema,
+    paragraphs: z.array(nonBlankTextSchema).min(1),
+  })
+  .strict()
 
-const labelsSchema = z.object({
-  githubLabel: z.string().min(1),
-  linkedinLabel: z.string().min(1),
-  linkedinConnectionsLabel: z.string().min(1),
-  contributionsLoadingLabel: z.string().min(1),
-  contributionsSuffixLabel: z.string().min(1),
-  techStackSectionEyebrow: z.string().min(1),
-  techStackSectionTitle: z.string().min(1),
-  techStackSectionDescription: z.string().min(1),
-  projectsSectionEyebrow: z.string().min(1),
-  projectsSectionTitle: z.string().min(1),
-  projectsSectionDescription: z.string().min(1),
-  projectLiveLabel: z.string().min(1),
-  projectSourceLabel: z.string().min(1),
-  educationSectionEyebrow: z.string().min(1),
-  educationSectionTitle: z.string().min(1),
-  educationSectionDescription: z.string().min(1),
-  footerAttribution: z.string().min(1),
-})
+const heroSchema = z
+  .object({
+    statusLabel: nonBlankTextSchema,
+    terminalPath: nonBlankTextSchema,
+    terminalDirectories: z.array(nonBlankTextSchema).min(1),
+    terminalPrompt: nonBlankTextSchema,
+    certificationsHeading: nonBlankTextSchema,
+  })
+  .strict()
 
-export const profileSchema = z.object({
-  name: z.string().min(1),
-  brandName: z.string().min(1),
-  title: z.string().min(1),
-  tagline: z.string().min(1),
-  githubUsername: z.string().min(1),
-  githubUrl: z.url(),
-  repositoryUrl: z.url(),
-  linkedinUrl: z.url(),
-  linkedinConnectionCount: z.number().int().nonnegative(),
-  about: aboutSchema,
-  hero: heroSchema,
-  certifications: z.array(certificationSchema),
-  navLinks: z.array(navLinkSchema).min(1),
-  labels: labelsSchema,
-})
+const labelsSchema = z
+  .object({
+    githubLabel: nonBlankTextSchema,
+    linkedinLabel: nonBlankTextSchema,
+    linkedinConnectionsLabel: nonBlankTextSchema,
+    contributionsLoadingLabel: nonBlankTextSchema,
+    contributionsSuffixLabel: nonBlankTextSchema,
+    techStackSectionEyebrow: nonBlankTextSchema,
+    techStackSectionTitle: nonBlankTextSchema,
+    techStackSectionDescription: nonBlankTextSchema,
+    projectsSectionEyebrow: nonBlankTextSchema,
+    projectsSectionTitle: nonBlankTextSchema,
+    projectsSectionDescription: nonBlankTextSchema,
+    projectLiveLabel: nonBlankTextSchema,
+    projectSourceLabel: nonBlankTextSchema,
+    educationSectionEyebrow: nonBlankTextSchema,
+    educationSectionTitle: nonBlankTextSchema,
+    educationSectionDescription: nonBlankTextSchema,
+    footerAttribution: nonBlankTextSchema,
+  })
+  .strict()
+
+export const profileSchema = z
+  .object({
+    name: nonBlankTextSchema,
+    brandName: nonBlankTextSchema,
+    title: nonBlankTextSchema,
+    tagline: nonBlankTextSchema,
+    githubUsername: nonBlankTextSchema,
+    githubUrl: httpsUrlSchema,
+    repositoryUrl: httpsUrlSchema,
+    linkedinUrl: httpsUrlSchema,
+    linkedinConnectionCount: z.number().int().nonnegative(),
+    about: aboutSchema,
+    hero: heroSchema,
+    certifications: z.array(certificationSchema).min(1),
+    navLinks: z.array(navLinkSchema).min(1),
+    labels: labelsSchema,
+  })
+  .strict()
+  .superRefine((rawProfile, context) => {
+    const seenTargets = new Set<string>()
+
+    rawProfile.navLinks.forEach((link, index) => {
+      const normalizedTarget = link.href.toLocaleLowerCase('en-US')
+
+      if (seenTargets.has(normalizedTarget)) {
+        context.addIssue({
+          code: 'custom',
+          message: 'Navigation targets must be unique (case-insensitive)',
+          path: ['navLinks', index, 'href'],
+        })
+      }
+
+      seenTargets.add(normalizedTarget)
+    })
+  })

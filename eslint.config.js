@@ -1,11 +1,40 @@
 import js from '@eslint/js'
-import globals from 'globals'
+import { defineConfig } from 'eslint/config'
 import importPlugin from 'eslint-plugin-import'
 import jsxA11y from 'eslint-plugin-jsx-a11y'
 import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
+import globals from 'globals'
 import tseslint from 'typescript-eslint'
-import { defineConfig } from 'eslint/config'
+
+const importOrderRules = {
+  'import/no-duplicates': 'error',
+  'import/order': [
+    'error',
+    {
+      groups: [
+        'builtin',
+        'external',
+        'internal',
+        'parent',
+        'sibling',
+        'index',
+        'object',
+        'type',
+      ],
+      pathGroups: [
+        {
+          pattern: '@{app,features,shared,content}{,/**}',
+          group: 'internal',
+          position: 'before',
+        },
+      ],
+      pathGroupsExcludedImportTypes: ['builtin'],
+      alphabetize: { order: 'asc', caseInsensitive: true },
+      'newlines-between': 'always',
+    },
+  ],
+}
 
 export default defineConfig([
   {
@@ -38,6 +67,7 @@ export default defineConfig([
       },
     },
     rules: {
+      ...importOrderRules,
       '@typescript-eslint/consistent-type-imports': [
         'error',
         { prefer: 'type-imports', fixStyle: 'separate-type-imports' },
@@ -116,11 +146,10 @@ export default defineConfig([
       '@typescript-eslint/no-unsafe-call': 'off',
       '@typescript-eslint/no-unsafe-member-access': 'off',
       '@typescript-eslint/no-unsafe-return': 'off',
-      'import/no-restricted-paths': 'off',
     },
   },
   {
-    files: ['*.config.ts', 'e2e/**/*.ts', 'playwright.config.ts'],
+    files: ['*.config.ts', 'config/**/*.ts', 'e2e/**/*.ts', 'playwright.config.ts'],
     extends: [
       js.configs.recommended,
       ...tseslint.configs.recommended,
@@ -138,7 +167,25 @@ export default defineConfig([
       },
     },
     rules: {
+      ...importOrderRules,
       'import/no-default-export': 'off',
+    },
+  },
+  {
+    files: ['eslint.config.js', 'scripts/**/*.js'],
+    extends: [js.configs.recommended, importPlugin.flatConfigs.recommended],
+    languageOptions: {
+      ecmaVersion: 2022,
+      globals: globals.node,
+    },
+    rules: {
+      ...importOrderRules,
+      'import/no-default-export': 'off',
+      'import/no-named-as-default': 'off',
+      'import/no-unresolved': [
+        'error',
+        { ignore: ['^eslint/config$', '^typescript-eslint$'] },
+      ],
     },
   },
 ])

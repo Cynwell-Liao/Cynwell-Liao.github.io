@@ -9,7 +9,9 @@ export const parseContributionTotal = (value: unknown): number | null => {
 
   const payload = value as GithubContributionsResponse
 
-  return typeof payload.totalContributions === 'number'
+  return typeof payload.totalContributions === 'number' &&
+    Number.isSafeInteger(payload.totalContributions) &&
+    payload.totalContributions >= 0
     ? payload.totalContributions
     : null
 }

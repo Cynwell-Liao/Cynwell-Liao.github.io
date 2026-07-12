@@ -1,14 +1,15 @@
-import { motion, useScroll } from 'framer-motion'
-import { useState, useEffect } from 'react'
+import { m, useScroll } from 'framer-motion'
+import { useEffect, useState } from 'react'
 import { FiMoon, FiSun, FiTerminal } from 'react-icons/fi'
-import { twMerge } from 'tailwind-merge'
+
+import { cn } from '@shared/lib/cn'
+import type { ThemeMode } from '@shared/types/common'
 
 import type { NavLink } from '../model/nav.types'
-import type { ThemeMode } from '@shared/types/common'
 
 interface NavbarProps {
   brandName: string
-  links: NavLink[]
+  links: readonly NavLink[]
   theme: ThemeMode
   onOpenTerminal: () => void
   onToggleTheme: () => void
@@ -21,8 +22,8 @@ export function Navbar({
   onOpenTerminal,
   onToggleTheme,
 }: NavbarProps) {
-  const [isScrolled, setIsScrolled] = useState(false)
   const { scrollY } = useScroll()
+  const [isScrolled, setIsScrolled] = useState(() => scrollY.get() > 50)
   const logoUrl = `${import.meta.env.BASE_URL}favicon.ico`
 
   useEffect(() => {
@@ -32,77 +33,86 @@ export function Navbar({
   }, [scrollY])
 
   return (
-    <motion.header
-      className="fixed top-0 left-0 right-0 z-50 flex justify-center pt-6 px-4 pointer-events-none transition-all duration-300"
+    <m.header
+      className="pointer-events-none fixed inset-x-0 top-0 z-50 flex justify-center px-4 pt-6"
       initial={{ y: -100 }}
       animate={{ y: 0 }}
       transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
     >
       <div
-        className={twMerge(
-          'pointer-events-auto flex items-center justify-between px-6 py-3 rounded-full border transition-all duration-500',
+        className={cn(
+          'pointer-events-auto grid w-full grid-cols-[minmax(0,1fr)_auto] items-center rounded-full border px-5 py-3 transition-[max-width,background-color,border-color,box-shadow] duration-500 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:px-6',
           isScrolled
-            ? 'bg-white/80 dark:bg-slate-900/40 border-slate-200 dark:border-white/10 shadow-soft dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)] backdrop-blur-xl w-full max-w-4xl'
-            : 'bg-transparent border-transparent w-full max-w-6xl'
+            ? 'max-w-4xl border-slate-200 bg-white/80 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/40 dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]'
+            : 'max-w-6xl border-transparent bg-transparent'
         )}
       >
-        {/* Brand Container */}
-        <div className="flex items-center gap-4">
-          {/* Favicon / Logo Image */}
-          <a href="#home" className="transition-transform hover:scale-105">
-            <img src={logoUrl} alt="Logo" className="w-9 h-9 rounded-sm" />
-          </a>
-
-          <div className="w-px h-4 bg-slate-300 dark:bg-white/20 hidden sm:block" />
-
-          {/* Text Brand */}
+        <a
+          aria-label={`${brandName} home`}
+          className="flex min-w-0 items-center gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950"
+          href="#home"
+        >
+          <img alt="" className="h-9 w-9 rounded-sm" src={logoUrl} />
           <span
-            className="text-sm font-bold tracking-widest text-slate-900 dark:text-white group relative overflow-hidden flex items-center gap-2"
+            aria-hidden="true"
+            className="hidden h-4 w-px bg-slate-300 dark:bg-white/20 sm:block"
+          />
+          <span
+            className="relative flex min-w-0 items-center gap-2 overflow-hidden text-sm font-bold tracking-widest text-slate-900 dark:text-white"
             data-testid="navbar-brand"
           >
             {brandName}
           </span>
-        </div>
+        </a>
 
-        <nav className="hidden items-center gap-8 md:flex absolute left-1/2 -translate-x-1/2">
+        <nav
+          aria-label="Primary navigation"
+          className="hidden items-center gap-8 md:flex"
+        >
           {links.map((link) => (
             <a
               key={link.href}
-              className="text-sm font-medium tracking-wide text-slate-600 dark:text-slate-300 transition-colors hover:text-slate-900 dark:hover:text-white relative group"
+              className="group relative rounded-sm text-sm font-medium tracking-wide text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:text-slate-300 dark:hover:text-white dark:focus-visible:ring-offset-slate-950"
               href={link.href}
             >
               {link.label}
-              <span className="absolute -bottom-2 left-1/2 w-1 h-1 bg-accent-400 rounded-full opacity-0 -translate-x-1/2 transition-all duration-300 group-hover:opacity-100 group-hover:-translate-y-1" />
+              <span
+                aria-hidden="true"
+                className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-accent-400 opacity-0 transition-[opacity,transform] duration-300 group-hover:-translate-y-1 group-hover:opacity-100 group-focus-visible:-translate-y-1 group-focus-visible:opacity-100"
+              />
             </a>
           ))}
         </nav>
 
-        <div className="flex items-center gap-4">
+        <div className="flex items-center justify-self-end gap-3 md:col-start-3 md:gap-4">
           <button
-            className="hidden items-center gap-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 dark:text-slate-300 dark:hover:text-white sm:inline-flex"
+            className="hidden items-center gap-2 rounded-lg px-1 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 dark:text-slate-300 dark:hover:text-white sm:inline-flex"
             onClick={onOpenTerminal}
             type="button"
           >
-            <FiTerminal className="h-4 w-4" />
+            <FiTerminal aria-hidden="true" className="h-4 w-4" />
             Terminal
           </button>
-          <div className="w-px h-4 bg-slate-300 dark:bg-white/20 hidden sm:block" />
+          <span
+            aria-hidden="true"
+            className="hidden h-4 w-px bg-slate-300 dark:bg-white/20 sm:block"
+          />
           <button
             aria-label={
               theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
             }
-            className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 text-slate-500 dark:text-slate-300 transition-all hover:bg-slate-200 dark:hover:bg-white/10 hover:border-slate-300 dark:hover:border-white/20 hover:text-slate-900 dark:hover:text-white"
+            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-500 transition-[color,background-color,border-color] hover:border-slate-300 hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-offset-slate-950"
             onClick={onToggleTheme}
             type="button"
           >
             {theme === 'dark' ? (
-              <FiSun className="h-4 w-4" />
+              <FiSun aria-hidden="true" className="h-4 w-4" />
             ) : (
-              <FiMoon className="h-4 w-4" />
+              <FiMoon aria-hidden="true" className="h-4 w-4" />
             )}
           </button>
         </div>
       </div>
-    </motion.header>
+    </m.header>
   )
 }

@@ -1,60 +1,48 @@
 import { describe, expect, it } from 'vitest'
 
-import { loadEducation, parseEducation } from './loadEducation'
+import { education, parseEducation } from './loadEducation'
+import { createValidEducation } from './testFixtures'
 
-describe('loadEducation', () => {
-  it('returns parsed education items from JSON', () => {
-    const education = loadEducation()
-
+describe('education content', () => {
+  it('exports a validated readonly education collection', () => {
     expect(education.length).toBeGreaterThan(0)
-    expect(education[0]).toEqual(
-      expect.objectContaining({
-        institution: expect.any(String),
-        degree: expect.any(String),
-        duration: expect.any(String),
-        achievements: expect.any(Array),
-      })
+  })
+
+  it('parses a valid education fixture', () => {
+    expect(parseEducation(createValidEducation())).toEqual(createValidEducation())
+  })
+
+  it.each([
+    ['an empty collection', []],
+    ['empty achievements', [{ ...createValidEducation()[0], achievements: [] }]],
+    [
+      'a whitespace-only institution',
+      [{ ...createValidEducation()[0], institution: '   ' }],
+    ],
+    [
+      'a non-HTTPS logo',
+      [{ ...createValidEducation()[0], logoUrl: 'http://example.com/logo.png' }],
+    ],
+    ['an unknown icon', [{ ...createValidEducation()[0], icon: 'unknown-icon' }]],
+    ['an invalid color', [{ ...createValidEducation()[0], color: 'blue' }]],
+    ['an unknown property', [{ ...createValidEducation()[0], unexpected: true }]],
+  ])('rejects %s', (_description, input) => {
+    expect(() => parseEducation(input)).toThrow(
+      /Invalid content\/data\/education\.json/
     )
   })
-})
 
-describe('parseEducation', () => {
-  it('parses valid education input', () => {
-    const parsed = parseEducation([
-      {
-        institution: 'MIT',
-        degree: 'Computer Science',
-        duration: '2020 — 2024',
-        achievements: ['Dean\u2019s List'],
-        icon: 'graduation-cap',
-        logoUrl: 'https://example.com/logo.png',
-        color: '#A31F34',
-      },
-    ])
+  it('rejects institution names that differ only by case', () => {
+    const item = createValidEducation()[0]
 
-    expect(parsed).toEqual([
-      {
-        institution: 'MIT',
-        degree: 'Computer Science',
-        duration: '2020 — 2024',
-        achievements: ['Dean\u2019s List'],
-        icon: 'graduation-cap',
-        logoUrl: 'https://example.com/logo.png',
-        color: '#A31F34',
-      },
-    ])
-  })
-
-  it('throws a descriptive error for invalid education input', () => {
     expect(() =>
       parseEducation([
+        item,
         {
-          institution: '',
-          degree: '',
-          duration: '',
-          achievements: [],
+          ...item,
+          institution: item.institution.toLocaleUpperCase('en-US'),
         },
       ])
-    ).toThrow(/Invalid content\/data\/education\.json/)
+    ).toThrow(/Education institutions must be unique \(case-insensitive\)/)
   })
 })

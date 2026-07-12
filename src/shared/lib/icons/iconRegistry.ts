@@ -22,7 +22,6 @@ import {
   SiNextdotjs,
   SiNodedotjs,
   SiOllama,
-  SiOpenai,
   SiOpentelemetry,
   SiPostgresql,
   SiPrometheus,
@@ -34,18 +33,19 @@ import {
   SiTerraform,
   SiTypescript,
 } from 'react-icons/si'
-import { TbBrandCSharp, TbBrandGolang } from 'react-icons/tb'
+import { TbBrandCSharp, TbBrandGolang, TbBrandOpenai } from 'react-icons/tb'
 import { VscAzure } from 'react-icons/vsc'
 
+import type { IconKey } from './iconKeys'
 import type { IconType } from 'react-icons'
 
 /**
  * Flat registry mapping string keys to react-icons components.
  *
  * Content JSON files reference icons by these keys (e.g. `"icon": "java"`).
- * To add a new icon, install/import the component and add a single entry here.
+ * Add new public keys to `iconKeys.ts`, then map the matching component here.
  */
-const iconRegistry: Record<string, IconType> = {
+const iconRegistry = {
   // ── Languages ──
   java: FaJava,
   csharp: TbBrandCSharp,
@@ -68,7 +68,7 @@ const iconRegistry: Record<string, IconType> = {
   claude: SiClaude,
   gemini: SiGooglegemini,
   ollama: SiOllama,
-  openai: SiOpenai,
+  openai: TbBrandOpenai,
   langchain: SiLangchain,
   huggingface: SiHuggingface,
   pytorch: SiPytorch,
@@ -101,7 +101,7 @@ const iconRegistry: Record<string, IconType> = {
   library: LuLibrary,
   'book-open': LuBookOpen,
   'graduation-cap': LuGraduationCap,
-}
+} satisfies Record<IconKey, IconType>
 
-export const resolveIcon = (key: string | undefined): IconType | undefined =>
+export const resolveIcon = (key: IconKey | undefined): IconType | undefined =>
   key ? iconRegistry[key] : undefined

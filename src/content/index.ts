@@ -1,4 +1,4 @@
-export { loadEducation } from './loaders/loadEducation'
+export { education } from './loaders/loadEducation'
 export { navLinks, profile } from './loaders/loadProfile'
-export { loadProjects } from './loaders/loadProjects'
-export { loadSkills } from './loaders/loadSkills'
+export { projects } from './loaders/loadProjects'
+export { skillCategories } from './loaders/loadSkills'

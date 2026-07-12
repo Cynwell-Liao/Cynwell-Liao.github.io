@@ -9,5 +9,11 @@ describe('contributions', () => {
     expect(parseContributionTotal({})).toBeNull()
     expect(parseContributionTotal(null)).toBeNull()
     expect(parseContributionTotal('bad')).toBeNull()
+    expect(parseContributionTotal({ totalContributions: -1 })).toBeNull()
+    expect(parseContributionTotal({ totalContributions: 1.5 })).toBeNull()
+    expect(parseContributionTotal({ totalContributions: Number.NaN })).toBeNull()
+    expect(
+      parseContributionTotal({ totalContributions: Number.POSITIVE_INFINITY })
+    ).toBeNull()
   })
 })

@@ -1,1 +1,1 @@
-export type { ProfileData, SocialLink } from '@shared/types/portfolio.types'
+export type { ProfileData } from '@shared/types/portfolio.types'

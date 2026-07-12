@@ -1,329 +1,251 @@
-import { render, screen, waitFor } from '@testing-library/react'
-import { describe, expect, it, vi } from 'vitest'
-
-import { profile } from '@content'
-
-import { formatLinkedInConnectionCount } from '../model/linkedinConnections'
+import { fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { HeroSection } from './HeroSection'
 
-const createFetchMock = (options?: { totalContributions?: number }) =>
-  vi.fn((input: RequestInfo | URL) => {
-    void input
+import type { ProfileData } from '../model/profile.types'
 
-    return Promise.resolve({
-      json: () =>
-        Promise.resolve({ totalContributions: options?.totalContributions ?? 123 }),
-    })
-  })
+const profile: ProfileData = {
+  name: 'Ada Lovelace',
+  brandName: 'ada.dev',
+  title: 'Software Engineer',
+  about: ['Builds reliable software.'],
+  githubUsername: 'ada-lovelace',
+  githubUrl: 'https://github.com/ada-lovelace',
+  repositoryUrl: 'https://github.com/ada-lovelace/portfolio',
+  githubLabel: 'GitHub profile',
+  linkedinUrl: 'https://www.linkedin.com/in/ada-lovelace',
+  linkedinConnectionCount: 760,
+  linkedinLabel: 'LinkedIn profile',
+  linkedinConnectionsLabel: 'connections',
+  heroStatusLabel: 'SYSTEMS ONLINE',
+  heroTerminalPath: '~/portfolio',
+  heroTerminalDirectories: ['projects'],
+  heroTerminalPrompt: '$',
+  heroCertificationsHeading: 'Certifications',
+  heroCertifications: [
+    {
+      credentialUrl: 'https://credentials.example.com/cloud',
+      imageUrl: 'https://images.example.com/cloud.png',
+      imageAlt: 'Cloud certification badge',
+      imageWidth: 120,
+      imageHeight: 120,
+    },
+  ],
+  contributionsLoadingLabel: 'Loading GitHub contributions',
+  contributionsSuffixLabel: 'contributions',
+  aboutHeadingLead: 'About',
+  aboutHeadingAccent: 'me',
+  aboutIntro: 'Intro',
+  techStackSectionEyebrow: 'Skills',
+  techStackSectionTitle: 'Tech stack',
+  techStackSectionDescription: 'Tools',
+  projectsSectionEyebrow: 'Work',
+  projectsSectionTitle: 'Projects',
+  projectsSectionDescription: 'Selected work',
+  projectLiveLabel: 'Live',
+  projectSourceLabel: 'Source',
+  educationSectionEyebrow: 'Learning',
+  educationSectionTitle: 'Education',
+  educationSectionDescription: 'Study',
+  footerAttribution: 'Built by Ada',
+}
 
-const renderHeroSection = (overrides?: { deployVersion?: string }) =>
-  render(
-    <HeroSection
-      deployVersion={overrides?.deployVersion ?? import.meta.env.VITE_APP_VERSION}
-      profile={profile}
-    />
-  )
+const successfulResponse = (payload: unknown) => ({
+  json: () => Promise.resolve(payload),
+  ok: true,
+  status: 200,
+})
+
+const renderHero = () =>
+  render(<HeroSection deployVersion="v9.9.9" profile={profile} />)
 
 describe('HeroSection', () => {
-  it('keeps both stat counters at zero while contributions are pending', async () => {
-    let resolveContributions: (value: { totalContributions: number }) => void = () => {
-      return undefined
-    }
-    const contributionPayload = new Promise<{ totalContributions: number }>(
-      (resolve) => {
-        resolveContributions = resolve
-      }
+  beforeEach(() => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => new Promise<never>(() => undefined))
     )
-    const fetchMock = vi.fn(() =>
-      Promise.resolve({
-        json: () => contributionPayload,
-      })
+  })
+
+  it('exposes its heading, status, social links, and loading semantics', async () => {
+    const fetchMock = vi.fn(() => new Promise<never>(() => undefined))
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHero()
+
+    expect(screen.getByRole('region', { name: profile.title })).toHaveAttribute(
+      'id',
+      'home'
     )
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    const zeroCounters = screen.getAllByText('0')
-    expect(zeroCounters).toHaveLength(2)
-    for (const counter of zeroCounters) {
-      expect(counter).toHaveClass(
-        'font-bold',
-        'text-xl',
-        'text-accent-600',
-        'sm:text-2xl',
-        'dark:text-accent-400'
-      )
-    }
-    expect(
-      screen.queryByText(formatLinkedInConnectionCount(profile.linkedinConnectionCount))
-    ).not.toBeInTheDocument()
-    expect(screen.getByText(profile.linkedinConnectionsLabel)).toBeInTheDocument()
-    expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
-
-    resolveContributions({ totalContributions: 42 })
-
-    expect(await screen.findByText('42')).toBeInTheDocument()
-  })
-
-  it('renders contribution total when API returns valid payload', async () => {
-    const fetchMock = createFetchMock({ totalContributions: 42 })
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    expect(await screen.findByText('42')).toBeInTheDocument()
-    expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
-  })
-
-  it('keeps the contribution count at zero when API payload is invalid', async () => {
-    const fetchMock = vi.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({}),
-      })
-    )
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    expect(screen.getAllByText('0')).toHaveLength(2)
-    expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
-    expect(
-      screen.queryByText(profile.contributionsLoadingLabel)
-    ).not.toBeInTheDocument()
-  })
-
-  it('handles request failure without crashing', async () => {
-    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
-    const fetchMock = vi.fn(() => Promise.reject(new Error('network')))
-    vi.stubGlobal('fetch', fetchMock)
-
-    try {
-      renderHeroSection()
-
-      await waitFor(() => {
-        expect(errorSpy).toHaveBeenCalled()
-      })
-
-      expect(screen.getAllByText('0')).toHaveLength(2)
-      expect(screen.getByText(profile.contributionsSuffixLabel)).toBeInTheDocument()
-      expect(
-        screen.queryByText(profile.contributionsLoadingLabel)
-      ).not.toBeInTheDocument()
-    } finally {
-      errorSpy.mockRestore()
-    }
-  })
-
-  it('renders the static deploy version beside the online status', async () => {
-    const fetchMock = createFetchMock()
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection({ deployVersion: 'v9.9.9' })
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
     expect(screen.getByText(profile.heroStatusLabel)).toBeInTheDocument()
     expect(screen.getByText('v9.9.9')).toBeInTheDocument()
-  })
-
-  it('places the contribution chart below the hero title before certifications', async () => {
-    const fetchMock = createFetchMock()
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    const title = screen.getByRole('heading', {
-      level: 1,
-      name: profile.title,
-    })
-    const contributionChart = screen.getByRole('img', {
-      name: `${profile.name}'s Github chart`,
-    })
-    const certifications = screen.getByRole('region', {
-      name: profile.heroCertificationsHeading,
-    })
-
-    expect(
-      title.compareDocumentPosition(contributionChart) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
-    expect(
-      contributionChart.compareDocumentPosition(certifications) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
-  })
-
-  it('keeps the contribution heading outside the chart panel', async () => {
-    const fetchMock = createFetchMock()
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    const heading = screen.getByText(profile.contributionsSuffixLabel).closest('h2')
-    const contributionChart = screen.getByRole('img', {
-      name: `${profile.name}'s Github chart`,
-    })
-    const linkedinLink = screen.getByRole('link', {
-      name: profile.linkedinLabel,
-    })
-    const githubLink = screen.getByRole('link', {
-      name: profile.githubLabel,
-    })
-    const linkedinConnectionsTotal = screen.getByText(
-      formatLinkedInConnectionCount(profile.linkedinConnectionCount)
+    expect(screen.getByRole('link', { name: profile.linkedinLabel })).toHaveAttribute(
+      'href',
+      profile.linkedinUrl
     )
-    const linkedinConnectionsLabel = screen.getByText(profile.linkedinConnectionsLabel)
-    const contributionTotal = screen.getByText('123')
-    const contributionLabel = screen.getByText(profile.contributionsSuffixLabel)
-
-    expect(heading).not.toBeNull()
-    expect(heading?.closest('.glass-panel')).toBeNull()
-    expect(linkedinLink.closest('h2')).toBe(heading)
-    expect(githubLink.closest('h2')).toBe(heading)
-    expect(linkedinLink).toHaveAttribute('href', profile.linkedinUrl)
-    expect(linkedinLink).toHaveAttribute('title', profile.linkedinLabel)
-    expect(linkedinLink).toHaveAccessibleName(profile.linkedinLabel)
-    expect(linkedinLink).toHaveClass(
-      'group',
-      'social-icon-button',
-      'social-icon-button--linkedin'
+    expect(screen.getByRole('link', { name: profile.githubLabel })).toHaveAttribute(
+      'href',
+      profile.githubUrl
     )
-    const linkedinBug = linkedinLink.querySelector('.linkedin-bug')
-    expect(linkedinBug).not.toBeNull()
-    expect(linkedinBug).toHaveAttribute('aria-hidden', 'true')
-    expect(linkedinBug).toHaveAttribute('fill', 'currentColor')
-    expect(linkedinBug).toHaveAttribute('viewBox', '0 0 26.182 26.182')
-    expect(linkedinBug).toHaveAttribute('width', '32')
-    expect(linkedinBug).toHaveAttribute('height', '32')
-    expect(linkedinBug?.querySelector('path')).toHaveAttribute('fill-rule', 'evenodd')
-    expect(linkedinConnectionsTotal).toHaveClass(
-      'font-bold',
-      'text-xl',
-      'text-accent-600',
-      'sm:text-2xl',
-      'dark:text-accent-400'
+    expect(screen.getByRole('status')).toHaveTextContent(
+      profile.contributionsLoadingLabel
     )
-    expect(linkedinConnectionsTotal.parentElement).toHaveClass(
-      'text-base',
-      'sm:text-lg'
-    )
-    expect(contributionTotal).toHaveClass(
-      'font-bold',
-      'text-xl',
-      'text-accent-600',
-      'sm:text-2xl',
-      'dark:text-accent-400'
-    )
-    expect(contributionLabel.parentElement).toHaveClass('text-base', 'sm:text-lg')
-    expect(linkedinLink).not.toContainElement(linkedinConnectionsTotal)
-    expect(linkedinLink).not.toContainElement(linkedinConnectionsLabel)
-    expect(linkedinConnectionsTotal.closest('a')).toBeNull()
-    expect(linkedinConnectionsLabel.closest('a')).toBeNull()
-    expect(
-      linkedinLink.compareDocumentPosition(linkedinConnectionsTotal) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
-    expect(githubLink).toHaveAttribute('href', profile.githubUrl)
-    expect(githubLink).toHaveAttribute('title', profile.githubLabel)
-    expect(githubLink).toHaveAccessibleName(profile.githubLabel)
-    expect(githubLink).toHaveClass(
-      'group',
-      'social-icon-button',
-      'social-icon-button--github'
-    )
-    const githubMark = githubLink.querySelector('[data-component="Octicon"]')
-    expect(githubMark).not.toBeNull()
-    expect(githubMark).toHaveClass('octicon', 'octicon-mark-github')
-    expect(githubMark).toHaveAttribute('aria-hidden', 'true')
-    expect(githubMark).toHaveAttribute('fill', 'currentColor')
-    expect(githubMark).toHaveAttribute('viewBox', '0 0 24 24')
-    expect(githubMark).toHaveAttribute('width', '34')
-    expect(githubMark).toHaveAttribute('height', '34')
-    expect(screen.getAllByRole('link', { name: profile.linkedinLabel })).toHaveLength(1)
-    expect(screen.getAllByRole('link', { name: profile.githubLabel })).toHaveLength(1)
-    expect(
-      linkedinLink.compareDocumentPosition(githubLink) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
-    expect(githubLink).not.toContainElement(contributionLabel)
-    expect(contributionLabel.closest('a')).toBeNull()
-    expect(
-      githubLink.compareDocumentPosition(contributionLabel) &
-        Node.DOCUMENT_POSITION_FOLLOWING
-    ).toBeTruthy()
-    expect(contributionChart.closest('.glass-panel')).not.toBeNull()
-  })
-
-  it('lets the contribution panel and chart span the hero content width', async () => {
-    const fetchMock = createFetchMock()
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
-
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalled()
-    })
-
-    const contributionChart = screen.getByRole('img', {
-      name: `${profile.name}'s Github chart`,
-    })
-    const contributionPanel = contributionChart.closest('.glass-panel')
-    const contributionContainer = contributionPanel?.parentElement
-
-    expect(contributionContainer).toHaveClass('w-full')
-    expect(contributionContainer?.className).not.toContain('max-w-')
-    expect(contributionPanel).toHaveClass('w-full')
-    expect(contributionChart).toHaveClass('w-full', 'max-w-none')
-  })
-
-  it('does not request GitHub Releases for the deploy version', async () => {
-    const fetchMock = createFetchMock()
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHeroSection()
+    expect(screen.getAllByText('0')).toHaveLength(2)
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining(`${profile.githubUsername}.json`)
+        `https://github-contributions-api.deno.dev/${profile.githubUsername}.json`,
+        expect.objectContaining({
+          referrerPolicy: 'no-referrer',
+          signal: expect.any(AbortSignal),
+        })
       )
     })
+  })
+
+  it('reveals both counters only after a valid contribution response', async () => {
+    const fetchMock = vi.fn(() =>
+      Promise.resolve(successfulResponse({ totalContributions: 1234 }))
+    )
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHero()
+
+    expect(await screen.findByText('1,234')).toBeInTheDocument()
+    expect(screen.getByText('500+')).toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(fetchMock).toHaveBeenCalledTimes(1)
+  })
+
+  it.each([
+    ['a rejected request', () => Promise.reject(new Error('offline'))],
+    [
+      'a non-success response',
+      () =>
+        Promise.resolve({
+          json: () => Promise.resolve({ totalContributions: 25 }),
+          ok: false,
+          status: 503,
+        }),
+    ],
+    [
+      'an invalid total',
+      () => Promise.resolve(successfulResponse({ totalContributions: -1 })),
+    ],
+  ])('keeps both counters at zero for %s', async (_label, responseFactory) => {
+    const fetchMock = vi.fn(responseFactory)
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHero()
+
+    await waitFor(() => {
+      expect(
+        screen.getByRole('region', { name: 'Professional activity' })
+      ).toHaveAttribute('aria-busy', 'false')
+    })
+    expect(screen.getAllByText('0')).toHaveLength(2)
+    expect(screen.queryByText('500+')).not.toBeInTheDocument()
+  })
+
+  it('aborts an outstanding contribution request when unmounted', async () => {
+    let requestSignal: AbortSignal | undefined
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      requestSignal = init?.signal ?? undefined
+      return new Promise<never>(() => undefined)
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    const { unmount } = renderHero()
+    await waitFor(() => {
+      expect(requestSignal).toBeInstanceOf(AbortSignal)
+    })
+
+    unmount()
+
+    expect(requestSignal?.aborted).toBe(true)
+  })
+
+  it('renders a labelled, dimensioned contribution figure with a fallback', () => {
+    renderHero()
+
+    const figure = screen.getByRole('figure', {
+      name: `${profile.name}'s GitHub contribution activity`,
+    })
+    const chart = screen.getByRole('img', {
+      name: `${profile.name}'s GitHub contribution chart`,
+    })
+    expect(figure).toContainElement(chart)
+    expect(
+      screen.getByRole('link', {
+        name: `View ${profile.name}'s GitHub contribution chart`,
+      })
+    ).toHaveAttribute('href', profile.githubUrl)
+    expect(chart).toHaveAttribute(
+      'src',
+      `https://ghchart.rshah.org/${profile.githubUsername}`
+    )
+    expect(chart).toHaveAttribute('width', '663')
+    expect(chart).toHaveAttribute('height', '104')
+    expect(chart).toHaveAttribute('fetchpriority', 'high')
+    expect(chart).toHaveAttribute('decoding', 'async')
+    expect(chart).toHaveAttribute('referrerpolicy', 'no-referrer')
+
+    fireEvent.error(chart)
+
+    expect(screen.queryByRole('img', { name: /contribution chart/i })).toBeNull()
+    expect(
+      screen.getByRole('link', { name: `View ${profile.githubLabel} activity` })
+    ).toHaveAttribute('href', profile.githubUrl)
+  })
+
+  it('keeps one semantic certification set and a non-tabbable visual clone', () => {
+    const { container } = renderHero()
+
+    expect(
+      screen.getByRole('region', { name: profile.heroCertificationsHeading })
+    ).toBeInTheDocument()
+    expect(
+      screen.getAllByRole('link', { name: profile.heroCertifications[0].imageAlt })
+    ).toHaveLength(1)
+    expect(
+      screen.getByRole('img', { name: profile.heroCertifications[0].imageAlt })
+    ).toHaveAttribute('loading', 'lazy')
+
+    const clone = container.querySelector('[data-clone="true"]')
+    expect(clone).toHaveAttribute('aria-hidden', 'true')
+    expect(clone?.querySelector('a')).toHaveAttribute('tabindex', '-1')
+  })
+
+  it('shows a readable certification fallback when its remote image fails', () => {
+    renderHero()
+
+    fireEvent.error(
+      screen.getByRole('img', { name: profile.heroCertifications[0].imageAlt })
+    )
+
+    expect(
+      screen.getByRole('link', { name: profile.heroCertifications[0].imageAlt })
+    ).toHaveTextContent(profile.heroCertifications[0].imageAlt)
+  })
+
+  it('never requests GitHub Releases for its displayed deploy version', async () => {
+    const fetchMock = vi.fn((input: RequestInfo | URL) => {
+      void input
+      return Promise.resolve(successfulResponse({ totalContributions: 42 }))
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHero()
+    await screen.findByText('42')
 
     const requestedUrls = fetchMock.mock.calls.map(([input]) =>
-      typeof input === 'string'
-        ? input
-        : input instanceof URL
-          ? input.toString()
-          : input.url
+      typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     )
-
-    expect(requestedUrls).not.toEqual(
-      expect.arrayContaining([expect.stringContaining('api.github.com')])
-    )
-    expect(requestedUrls).not.toEqual(
-      expect.arrayContaining([expect.stringContaining('/releases/latest')])
-    )
+    expect(requestedUrls).toEqual([
+      `https://github-contributions-api.deno.dev/${profile.githubUsername}.json`,
+    ])
+    expect(requestedUrls.join(' ')).not.toContain('api.github.com')
+    expect(requestedUrls.join(' ')).not.toContain('/releases/latest')
   })
 })

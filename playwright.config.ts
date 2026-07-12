@@ -14,6 +14,7 @@ export default defineConfig({
   reporter: [['list'], ['html', { open: 'never' }]],
   use: {
     baseURL: playwrightBaseUrl,
+    screenshot: 'only-on-failure',
     trace: 'on-first-retry',
   },
   webServer: {

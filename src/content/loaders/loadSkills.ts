@@ -1,22 +1,11 @@
+import type { SkillCategory } from '@shared/types/portfolio.types'
+
 import rawSkills from '../data/skills.json'
 import { skillCategoriesSchema } from '../schemas/skills.schema'
 
-import type { SkillCategory } from '@shared/types/portfolio.types'
+import { parseContent } from './parseContent'
 
-export const parseSkills = (input: unknown): SkillCategory[] => {
-  const parseResult = skillCategoriesSchema.safeParse(input)
+export const parseSkills = (input: unknown): readonly SkillCategory[] =>
+  parseContent(skillCategoriesSchema, input, 'content/data/skills.json')
 
-  if (!parseResult.success) {
-    const issueSummary = parseResult.error.issues
-      .map((issue) => `${issue.path.join('.') || '<root>'}: ${issue.message}`)
-      .join('; ')
-
-    throw new Error(`Invalid content/data/skills.json: ${issueSummary}`)
-  }
-
-  return parseResult.data
-}
-
-const parsedSkills = parseSkills(rawSkills)
-
-export const loadSkills = (): SkillCategory[] => parsedSkills
+export const skillCategories = parseSkills(rawSkills)

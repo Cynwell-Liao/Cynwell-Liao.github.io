@@ -149,4 +149,19 @@ describe('countUp', () => {
     expect(output).toHaveTextContent('500')
     expect(output).toHaveAttribute('data-phase', 'complete')
   })
+
+  it('resets its visible state when the animation target changes', () => {
+    const { rerender } = render(<CountUpProbe target={100} />)
+    const output = screen.getByTestId('count-up-value')
+
+    runNextFrame(0)
+    runNextFrame(100)
+    expect(output).toHaveTextContent('100')
+    expect(output).toHaveAttribute('data-phase', 'complete')
+
+    rerender(<CountUpProbe target={200} />)
+
+    expect(output).toHaveTextContent('0')
+    expect(output).toHaveAttribute('data-phase', 'counting')
+  })
 })

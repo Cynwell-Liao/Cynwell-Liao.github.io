@@ -1,13 +1,19 @@
 import { describe, expect, it } from 'vitest'
 
-import { loadProjects, profile } from '@content'
-
-import { createInitialTerminalLines, resolveTerminalCommand } from './terminal'
-import { getTerminalToneClass, terminalThemeClasses } from './terminalTheme'
-
 import type { Project } from '@shared/types/portfolio.types'
 
-const projects = loadProjects()
+import {
+  appendTerminalLines,
+  createInitialTerminalLines,
+  MAX_COMMAND_HISTORY,
+  MAX_TERMINAL_OUTPUT_LINES,
+  resolveTerminalCommand,
+} from './terminal'
+import { terminalTestProfile, terminalTestProjects } from './terminal.test-fixtures'
+import { getTerminalToneClass, terminalThemeClasses } from './terminalTheme'
+
+const profile = terminalTestProfile
+const projects = terminalTestProjects
 
 const runCommand = (
   rawInput: string,
@@ -29,10 +35,10 @@ describe('terminal', () => {
   it('defines theme-aware tone class mappings', () => {
     expect(getTerminalToneClass('default', 'light')).toContain('text-slate-900')
     expect(getTerminalToneClass('default', 'dark')).toContain('text-slate-100')
-    expect(getTerminalToneClass('accent', 'light')).toContain('text-blue-600')
-    expect(getTerminalToneClass('accent', 'dark')).toContain('text-blue-400')
-    expect(terminalThemeClasses.light.body).toContain('bg-transparent')
-    expect(terminalThemeClasses.dark.body).toContain('bg-transparent')
+    expect(getTerminalToneClass('error', 'light')).toContain('text-red-600')
+    expect(getTerminalToneClass('success', 'dark')).toContain('text-emerald-400')
+    expect(terminalThemeClasses.light.chrome).toContain('bg-white')
+    expect(terminalThemeClasses.dark.chrome).toContain('bg-[#1e1e1e]')
   })
 
   it('builds initial terminal lines from profile content', () => {
@@ -101,6 +107,15 @@ describe('terminal', () => {
     const missing = runCommand('open missing')
     expect(missing?.output[0].text).toContain("Project 'missing' not found")
     expect(missing?.openUrl).toBeUndefined()
+
+    const malformedIndex = runCommand('open 1abc')
+    expect(malformedIndex?.output).toEqual([
+      {
+        text: "Invalid project selector '1abc'. Use a project id or positive index.",
+        tone: 'error',
+      },
+    ])
+    expect(malformedIndex?.openUrl).toBeUndefined()
   })
 
   it('returns error when opening a project without links', () => {
@@ -109,8 +124,8 @@ describe('terminal', () => {
         id: 'no-link',
         title: 'No Link',
         summary: 'No link configured',
-        highlights: [],
-        stack: [],
+        highlights: ['Deterministic fixture'],
+        stack: ['TypeScript'],
       },
     ]
 
@@ -178,5 +193,31 @@ describe('terminal', () => {
       { text: 'Command not found: not-a-command', tone: 'error' },
       { text: "Try 'help' for available commands.", tone: 'muted' },
     ])
+  })
+
+  it('caps command history and terminal output growth', () => {
+    const fullHistory = Array.from(
+      { length: MAX_COMMAND_HISTORY },
+      (_, index) => `command-${String(index + 1)}`
+    )
+    const history = runCommand('history', { commandHistory: fullHistory })
+
+    expect(history?.nextCommandHistory).toHaveLength(MAX_COMMAND_HISTORY)
+    expect(history?.nextCommandHistory[0]).toBe('command-2')
+    expect(history?.nextCommandHistory.at(-1)).toBe('history')
+    expect(history?.output).toHaveLength(MAX_COMMAND_HISTORY)
+
+    const fullOutput = Array.from(
+      { length: MAX_TERMINAL_OUTPUT_LINES },
+      (_, index) => ({ text: `line-${String(index + 1)}` })
+    )
+    const appendedOutput = appendTerminalLines(fullOutput, [
+      { text: 'new-line-1' },
+      { text: 'new-line-2' },
+    ])
+
+    expect(appendedOutput).toHaveLength(MAX_TERMINAL_OUTPUT_LINES)
+    expect(appendedOutput[0]?.text).toBe('line-3')
+    expect(appendedOutput.at(-1)?.text).toBe('new-line-2')
   })
 })

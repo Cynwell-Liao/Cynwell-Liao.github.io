@@ -1,9 +1,9 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { createElement, forwardRef } from 'react'
+import { createElement, forwardRef, Fragment } from 'react'
 import { afterEach, beforeEach, vi } from 'vitest'
 
-import type { ReactNode } from 'react'
+import type { ComponentType, ReactNode } from 'react'
 
 const TRANSIENT_MOTION_PROPS = [
   'initial',
@@ -23,26 +23,57 @@ const TRANSIENT_MOTION_PROPS = [
   'dragElastic',
   'dragListener',
   'dragMomentum',
-]
+] as const
 
 type MockMotionProps = {
   [key: string]: unknown
-  children?: unknown
+  children?: ReactNode
+}
+
+interface MotionMockState {
+  reducedMotion: boolean
+  scrollY: number
+}
+
+const motionMockState: MotionMockState = {
+  reducedMotion: true,
+  scrollY: 0,
+}
+
+const scrollListeners = new Set<(value: number) => void>()
+
+export function setMockReducedMotion(reducedMotion: boolean) {
+  motionMockState.reducedMotion = reducedMotion
+}
+
+export function setMockScrollY(scrollY: number) {
+  motionMockState.scrollY = scrollY
+  scrollListeners.forEach((listener) => {
+    listener(scrollY)
+  })
 }
 
 const stripTransientMotionProps = (props: Record<string, unknown>) =>
   Object.fromEntries(
-    Object.entries(props).filter(([key]) => !TRANSIENT_MOTION_PROPS.includes(key))
+    Object.entries(props).filter(
+      ([key]) =>
+        !TRANSIENT_MOTION_PROPS.includes(key as (typeof TRANSIENT_MOTION_PROPS)[number])
+    )
   )
 
 vi.mock('framer-motion', () => {
+  const componentCache = new Map<string, ComponentType<MockMotionProps>>()
   const motion = new Proxy(
     {},
     {
       get: (_, key: string | symbol) => {
         const tagName = typeof key === 'string' ? key : 'div'
+        const cachedComponent = componentCache.get(tagName)
+        if (cachedComponent) {
+          return cachedComponent
+        }
 
-        return forwardRef<HTMLElement, MockMotionProps>(
+        const MockMotionComponent = forwardRef<HTMLElement, MockMotionProps>(
           ({ children, ...restProps }, ref) =>
             createElement(
               tagName,
@@ -50,88 +81,105 @@ vi.mock('framer-motion', () => {
               (children as ReactNode) ?? null
             )
         )
+        MockMotionComponent.displayName = `MockMotion.${tagName}`
+        componentCache.set(tagName, MockMotionComponent)
+        return MockMotionComponent
       },
     }
   )
 
   const motionValue = {
-    on: () => () => {
-      return undefined
+    get: () => motionMockState.scrollY,
+    on: (_eventName: string, listener: (value: number) => void) => {
+      scrollListeners.add(listener)
+      return () => {
+        scrollListeners.delete(listener)
+      }
     },
-    get: () => 0,
   }
 
+  const Passthrough = ({ children }: { children?: ReactNode }) =>
+    createElement(Fragment, null, children)
+
   return {
+    AnimatePresence: Passthrough,
+    domAnimation: {},
+    LazyMotion: Passthrough,
+    m: motion,
     motion,
+    MotionConfig: Passthrough,
     useDragControls: () => ({
-      start: () => {
-        return undefined
-      },
-      stop: () => {
-        return undefined
-      },
-      cancel: () => {
-        return undefined
-      },
+      start: () => undefined,
+      stop: () => undefined,
+      cancel: () => undefined,
     }),
     useScroll: () => ({
       scrollY: motionValue,
       scrollYProgress: motionValue,
     }),
-    useReducedMotion: () => true,
+    useReducedMotion: () => motionMockState.reducedMotion,
     useTransform: () => 0,
   }
 })
 
 Object.defineProperty(window, 'matchMedia', {
+  configurable: true,
   writable: true,
   value: (query: string): MediaQueryList => ({
     matches: false,
     media: query,
     onchange: null,
-    addListener: () => {
-      return undefined
-    },
-    removeListener: () => {
-      return undefined
-    },
-    addEventListener: () => {
-      return undefined
-    },
-    removeEventListener: () => {
-      return undefined
-    },
+    addListener: () => undefined,
+    removeListener: () => undefined,
+    addEventListener: () => undefined,
+    removeEventListener: () => undefined,
     dispatchEvent: () => false,
   }),
 })
 
-if (!('ResizeObserver' in window)) {
-  class ResizeObserverMock {
-    observe() {
-      return undefined
-    }
-    unobserve() {
-      return undefined
-    }
-    disconnect() {
-      return undefined
-    }
+class ResizeObserverMock implements ResizeObserver {
+  observe() {
+    return undefined
   }
 
-  vi.stubGlobal('ResizeObserver', ResizeObserverMock)
+  unobserve() {
+    return undefined
+  }
+
+  disconnect() {
+    return undefined
+  }
 }
 
-beforeEach(() => {
-  const fetchMock = vi.fn(() =>
-    Promise.resolve({
-      json: () => Promise.resolve({ totalContributions: 123 }),
-    })
-  )
+Object.defineProperty(globalThis, 'ResizeObserver', {
+  configurable: true,
+  value: ResizeObserverMock,
+  writable: true,
+})
 
-  vi.stubGlobal('fetch', fetchMock)
+beforeEach(() => {
+  motionMockState.reducedMotion = true
+  motionMockState.scrollY = 0
+  scrollListeners.clear()
+
+  vi.stubGlobal(
+    'fetch',
+    vi.fn(() =>
+      Promise.resolve({
+        json: () => Promise.resolve({ totalContributions: 123 }),
+        ok: true,
+        status: 200,
+      })
+    )
+  )
 })
 
 afterEach(() => {
   cleanup()
-  vi.clearAllMocks()
+  localStorage.clear()
+  sessionStorage.clear()
+  document.documentElement.className = ''
+  document.documentElement.removeAttribute('style')
+  vi.restoreAllMocks()
+  vi.unstubAllGlobals()
 })

@@ -22,10 +22,18 @@ export interface TerminalCommandResult {
 interface ResolveTerminalCommandParams {
   rawInput: string
   profile: ProfileData
-  projects: Project[]
+  projects: readonly Project[]
   theme: ThemeMode
-  commandHistory: string[]
+  commandHistory: readonly string[]
 }
+
+export const MAX_COMMAND_HISTORY = 50
+export const MAX_TERMINAL_OUTPUT_LINES = 200
+
+export const appendTerminalLines = (
+  existingLines: readonly TerminalLine[],
+  newLines: readonly TerminalLine[]
+): TerminalLine[] => [...existingLines, ...newLines].slice(-MAX_TERMINAL_OUTPUT_LINES)
 
 export const createInitialTerminalLines = (profile: ProfileData): TerminalLine[] => [
   { text: 'Last login: Wed May 15 10:24:08 on ttys001', tone: 'muted' },
@@ -38,10 +46,24 @@ export const createInitialTerminalLines = (profile: ProfileData): TerminalLine[]
 
 const resolveOpenCommand = (
   token: string,
-  projects: Project[]
+  projects: readonly Project[]
 ): Pick<TerminalCommandResult, 'output' | 'openUrl'> => {
   const normalizedToken = token.toLowerCase()
-  const index = Number.parseInt(normalizedToken, 10)
+  const isNumericSelector = /^\d+$/u.test(normalizedToken)
+  const isMalformedNumericSelector = /^\d/u.test(normalizedToken) && !isNumericSelector
+
+  if (isMalformedNumericSelector) {
+    return {
+      output: [
+        {
+          text: `Invalid project selector '${token}'. Use a project id or positive index.`,
+          tone: 'error',
+        },
+      ],
+    }
+  }
+
+  const index = isNumericSelector ? Number(normalizedToken) : Number.NaN
 
   const selectedProject =
     Number.isInteger(index) && index >= 1 && index <= projects.length
@@ -135,142 +157,89 @@ export const resolveTerminalCommand = ({
     return null
   }
 
-  const nextCommandHistory = [...commandHistory, input]
+  const nextCommandHistory = [...commandHistory, input].slice(-MAX_COMMAND_HISTORY)
   const [command, ...args] = input.split(/\s+/)
   const normalizedCommand = command.toLowerCase()
 
+  const createResult = (
+    output: TerminalLine[],
+    options: {
+      shouldClear?: boolean
+      shouldToggleTheme?: boolean
+      openUrl?: string
+    } = {}
+  ): TerminalCommandResult => ({
+    executedInput: input,
+    nextCommandHistory,
+    output,
+    shouldClear: options.shouldClear ?? false,
+    shouldToggleTheme: options.shouldToggleTheme ?? false,
+    ...(options.openUrl ? { openUrl: options.openUrl } : {}),
+  })
+
   if (normalizedCommand === 'clear') {
-    return {
-      executedInput: input,
-      nextCommandHistory,
-      output: [],
-      shouldClear: true,
-      shouldToggleTheme: false,
-    }
+    return createResult([], { shouldClear: true })
   }
 
   switch (normalizedCommand) {
     case 'help':
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: [
-          { text: 'Available commands:' },
-          { text: 'help, ls, pwd, whoami, cat about.txt', tone: 'muted' },
-          {
-            text: 'projects, open <id|index>, theme <dark|light|toggle>',
-            tone: 'muted',
-          },
-          { text: 'history, clear', tone: 'muted' },
-        ],
-      }
+      return createResult([
+        { text: 'Available commands:' },
+        { text: 'help, ls, pwd, whoami, cat about.txt', tone: 'muted' },
+        {
+          text: 'projects, open <id|index>, theme <dark|light|toggle>',
+          tone: 'muted',
+        },
+        { text: 'history, clear', tone: 'muted' },
+      ])
     case 'ls':
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: [
-          ...profile.heroTerminalDirectories.map((directory) => ({
-            text: `drwxr-xr-x ${directory}`,
-          })),
-          { text: '-rw-r--r-- about.txt' },
-        ],
-      }
+      return createResult([
+        ...profile.heroTerminalDirectories.map((directory) => ({
+          text: `drwxr-xr-x ${directory}`,
+        })),
+        { text: '-rw-r--r-- about.txt' },
+      ])
     case 'pwd':
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: [{ text: profile.heroTerminalPath }],
-      }
+      return createResult([{ text: profile.heroTerminalPath }])
     case 'whoami':
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: [{ text: `${profile.name} (${profile.title})` }],
-      }
+      return createResult([{ text: `${profile.name} (${profile.title})` }])
     case 'cat':
       return args[0]?.toLowerCase() === 'about.txt'
-        ? {
-            executedInput: input,
-            nextCommandHistory,
-            shouldClear: false,
-            shouldToggleTheme: false,
-            output: profile.about.map((line) => ({ text: `- ${line}` })),
-          }
-        : {
-            executedInput: input,
-            nextCommandHistory,
-            shouldClear: false,
-            shouldToggleTheme: false,
-            output: [{ text: "Only 'cat about.txt' is supported.", tone: 'error' }],
-          }
+        ? createResult(profile.about.map((line) => ({ text: `- ${line}` })))
+        : createResult([{ text: "Only 'cat about.txt' is supported.", tone: 'error' }])
     case 'projects':
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: projects.map((project, index) => ({
+      return createResult(
+        projects.map((project, index) => ({
           text: `[${String(index + 1)}] ${project.id} - ${project.title}`,
-        })),
-      }
+        }))
+      )
     case 'open':
       if (!args[0]) {
-        return {
-          executedInput: input,
-          nextCommandHistory,
-          shouldClear: false,
-          shouldToggleTheme: false,
-          output: [{ text: 'Usage: open <id|index>', tone: 'error' }],
-        }
+        return createResult([{ text: 'Usage: open <id|index>', tone: 'error' }])
       }
 
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        ...resolveOpenCommand(args[0], projects),
+      {
+        const openResult = resolveOpenCommand(args[0], projects)
+        return createResult(openResult.output, { openUrl: openResult.openUrl })
       }
     case 'theme': {
       const themeResult = resolveThemeCommand(args[0]?.toLowerCase(), theme)
 
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        output: themeResult.output,
+      return createResult(themeResult.output, {
         shouldToggleTheme: themeResult.shouldToggleTheme,
-      }
+      })
     }
     case 'history':
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: nextCommandHistory.map((previousCommand, index) => ({
+      return createResult(
+        nextCommandHistory.map((previousCommand, index) => ({
           text: `${String(index + 1)}  ${previousCommand}`,
           tone: 'muted',
-        })),
-      }
+        }))
+      )
     default:
-      return {
-        executedInput: input,
-        nextCommandHistory,
-        shouldClear: false,
-        shouldToggleTheme: false,
-        output: [
-          { text: `Command not found: ${command}`, tone: 'error' },
-          { text: "Try 'help' for available commands.", tone: 'muted' },
-        ],
-      }
+      return createResult([
+        { text: `Command not found: ${command}`, tone: 'error' },
+        { text: "Try 'help' for available commands.", tone: 'muted' },
+      ])
   }
 }

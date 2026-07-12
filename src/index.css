@@ -6,7 +6,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: Inter, Sora Variable, ui-sans-serif, system-ui;
+  --font-sans: Sora Variable, ui-sans-serif, system-ui;
   --font-mono: JetBrains Mono Variable, ui-monospace, SFMono-Regular;
 
   --color-accent-50: #fcf3f8;
@@ -34,21 +34,9 @@
   --color-primary: #ffffff;
   --color-primary-foreground: #0f172a;
 
-  --background-image-gradient-radial: radial-gradient(var(--tw-gradient-stops));
-  --background-image-hero-glow: conic-gradient(
-    from 180deg at 50% 50%,
-    #37bedc 0deg,
-    #a853ba 180deg,
-    #e384b2 360deg
-  );
-
   --shadow-soft: 0 16px 40px -24px rgba(15, 23, 42, 0.45);
-  --shadow-glow: 0 0 20px rgba(227, 132, 178, 0.4);
-  --shadow-glow-lg: 0 0 40px rgba(227, 132, 178, 0.6);
 
   --animate-blob: blob 7s infinite;
-  --animate-fade-in: fadeIn 0.5s ease-out forwards;
-  --animate-pulse-slow: pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 
   @keyframes blob {
     0% {
@@ -64,34 +52,6 @@
       transform: translate(0px, 0px) scale(1);
     }
   }
-  @keyframes fadeIn {
-    0% {
-      opacity: 0;
-      transform: translateY(10px);
-    }
-    100% {
-      opacity: 1;
-      transform: translateY(0);
-    }
-  }
-}
-
-/*
-  The default border color has changed to `currentcolor` in Tailwind CSS v4,
-  so we've added these compatibility styles to make sure everything still
-  looks the same as it did with Tailwind CSS v3.
-
-  If we ever want to remove these styles, we need to add an explicit border
-  color utility to any element that depends on these defaults.
-*/
-@layer base {
-  *,
-  ::after,
-  ::before,
-  ::backdrop,
-  ::file-selector-button {
-    border-color: var(--color-gray-200, currentcolor);
-  }
 }
 
 @utility section-wrap {
@@ -99,7 +59,7 @@
 }
 
 @utility glass-panel {
-  @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-all duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
+  @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 
   &::before {
@@ -172,21 +132,18 @@
 @utility hero-cert-marquee__track {
   display: flex;
   width: max-content;
-  gap: 1rem;
   animation: hero-cert-marquee-scroll 24s linear infinite;
   will-change: transform;
+}
 
-  .hero-cert-marquee:hover & {
-    animation-play-state: paused;
-  }
-
-  .hero-cert-marquee:focus-within & {
-    animation-play-state: paused;
-  }
+@utility hero-cert-marquee__set {
+  display: flex;
+  gap: 1rem;
+  padding-right: 1rem;
 }
 
 @utility hero-cert-marquee__badge-link {
-  @apply block shrink-0 transition-transform duration-300 hover:scale-105;
+  @apply block shrink-0 rounded-lg transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
   line-height: 0;
 }
 
@@ -249,9 +206,9 @@
 }
 
 @media (max-width: 768px) {
-  .hero-cert-marquee__track {
+  .hero-cert-marquee__set {
     gap: 0.75rem;
-    animation-duration: 24s;
+    padding-right: 0.75rem;
   }
 
   .hero-cert-marquee__viewport::before,
@@ -261,10 +218,45 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+
+  .hero-cert-marquee__viewport {
+    overflow-x: auto;
+  }
+
   .hero-cert-marquee__track {
     animation: none;
     transform: none;
+    width: auto;
   }
+
+  .hero-cert-marquee__set {
+    flex-wrap: wrap;
+    padding-right: 0;
+  }
+
+  .hero-cert-marquee__set[data-clone='true'] {
+    display: none;
+  }
+}
+
+.hero-orb-delay-2000 {
+  animation-delay: 2s;
+}
+
+.hero-orb-delay-4000 {
+  animation-delay: 4s;
 }
 
 html.dark .hero-cert-marquee__viewport::before {

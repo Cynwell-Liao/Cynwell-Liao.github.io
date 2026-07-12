@@ -11,6 +11,8 @@ describe('App', () => {
     const fetchMock = vi.fn(() =>
       Promise.resolve({
         json: () => Promise.resolve({ totalContributions: 321 }),
+        ok: true,
+        status: 200,
       })
     )
     vi.stubGlobal('fetch', fetchMock)
@@ -22,10 +24,19 @@ describe('App', () => {
     expect(document.getElementById('tech-stack')).toBeInTheDocument()
     expect(document.getElementById('projects')).toBeInTheDocument()
     expect(document.getElementById('education')).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'Skip to main content' })).toHaveAttribute(
+      'href',
+      '#main-content'
+    )
+    expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content')
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining(`${profile.githubUsername}.json`)
+        expect.stringContaining(`${profile.githubUsername}.json`),
+        expect.objectContaining({
+          referrerPolicy: 'no-referrer',
+          signal: expect.any(AbortSignal),
+        })
       )
     })
   })
@@ -54,7 +65,9 @@ describe('App', () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Terminal' }))
 
-    expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toBeInTheDocument()
+    expect(
+      await screen.findByRole('dialog', { name: 'Linux terminal' })
+    ).toBeInTheDocument()
     expect(
       screen.getByLabelText<HTMLInputElement>('Terminal command input')
     ).toHaveFocus()
@@ -66,10 +79,9 @@ describe('App', () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Terminal' }))
 
-    expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toHaveAttribute(
-      'data-theme',
-      'light'
-    )
+    expect(
+      await screen.findByRole('dialog', { name: 'Linux terminal' })
+    ).toHaveAttribute('data-theme', 'light')
 
     await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
 

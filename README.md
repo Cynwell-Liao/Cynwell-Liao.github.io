@@ -23,13 +23,17 @@ Forks and small improvements are welcome.
 
 ## Fork and Run
 
+Prerequisites: Node.js 24 and npm 11. If you use `nvm`, run `nvm use` from the
+repository root to select the version declared in `.nvmrc`.
+
 1. Fork this repository on GitHub.
 2. Clone your fork locally.
 
 ```bash
 git clone https://github.com/<your-username>/<your-repo>.git
 cd <your-repo>
-npm install
+npm ci
+npx playwright install chromium
 npm run dev
 ```
 
@@ -46,7 +50,8 @@ Edit `src/content/data/profile.json`:
 - **`hero`** — terminal prompt and directories.
 - **`certifications`** — certification badge URLs.
 - **`navLinks`** — top navigation links.
-- **`labels`** _(optional)_ — section headings and button text.
+- **`labels`** — required section headings, button text, terminal copy, and
+  accessibility labels.
 
 ### Step 2 — Projects _(required)_
 
@@ -67,14 +72,18 @@ Edit `site-meta.json` (project root) — name, site URL, description, keywords, 
 - **Social Cover (OG Image):** We provide an automated pipeline to generate a pixel-perfect social cover image.
   1. Add your own profile picture to `public/assets/profile-photo.png`.
   2. Open `public/assets/og-cover.svg` in an editor and update the text elements (Name, Role, Tagline, GitHub URL) to match your profile.
-  3. Run `npm run update:og-avatar` — This automatically crops your `profile-photo.png` into a perfect circle and embeds it directly into the SVG template.
-  4. Run `npm run build:og-cover` — This uses a headless Chromium engine to snapshot the SVG into a perfectly rendered `public/assets/og-cover.png` using native Google Web Fonts.
+  3. Run `npm run update:og-avatar` — this crops `profile-photo.png` into a circle
+     and embeds it in the SVG template. Use `-- --help` to see temporary input and
+     output path options.
+  4. Run `npm run build:og-cover` — this uses headless Chromium and the local
+     Fontsource packages to render `public/assets/og-cover.png` without a network
+     font dependency. Use `-- --help` for custom input/output paths.
 - Update `public/sitemap.xml` and `public/robots.txt` with your site URL.
 
 ### Adding New Skill Icons
 
-1. Install/import the icon component in `src/shared/lib/icons/iconRegistry.ts`.
-2. Add a key-value entry (e.g., `react: SiReact`).
+1. Add the content key to `src/shared/lib/icons/iconKeys.ts`.
+2. Import and map the matching component in `src/shared/lib/icons/iconRegistry.ts`.
 3. Use the key in `skills.json` (`"icon": "react"`).
 
 ## Deploy Your Fork to GitHub Pages
@@ -93,13 +102,19 @@ Then:
 
 ## Quality Commands
 
+`npm run check` is the authoritative local quality gate and mirrors CI. It runs
+formatting validation, ESLint, strict type checking, coverage, the production build
+(including the JavaScript bundle budget), and Playwright end-to-end tests.
+
 ```bash
+npm run check
+
+# Individual stages for focused development
 npm run lint
 npm run typecheck
 npm run test:coverage
 npm run build
 npm run test:e2e
-npm run check
 ```
 
 ## Architecture Overview

@@ -7,6 +7,10 @@ export interface CountUpState {
   phase: CountUpPhase
 }
 
+interface AnimatedCountUpState extends CountUpState {
+  target: number
+}
+
 interface UseCountUpNumberOptions {
   target: number | null
   shouldAnimate: boolean
@@ -54,10 +58,11 @@ export const useCountUpNumber = ({
 }: UseCountUpNumberOptions): CountUpState => {
   const normalizedTarget = target === null ? null : normalizeCountUpTarget(target)
   const animationTarget = normalizedTarget ?? 0
-  const [animatedState, setAnimatedState] = useState<CountUpState>({
+  const [animatedState, setAnimatedState] = useState<AnimatedCountUpState>(() => ({
+    target: animationTarget,
     value: 0,
     phase: 'counting',
-  })
+  }))
   const canAnimate =
     shouldAnimate &&
     normalizedTarget !== null &&
@@ -81,7 +86,11 @@ export const useCountUpNumber = ({
 
     const completeAnimation = () => {
       if (!isCancelled) {
-        setAnimatedState({ value: currentAnimationTarget, phase: 'complete' })
+        setAnimatedState({
+          target: currentAnimationTarget,
+          value: currentAnimationTarget,
+          phase: 'complete',
+        })
       }
     }
 
@@ -95,6 +104,7 @@ export const useCountUpNumber = ({
 
       if (progress >= 1) {
         setAnimatedState({
+          target: currentAnimationTarget,
           value: currentAnimationTarget,
           phase: safeFinalHoldMs > 0 ? 'holding' : 'complete',
         })
@@ -107,6 +117,7 @@ export const useCountUpNumber = ({
       }
 
       setAnimatedState({
+        target: currentAnimationTarget,
         value: calculateCountUpValue({ target: currentAnimationTarget, progress }),
         phase: 'counting',
       })
@@ -146,5 +157,11 @@ export const useCountUpNumber = ({
     return { value: 0, phase: 'idle' }
   }
 
-  return canAnimate ? animatedState : { value: normalizedTarget, phase: 'complete' }
+  if (!canAnimate) {
+    return { value: normalizedTarget, phase: 'complete' }
+  }
+
+  return animatedState.target === animationTarget
+    ? animatedState
+    : { value: 0, phase: 'counting' }
 }

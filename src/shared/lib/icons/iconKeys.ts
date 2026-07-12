@@ -1,0 +1,51 @@
+export const ICON_KEYS = [
+  'java',
+  'csharp',
+  'go',
+  'python',
+  'typescript',
+  'javascript',
+  'sql',
+  'html',
+  'springboot',
+  'dotnet',
+  'django',
+  'flask',
+  'nodejs',
+  'nextjs',
+  'claude',
+  'gemini',
+  'ollama',
+  'openai',
+  'langchain',
+  'huggingface',
+  'pytorch',
+  'opentelemetry',
+  'prometheus',
+  'junit',
+  'pytest',
+  'gcp',
+  'aws',
+  'azure',
+  'docker',
+  'docker-alt',
+  'kubernetes',
+  'terraform',
+  'postgresql',
+  'mysql',
+  'mssql',
+  'firestore',
+  'mongodb',
+  'redis',
+  'elasticsearch',
+  'library',
+  'book-open',
+  'graduation-cap',
+] as const
+
+export type IconKey = (typeof ICON_KEYS)[number]
+
+const iconKeySet = new Set<string>(ICON_KEYS)
+
+export const isIconKey = (value: unknown): value is IconKey =>
+  typeof value === 'string' && iconKeySet.has(value)

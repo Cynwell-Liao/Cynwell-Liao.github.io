@@ -1,28 +1,12 @@
-import { readFileSync } from 'node:fs'
 import path from 'node:path'
 import { fileURLToPath } from 'node:url'
 
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vitest/config'
 
+import { readAppVersion } from './config/buildMetadata'
+
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
-
-interface PackageJson {
-  version?: unknown
-}
-
-const normalizeAppVersion = (version: string) =>
-  version.startsWith('v') ? version : `v${version}`
-
-const readAppVersion = () => {
-  const packageJson = JSON.parse(readFileSync('./package.json', 'utf-8')) as PackageJson
-
-  if (typeof packageJson.version !== 'string' || packageJson.version.length === 0) {
-    throw new Error('package.json version must be a non-empty string')
-  }
-
-  return normalizeAppVersion(packageJson.version)
-}
 
 const appVersion = readAppVersion()
 
@@ -44,7 +28,7 @@ export default defineConfig({
     setupFiles: ['./src/test/setup.ts'],
     globals: true,
     css: true,
-    include: ['src/**/*.{test,spec}.{ts,tsx}'],
+    include: ['src/**/*.{test,spec}.{ts,tsx}', 'config/**/*.test.ts'],
     exclude: ['e2e/**', 'node_modules/**', 'dist/**'],
     coverage: {
       provider: 'v8',
@@ -57,6 +41,7 @@ export default defineConfig({
         'src/**/*.types.ts',
       ],
       thresholds: {
+        perFile: true,
         lines: 75,
         branches: 75,
         functions: 75,

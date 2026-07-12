@@ -1,12 +1,14 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { describe, expect, it, vi } from 'vitest'
+import { useState } from 'react'
+import { afterEach, describe, expect, it, vi } from 'vitest'
 
-import { loadProjects, profile } from '@content'
+import {
+  terminalTestProfile,
+  terminalTestProjects,
+} from '../model/terminal.test-fixtures'
 
 import { TerminalWindow } from './TerminalWindow'
-
-const projects = loadProjects()
 
 const renderTerminalWindow = (overrides?: {
   onClose?: () => void
@@ -17,8 +19,8 @@ const renderTerminalWindow = (overrides?: {
     <TerminalWindow
       onClose={overrides?.onClose ?? vi.fn()}
       onToggleTheme={overrides?.onToggleTheme ?? vi.fn()}
-      profile={profile}
-      projects={projects}
+      profile={terminalTestProfile}
+      projects={terminalTestProjects}
       theme={overrides?.theme ?? 'light'}
     />
   )
@@ -27,28 +29,65 @@ const getTerminalInput = () =>
   screen.getByLabelText<HTMLInputElement>('Terminal command input')
 
 const submitCommand = (command: string) => {
-  const input = getTerminalInput()
-  const form = input.closest('form')
+  fireEvent.input(getTerminalInput(), { target: { value: command } })
+
+  const form = getTerminalInput().closest('form')
 
   if (!form) {
     throw new Error('Terminal input is missing its form')
   }
 
-  fireEvent.input(input, { target: { value: command } })
-  fireEvent.click(screen.getByRole('button', { name: 'Run terminal command' }))
+  fireEvent.submit(form)
 }
 
+function TerminalHarness() {
+  const [isOpen, setIsOpen] = useState(false)
+
+  return (
+    <>
+      <button
+        onClick={() => {
+          setIsOpen(true)
+        }}
+        type="button"
+      >
+        Open terminal
+      </button>
+      {isOpen ? (
+        <TerminalWindow
+          onClose={() => {
+            setIsOpen(false)
+          }}
+          onToggleTheme={vi.fn()}
+          profile={terminalTestProfile}
+          projects={terminalTestProjects}
+          theme="light"
+        />
+      ) : null}
+    </>
+  )
+}
+
+afterEach(() => {
+  vi.restoreAllMocks()
+})
+
 describe('TerminalWindow', () => {
-  it('renders initial terminal content and focuses the command input', () => {
+  it('renders modeless initial content and focuses the command input', () => {
     renderTerminalWindow()
 
-    expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toHaveAttribute(
-      'data-theme',
-      'light'
-    )
-    expect(screen.getByText('cynwell — -zsh — 80x24')).toBeInTheDocument()
+    const dialog = screen.getByRole('dialog', { name: 'Linux terminal' })
+    const output = screen.getByRole('log', { name: 'Terminal output' })
+    const input = getTerminalInput()
+
+    expect(dialog).toHaveAttribute('data-theme', 'light')
+    expect(dialog).not.toHaveAttribute('aria-modal')
+    expect(
+      screen.getByText(`${terminalTestProfile.githubUsername} — -zsh — 80x24`)
+    ).toBeInTheDocument()
     expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
-    expect(getTerminalInput()).toHaveFocus()
+    expect(output).not.toContainElement(input)
+    expect(input).toHaveFocus()
   })
 
   it('renders the dark terminal profile when the site is dark', () => {
@@ -60,15 +99,20 @@ describe('TerminalWindow', () => {
     )
   })
 
-  it('runs commands and records command history', () => {
+  it('runs commands through form submission and records command history', async () => {
     renderTerminalWindow()
 
     submitCommand('help')
-    submitCommand('history')
+
+    const user = userEvent.setup()
+    fireEvent.input(getTerminalInput(), { target: { value: 'history' } })
+    getTerminalInput().focus()
+    await user.keyboard('{Enter}')
 
     expect(screen.getByText('Available commands:')).toBeInTheDocument()
     expect(screen.getByText(/1\s+help/u)).toBeInTheDocument()
     expect(screen.getByText(/2\s+history/u)).toBeInTheDocument()
+    expect(getTerminalInput()).toHaveValue('')
   })
 
   it('clears terminal output', () => {
@@ -92,31 +136,50 @@ describe('TerminalWindow', () => {
     expect(screen.getByText('Theme toggled to light.')).toBeInTheDocument()
   })
 
-  it('opens project links from the open command', async () => {
-    const openMock = vi.fn()
-    vi.stubGlobal('open', openMock)
+  it('opens project links safely from the open command', async () => {
+    const openMock = vi.spyOn(window, 'open').mockImplementation(() => null)
     renderTerminalWindow()
 
     submitCommand('open 1')
 
     await waitFor(() => {
       expect(openMock).toHaveBeenCalledWith(
-        projects[0].liveUrl,
+        terminalTestProjects[0].liveUrl,
         '_blank',
         'noopener,noreferrer'
       )
     })
-    expect(screen.getByText(`Opening ${projects[0].title}...`)).toBeInTheDocument()
+    expect(
+      screen.getByText(`Opening ${terminalTestProjects[0].title}...`)
+    ).toBeInTheDocument()
   })
 
-  it('closes from the close button and Escape key', async () => {
+  it('restores focus to the opener after closing', async () => {
+    const user = userEvent.setup()
+    render(<TerminalHarness />)
+
+    const opener = screen.getByRole('button', { name: 'Open terminal' })
+    await user.click(opener)
+    expect(getTerminalInput()).toHaveFocus()
+
+    const closeButton = screen.getByRole('button', { name: 'Close terminal' })
+    expect(closeButton).toHaveClass('h-6', 'w-6')
+    expect(closeButton.firstElementChild).toHaveClass('h-3', 'w-3')
+    await user.click(closeButton)
+
+    expect(
+      screen.queryByRole('dialog', { name: 'Linux terminal' })
+    ).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
+  })
+
+  it('closes from the Escape key', async () => {
     const onClose = vi.fn()
     renderTerminalWindow({ onClose })
 
     const user = userEvent.setup()
-    await user.click(screen.getByRole('button', { name: 'Close terminal' }))
     await user.keyboard('{Escape}')
 
-    expect(onClose).toHaveBeenCalledTimes(2)
+    expect(onClose).toHaveBeenCalledTimes(1)
   })
 })

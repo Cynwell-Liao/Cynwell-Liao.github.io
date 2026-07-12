@@ -1,90 +1,86 @@
+import type { IconKey } from '@shared/lib/icons'
+import type { SectionFragment } from '@shared/lib/navigation'
+
 export interface CertificationItem {
-  credentialUrl: string
-  imageUrl: string
-  imageAlt: string
-  imageWidth?: number
-  imageHeight?: number
+  readonly credentialUrl: string
+  readonly imageUrl: string
+  readonly imageAlt: string
+  readonly imageWidth?: number
+  readonly imageHeight?: number
 }
 
 export interface ProfileData {
-  name: string
-  brandName: string
-  title: string
-  tagline: string
-  about: string[]
-  githubUsername: string
-  githubUrl: string
-  repositoryUrl: string
-  githubLabel: string
-  linkedinUrl: string
-  linkedinConnectionCount: number
-  linkedinLabel: string
-  linkedinConnectionsLabel: string
-  heroStatusLabel: string
-  heroTerminalPath: string
-  heroTerminalDirectories: string[]
-  heroTerminalPrompt: string
-  heroCertificationsHeading: string
-  heroCertifications: CertificationItem[]
-  contributionsLoadingLabel: string
-  contributionsSuffixLabel: string
-  aboutHeadingLead: string
-  aboutHeadingAccent: string
-  aboutIntro: string
-  techStackSectionEyebrow: string
-  techStackSectionTitle: string
-  techStackSectionDescription: string
-  projectsSectionEyebrow: string
-  projectsSectionTitle: string
-  projectsSectionDescription: string
-  projectLiveLabel: string
-  projectSourceLabel: string
-  educationSectionEyebrow: string
-  educationSectionTitle: string
-  educationSectionDescription: string
-  footerAttribution: string
-}
-
-export interface SocialLink {
-  label: string
-  href: string
-  icon?: string
+  readonly name: string
+  readonly brandName: string
+  readonly title: string
+  readonly about: readonly string[]
+  readonly githubUsername: string
+  readonly githubUrl: string
+  readonly repositoryUrl: string
+  readonly githubLabel: string
+  readonly linkedinUrl: string
+  readonly linkedinConnectionCount: number
+  readonly linkedinLabel: string
+  readonly linkedinConnectionsLabel: string
+  readonly heroStatusLabel: string
+  readonly heroTerminalPath: string
+  readonly heroTerminalDirectories: readonly string[]
+  readonly heroTerminalPrompt: string
+  readonly heroCertificationsHeading: string
+  readonly heroCertifications: readonly CertificationItem[]
+  readonly contributionsLoadingLabel: string
+  readonly contributionsSuffixLabel: string
+  readonly aboutHeadingLead: string
+  readonly aboutHeadingAccent: string
+  readonly aboutIntro: string
+  readonly techStackSectionEyebrow: string
+  readonly techStackSectionTitle: string
+  readonly techStackSectionDescription: string
+  readonly projectsSectionEyebrow: string
+  readonly projectsSectionTitle: string
+  readonly projectsSectionDescription: string
+  readonly projectLiveLabel: string
+  readonly projectSourceLabel: string
+  readonly educationSectionEyebrow: string
+  readonly educationSectionTitle: string
+  readonly educationSectionDescription: string
+  readonly footerAttribution: string
 }
 
 export interface NavLink {
-  label: string
-  href: `#${string}`
+  readonly label: string
+  readonly href: SectionFragment
 }
 
 export interface EducationItem {
-  institution: string
-  location?: string
-  degree: string
-  duration: string
-  achievements: string[]
-  icon?: string
-  logoUrl?: string
-  color?: string
+  readonly institution: string
+  readonly location?: string
+  readonly degree: string
+  readonly duration: string
+  readonly achievements: readonly string[]
+  readonly icon?: IconKey
+  readonly logoUrl?: string
+  readonly color?: string
 }
 
 export interface SkillItem {
-  name: string
-  note: string
-  icon: string
-  color?: string
+  readonly name: string
+  readonly note: string
+  readonly icon: IconKey
+  readonly color?: string
 }
 
 export interface SkillCategory {
-  title: string
-  items: SkillItem[]
+  readonly title: string
+  readonly items: readonly SkillItem[]
 }
 
 export interface Project {
-  id: string
-  title: string
-  summary: string
-  highlights: string[]
-  stack: string[]
-  repoUrl?: string
-  liveUrl?: string
+  readonly id: string
+  readonly title: string
+  readonly summary: string
+  readonly highlights: readonly string[]
+  readonly stack: readonly string[]
+  readonly repoUrl?: string
+  readonly liveUrl?: string
 }

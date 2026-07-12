@@ -1,12 +1,14 @@
-import { motion } from 'framer-motion'
+import { m } from 'framer-motion'
+import { createElement } from 'react'
 
+import { cn } from '@shared/lib/cn'
 import { resolveIcon } from '@shared/lib/icons'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { SkillCategory } from '../model/skill.types'
 
 interface TechStackSectionProps {
-  categories: SkillCategory[]
+  categories: readonly SkillCategory[]
   headingEyebrow: string
   headingTitle: string
   headingDescription: string
@@ -19,20 +21,27 @@ export function TechStackSection({
   headingDescription,
 }: TechStackSectionProps) {
   return (
-    <section className="section-wrap py-24 relative" id="tech-stack">
-      {/* Background ambient light */}
-      <div className="absolute top-1/2 right-0 w-96 h-96 bg-accent-500/10 rounded-full mix-blend-screen filter blur-[150px] pointer-events-none" />
+    <section
+      aria-labelledby="tech-stack-heading"
+      className="section-wrap relative scroll-mt-24 py-24"
+      id="tech-stack"
+    >
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute top-1/2 right-0 h-96 w-96 rounded-full bg-accent-500/10 mix-blend-screen blur-[150px]"
+      />
 
       <SectionHeading
         description={headingDescription}
         eyebrow={headingEyebrow}
+        id="tech-stack-heading"
         title={headingTitle}
       />
 
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3 mt-12 relative z-10">
+      <div className="relative z-10 mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {categories.map((category, categoryIndex) => (
-          <motion.div
-            className="glass-panel p-8 group relative"
+          <m.article
+            className="glass-panel group/card p-8"
             initial={{ opacity: 0, y: 30 }}
             key={category.title}
             transition={{
@@ -43,49 +52,50 @@ export function TechStackSection({
             viewport={{ once: true, amount: 0.2 }}
             whileInView={{ opacity: 1, y: 0 }}
           >
-            {/* Hover glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-accent-500/5 to-secondary-500/5 opacity-0 transition-opacity duration-500 group-hover:opacity-100 rounded-3xl pointer-events-none" />
+            <div
+              aria-hidden="true"
+              className="pointer-events-none absolute inset-0 rounded-3xl bg-gradient-to-br from-accent-500/5 to-secondary-500/5 opacity-0 transition-opacity duration-500 group-hover/card:opacity-100"
+            />
 
-            <h3 className="text-xl font-bold tracking-tight text-slate-900 dark:text-white mb-8 border-b border-slate-200 dark:border-white/10 pb-4">
+            <h3 className="mb-8 border-b border-slate-200 pb-4 text-xl font-bold tracking-tight text-slate-900 dark:border-white/10 dark:text-white">
               {category.title}
             </h3>
 
             <ul className="space-y-6">
-              {category.items.map((item, itemIndex) => {
+              {category.items.map((item) => {
                 const Icon = resolveIcon(item.icon)
                 return (
-                  <motion.li
-                    className="flex items-start gap-4"
-                    key={item.name}
-                    initial={{ opacity: 0, x: -10 }}
-                    whileInView={{ opacity: 1, x: 0 }}
-                    transition={{
-                      duration: 0.4,
-                      delay: categoryIndex * 0.1 + itemIndex * 0.1,
-                    }}
-                    viewport={{ once: true }}
-                  >
+                  <li className="group/item flex items-start gap-4" key={item.name}>
                     <span
-                      className={`flex-shrink-0 inline-flex h-12 w-12 items-center justify-center rounded-2xl bg-slate-100 dark:bg-white/5 border border-slate-200 dark:border-white/10 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-300 group-hover:scale-110 group-hover:border-accent-400/50 dark:group-hover:border-accent-500/30 ${
-                        !item.color ? 'text-slate-700 dark:text-slate-300' : ''
-                      }`}
+                      aria-hidden="true"
+                      className={cn(
+                        'inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover/item:scale-110 group-hover/item:border-accent-400/50 dark:border-white/10 dark:group-hover/item:border-accent-500/30',
+                        item.color
+                          ? 'dark:bg-white/90'
+                          : 'text-slate-700 dark:bg-white/5 dark:text-slate-300'
+                      )}
                       style={item.color ? { color: item.color } : {}}
                     >
-                      {Icon ? <Icon className="h-6 w-6" /> : null}
+                      {Icon
+                        ? createElement(Icon, {
+                            'aria-hidden': true,
+                            className: 'h-6 w-6',
+                          })
+                        : null}
                     </span>
                     <div>
                       <span className="block text-base font-semibold text-slate-900 dark:text-slate-100">
                         {item.name}
                       </span>
-                      <span className="block text-sm text-slate-500 dark:text-slate-400 font-light mt-1 leading-snug">
+                      <span className="mt-1 block text-sm leading-snug font-light text-slate-500 dark:text-slate-400">
                         {item.note}
                       </span>
                     </div>
-                  </motion.li>
+                  </li>
                 )
               })}
             </ul>
-          </motion.div>
+          </m.article>
         ))}
       </div>
     </section>
