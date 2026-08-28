@@ -106,6 +106,7 @@
     "linkedinLabel": "LinkedIn Profile",
     "linkedinConnectionsLabel": "connections",
     "contributionsLoadingLabel": "Loading contributions...",
+    "contributionsUnavailableLabel": "GitHub contributions are currently unavailable.",
     "contributionsSuffixLabel": "contributions in the last year",
     "techStackSectionEyebrow": "Tech Stack",
     "techStackSectionTitle": "Production-ready toolkit",

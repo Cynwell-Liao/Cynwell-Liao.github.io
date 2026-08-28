@@ -1,7 +1,7 @@
 import { m, useReducedMotion } from 'framer-motion'
 import { useEffect, useState } from 'react'
 
-import { parseContributionTotal } from '../model/contributions'
+import { fetchContributionTotal } from '../model/contributions'
 import { useCountUpNumber } from '../model/countUp'
 import {
   formatLinkedInConnectionCount,
@@ -45,7 +45,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
   )
   const hasContributionData = contributionStatus === 'success'
   const linkedinConnectionCountUp = useCountUpNumber({
-    target: hasContributionData ? linkedinConnectionTarget : null,
+    target: linkedinConnectionTarget,
     shouldAnimate: shouldAnimateCounts,
     durationMs: COUNT_UP_DURATION_MS,
     startDelayMs: COUNT_UP_START_DELAY_MS,
@@ -67,35 +67,39 @@ export function HeroStats({ profile }: HeroStatsProps) {
       phase: linkedinConnectionCountUp.phase,
     }
   )
+  const contributionCount =
+    contributionStatus === 'success'
+      ? contributionCountUp.value.toLocaleString('en-US')
+      : contributionStatus === 'loading'
+        ? '…'
+        : '—'
+  const contributionStatusLabel =
+    contributionStatus === 'loading'
+      ? profile.contributionsLoadingLabel
+      : contributionStatus === 'error'
+        ? profile.contributionsUnavailableLabel
+        : null
 
   useEffect(() => {
     const controller = new AbortController()
-    let isMounted = true
+    let isActive = true
     const timeoutId = window.setTimeout(() => {
       controller.abort()
+      if (isActive) {
+        setContributionState({
+          githubUsername: profile.githubUsername,
+          status: 'error',
+          total: null,
+        })
+      }
     }, CONTRIBUTION_REQUEST_TIMEOUT_MS)
 
-    void fetch(
-      `https://github-contributions-api.deno.dev/${profile.githubUsername}.json`,
-      {
-        referrerPolicy: 'no-referrer',
-        signal: controller.signal,
-      }
-    )
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error(`Contribution request failed with ${String(response.status)}`)
-        }
-
-        return response.json() as Promise<unknown>
-      })
-      .then((data) => {
-        const totalContributions = parseContributionTotal(data)
-        if (totalContributions === null) {
-          throw new Error('Contribution response did not include a valid total')
-        }
-
-        if (isMounted) {
+    void fetchContributionTotal({
+      githubUsername: profile.githubUsername,
+      signal: controller.signal,
+    })
+      .then((totalContributions) => {
+        if (isActive && !controller.signal.aborted) {
           setContributionState({
             githubUsername: profile.githubUsername,
             status: 'success',
@@ -104,7 +108,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
         }
       })
       .catch(() => {
-        if (isMounted) {
+        if (isActive && !controller.signal.aborted) {
           setContributionState({
             githubUsername: profile.githubUsername,
             status: 'error',
@@ -117,7 +121,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
       })
 
     return () => {
-      isMounted = false
+      isActive = false
       window.clearTimeout(timeoutId)
       controller.abort()
     }
@@ -132,9 +136,9 @@ export function HeroStats({ profile }: HeroStatsProps) {
       <h2 className="sr-only" id="professional-activity-heading">
         Professional activity
       </h2>
-      {contributionStatus === 'loading' ? (
+      {contributionStatusLabel ? (
         <p className="sr-only" role="status">
-          {profile.contributionsLoadingLabel}
+          {contributionStatusLabel}
         </p>
       ) : null}
       <div className="flex flex-col items-start gap-3 text-sm font-semibold text-slate-800 dark:text-slate-200">
@@ -200,7 +204,9 @@ export function HeroStats({ profile }: HeroStatsProps) {
 
             <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
               <span className="text-xl font-bold text-accent-600 sm:text-2xl dark:text-accent-400">
-                {contributionCountUp.value.toLocaleString('en-US')}
+                <span aria-hidden={contributionStatus !== 'success'}>
+                  {contributionCount}
+                </span>
               </span>
               <span>{profile.contributionsSuffixLabel}</span>
             </span>

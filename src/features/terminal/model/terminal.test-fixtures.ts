@@ -28,6 +28,7 @@ export const terminalTestProfile: ProfileData = {
     },
   ],
   contributionsLoadingLabel: 'Loading contributions',
+  contributionsUnavailableLabel: 'Contributions unavailable',
   contributionsSuffixLabel: 'contributions',
   aboutHeadingLead: 'About',
   aboutHeadingAccent: 'the engineer',

@@ -1,6 +1,6 @@
 import { expect, test as base } from '@playwright/test'
 
-const CONTRIBUTIONS_HOST = 'github-contributions-api.deno.dev'
+const CONTRIBUTIONS_HOST = 'github-contributions-api.jogruber.de'
 const TRANSPARENT_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
   'base64'
@@ -41,7 +41,7 @@ export const test = base.extend({
 
       if (requestUrl.hostname === CONTRIBUTIONS_HOST) {
         await route.fulfill({
-          body: JSON.stringify({ totalContributions: 321 }),
+          body: JSON.stringify({ total: { lastYear: 321 } }),
           contentType: 'application/json',
           headers: { 'access-control-allow-origin': '*' },
           status: 200,

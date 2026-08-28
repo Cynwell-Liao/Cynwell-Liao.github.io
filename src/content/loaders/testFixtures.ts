@@ -78,6 +78,7 @@ export const createValidRawProfile = () => ({
     linkedinLabel: 'LinkedIn',
     linkedinConnectionsLabel: 'connections',
     contributionsLoadingLabel: 'Loading contributions...',
+    contributionsUnavailableLabel: 'Contributions unavailable',
     contributionsSuffixLabel: 'contributions this year',
     techStackSectionEyebrow: 'Tools',
     techStackSectionTitle: 'Technology stack',

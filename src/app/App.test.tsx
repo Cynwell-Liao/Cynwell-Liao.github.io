@@ -10,7 +10,7 @@ describe('App', () => {
   it('renders all primary portfolio sections', async () => {
     const fetchMock = vi.fn(() =>
       Promise.resolve({
-        json: () => Promise.resolve({ totalContributions: 321 }),
+        json: () => Promise.resolve({ total: { lastYear: 321 } }),
         ok: true,
         status: 200,
       })
@@ -32,7 +32,7 @@ describe('App', () => {
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        expect.stringContaining(`${profile.githubUsername}.json`),
+        `https://github-contributions-api.jogruber.de/v4/${profile.githubUsername}?y=last`,
         expect.objectContaining({
           referrerPolicy: 'no-referrer',
           signal: expect.any(AbortSignal),

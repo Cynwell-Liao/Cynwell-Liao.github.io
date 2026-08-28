@@ -60,6 +60,18 @@ test('theme choice persists across page reloads @desktop', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveClass(/dark/u)
 })
 
+test('professional activity renders independent live statistics @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+
+  const activity = page.getByRole('region', { name: 'Professional activity' })
+  await expect(activity).toHaveAttribute('aria-busy', 'false')
+  await expect(activity).toContainText('500+')
+  await expect(activity).toContainText('321')
+})
+
 test('terminal opens, submits a command, closes, and restores focus @desktop', async ({
   page,
 }) => {

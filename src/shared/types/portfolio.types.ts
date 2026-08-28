@@ -29,6 +29,7 @@ export interface ProfileData {
   readonly heroCertificationsHeading: string
   readonly heroCertifications: readonly CertificationItem[]
   readonly contributionsLoadingLabel: string
+  readonly contributionsUnavailableLabel: string
   readonly contributionsSuffixLabel: string
   readonly aboutHeadingLead: string
   readonly aboutHeadingAccent: string

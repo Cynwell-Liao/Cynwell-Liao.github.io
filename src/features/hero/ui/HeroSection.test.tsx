@@ -1,5 +1,5 @@
-import { fireEvent, render, screen, waitFor } from '@testing-library/react'
-import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { HeroSection } from './HeroSection'
 
@@ -33,6 +33,7 @@ const profile: ProfileData = {
     },
   ],
   contributionsLoadingLabel: 'Loading GitHub contributions',
+  contributionsUnavailableLabel: 'GitHub contributions are unavailable',
   contributionsSuffixLabel: 'contributions',
   aboutHeadingLead: 'About',
   aboutHeadingAccent: 'me',
@@ -68,6 +69,10 @@ describe('HeroSection', () => {
     )
   })
 
+  afterEach(() => {
+    vi.useRealTimers()
+  })
+
   it('exposes its heading, status, social links, and loading semantics', async () => {
     const fetchMock = vi.fn(() => new Promise<never>(() => undefined))
     vi.stubGlobal('fetch', fetchMock)
@@ -91,11 +96,16 @@ describe('HeroSection', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       profile.contributionsLoadingLabel
     )
-    expect(screen.getAllByText('0')).toHaveLength(2)
+    expect(
+      screen.getByRole('region', { name: 'Professional activity' })
+    ).toHaveAttribute('aria-busy', 'true')
+    expect(screen.getByText('500+')).toBeInTheDocument()
+    expect(screen.getByText('…')).toBeInTheDocument()
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
-        `https://github-contributions-api.deno.dev/${profile.githubUsername}.json`,
+        `https://github-contributions-api.jogruber.de/v4/${profile.githubUsername}?y=last`,
         expect.objectContaining({
           referrerPolicy: 'no-referrer',
           signal: expect.any(AbortSignal),
@@ -104,9 +114,9 @@ describe('HeroSection', () => {
     })
   })
 
-  it('reveals both counters only after a valid contribution response', async () => {
+  it('reveals the contribution count after a valid response', async () => {
     const fetchMock = vi.fn(() =>
-      Promise.resolve(successfulResponse({ totalContributions: 1234 }))
+      Promise.resolve(successfulResponse({ total: { lastYear: 1234 } }))
     )
     vi.stubGlobal('fetch', fetchMock)
 
@@ -118,22 +128,44 @@ describe('HeroSection', () => {
     expect(fetchMock).toHaveBeenCalledTimes(1)
   })
 
+  it('renders a genuine zero only after a successful response', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.resolve(successfulResponse({ total: { lastYear: 0 } })))
+    )
+
+    renderHero()
+
+    expect(await screen.findByText('0')).toBeInTheDocument()
+    expect(screen.getByText('500+')).toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+  })
+
   it.each([
     ['a rejected request', () => Promise.reject(new Error('offline'))],
     [
       'a non-success response',
       () =>
         Promise.resolve({
-          json: () => Promise.resolve({ totalContributions: 25 }),
+          json: () => Promise.resolve({ total: { lastYear: 25 } }),
           ok: false,
           status: 503,
         }),
     ],
     [
       'an invalid total',
-      () => Promise.resolve(successfulResponse({ totalContributions: -1 })),
+      () => Promise.resolve(successfulResponse({ total: { lastYear: -1 } })),
     ],
-  ])('keeps both counters at zero for %s', async (_label, responseFactory) => {
+    [
+      'malformed JSON',
+      () =>
+        Promise.resolve({
+          json: () => Promise.reject(new Error('invalid JSON')),
+          ok: true,
+          status: 200,
+        }),
+    ],
+  ])('keeps LinkedIn available when GitHub has %s', async (_label, responseFactory) => {
     const fetchMock = vi.fn(responseFactory)
     vi.stubGlobal('fetch', fetchMock)
 
@@ -144,8 +176,55 @@ describe('HeroSection', () => {
         screen.getByRole('region', { name: 'Professional activity' })
       ).toHaveAttribute('aria-busy', 'false')
     })
-    expect(screen.getAllByText('0')).toHaveLength(2)
-    expect(screen.queryByText('500+')).not.toBeInTheDocument()
+    expect(screen.getByText('500+')).toBeInTheDocument()
+    expect(screen.getByText('—')).toBeInTheDocument()
+    expect(screen.getByRole('status')).toHaveTextContent(
+      profile.contributionsUnavailableLabel
+    )
+    expect(screen.queryByText('0')).not.toBeInTheDocument()
+  })
+
+  it('marks a timed-out request unavailable and ignores a late response', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    let requestSignal: AbortSignal | undefined
+    let resolveRequest:
+      ((response: ReturnType<typeof successfulResponse>) => void) | undefined
+    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
+      requestSignal = init?.signal ?? undefined
+
+      return new Promise<ReturnType<typeof successfulResponse>>((resolve) => {
+        resolveRequest = resolve
+      })
+    })
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHero()
+
+    expect(requestSignal).toBeInstanceOf(AbortSignal)
+    expect(requestSignal?.aborted).toBe(false)
+
+    act(() => {
+      vi.advanceTimersByTime(8000)
+    })
+
+    expect(requestSignal?.aborted).toBe(true)
+    expect(screen.getByRole('status')).toHaveTextContent(
+      profile.contributionsUnavailableLabel
+    )
+    expect(screen.getByText('—')).toBeInTheDocument()
+
+    const completeRequest = resolveRequest
+    if (!completeRequest) {
+      throw new Error('Expected the contribution request to be pending')
+    }
+
+    await act(async () => {
+      completeRequest(successfulResponse({ total: { lastYear: 999 } }))
+      await Promise.resolve()
+    })
+
+    expect(screen.queryByText('999')).not.toBeInTheDocument()
+    expect(screen.getByText('—')).toBeInTheDocument()
   })
 
   it('aborts an outstanding contribution request when unmounted', async () => {
@@ -232,7 +311,7 @@ describe('HeroSection', () => {
   it('never requests GitHub Releases for its displayed deploy version', async () => {
     const fetchMock = vi.fn((input: RequestInfo | URL) => {
       void input
-      return Promise.resolve(successfulResponse({ totalContributions: 42 }))
+      return Promise.resolve(successfulResponse({ total: { lastYear: 42 } }))
     })
     vi.stubGlobal('fetch', fetchMock)
 
@@ -243,7 +322,7 @@ describe('HeroSection', () => {
       typeof input === 'string' ? input : input instanceof URL ? input.href : input.url
     )
     expect(requestedUrls).toEqual([
-      `https://github-contributions-api.deno.dev/${profile.githubUsername}.json`,
+      `https://github-contributions-api.jogruber.de/v4/${profile.githubUsername}?y=last`,
     ])
     expect(requestedUrls.join(' ')).not.toContain('api.github.com')
     expect(requestedUrls.join(' ')).not.toContain('/releases/latest')

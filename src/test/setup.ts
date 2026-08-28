@@ -166,7 +166,7 @@ beforeEach(() => {
     'fetch',
     vi.fn(() =>
       Promise.resolve({
-        json: () => Promise.resolve({ totalContributions: 123 }),
+        json: () => Promise.resolve({ total: { lastYear: 123 } }),
         ok: true,
         status: 200,
       })

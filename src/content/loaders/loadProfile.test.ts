@@ -40,6 +40,7 @@ describe('profile content', () => {
           },
         ],
         contributionsLoadingLabel: 'Loading contributions...',
+        contributionsUnavailableLabel: 'Contributions unavailable',
         contributionsSuffixLabel: 'contributions this year',
         aboutHeadingLead: 'Engineering',
         aboutHeadingAccent: 'with intent.',

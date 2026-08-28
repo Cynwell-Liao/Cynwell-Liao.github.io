@@ -49,6 +49,7 @@ const labelsSchema = z
     linkedinLabel: nonBlankTextSchema,
     linkedinConnectionsLabel: nonBlankTextSchema,
     contributionsLoadingLabel: nonBlankTextSchema,
+    contributionsUnavailableLabel: nonBlankTextSchema,
     contributionsSuffixLabel: nonBlankTextSchema,
     techStackSectionEyebrow: nonBlankTextSchema,
     techStackSectionTitle: nonBlankTextSchema,
