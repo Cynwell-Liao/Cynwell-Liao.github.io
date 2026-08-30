@@ -7,10 +7,10 @@ It is deployed to GitHub Pages. Do not introduce server-side logic, API routes, 
 
 ## Tech Stack
 
-- React 19 · Vite 8 · TypeScript ~6.0 (strict) · Tailwind CSS 4 · Framer Motion 12
+- React 19 · Vite 8 · TypeScript ~6.0 (strict) · Tailwind CSS 4 · Framer Motion 13
 - Runtime content validation with Zod
 - CI/CD via GitHub Actions
-- Node 24 (pinned in CI)
+- Node 24.15+ within 24.x (pinned in CI)
 
 ## Setup & Commands
 

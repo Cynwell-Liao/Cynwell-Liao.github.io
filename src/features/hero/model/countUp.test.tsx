@@ -43,8 +43,8 @@ describe('countUp', () => {
 
   beforeEach(() => {
     queuedFrames = []
-    originalRequestAnimationFrame = window.requestAnimationFrame
-    originalCancelAnimationFrame = window.cancelAnimationFrame
+    originalRequestAnimationFrame = window.requestAnimationFrame.bind(window)
+    originalCancelAnimationFrame = window.cancelAnimationFrame.bind(window)
 
     Object.defineProperty(window, 'requestAnimationFrame', {
       configurable: true,

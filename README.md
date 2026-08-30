@@ -17,14 +17,15 @@ Forks and small improvements are welcome.
 - Vite 8
 - TypeScript 6
 - Tailwind CSS 4
-- Framer Motion 12
+- Framer Motion 13
 - GitHub Actions (CI/CD)
 - GitHub Pages
 
 ## Fork and Run
 
-Prerequisites: Node.js 24 and npm 11. If you use `nvm`, run `nvm use` from the
-repository root to select the version declared in `.nvmrc`.
+Prerequisites: Node.js 24.15 or newer within the 24.x LTS line, and npm 11. If you
+use `nvm`, run `nvm use` from the repository root to select the version declared
+in `.nvmrc`.
 
 1. Fork this repository on GitHub.
 2. Clone your fork locally.

@@ -9,7 +9,7 @@ import {
   injectSiteMetadata,
   readAppVersion,
   readSiteMetadata,
-} from './config/buildMetadata'
+} from './config/buildMetadata.ts'
 
 const srcDir = fileURLToPath(new URL('./src', import.meta.url))
 
@@ -19,6 +19,18 @@ const siteMetadata = readSiteMetadata()
 // https://vite.dev/config/
 export default defineConfig({
   base: '/',
+  build: {
+    rolldownOptions: {
+      output: {
+        codeSplitting: {
+          groups: [
+            { name: 'icons', test: /node_modules[\\/]react-icons/ },
+            { name: 'vendor', test: /node_modules/ },
+          ],
+        },
+      },
+    },
+  },
   define: {
     'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
   },
