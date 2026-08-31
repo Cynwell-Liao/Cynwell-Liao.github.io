@@ -60,7 +60,7 @@ test('theme choice persists across page reloads @desktop', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveClass(/dark/u)
 })
 
-test('professional activity renders independent live statistics @desktop', async ({
+test('professional activity renders coordinated live statistics @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })

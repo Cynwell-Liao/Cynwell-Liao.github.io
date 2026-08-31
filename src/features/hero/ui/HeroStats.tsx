@@ -45,7 +45,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
   )
   const hasContributionData = contributionStatus === 'success'
   const linkedinConnectionCountUp = useCountUpNumber({
-    target: linkedinConnectionTarget,
+    target: contributionStatus === 'loading' ? null : linkedinConnectionTarget,
     shouldAnimate: shouldAnimateCounts,
     durationMs: COUNT_UP_DURATION_MS,
     startDelayMs: COUNT_UP_START_DELAY_MS,
@@ -60,13 +60,13 @@ export function HeroStats({ profile }: HeroStatsProps) {
     durationMs: COUNT_UP_DURATION_MS,
     startDelayMs: COUNT_UP_START_DELAY_MS,
   })
-  const linkedinConnectionCount = formatLinkedInConnectionCount(
-    linkedinConnectionCountUp.value,
-    {
-      actualConnectionCount: profile.linkedinConnectionCount,
-      phase: linkedinConnectionCountUp.phase,
-    }
-  )
+  const linkedinConnectionCount =
+    linkedinConnectionCountUp.phase === 'idle'
+      ? '…'
+      : formatLinkedInConnectionCount(linkedinConnectionCountUp.value, {
+          actualConnectionCount: profile.linkedinConnectionCount,
+          phase: linkedinConnectionCountUp.phase,
+        })
   const contributionCount =
     contributionStatus === 'success'
       ? contributionCountUp.value.toLocaleString('en-US')
@@ -172,7 +172,9 @@ export function HeroStats({ profile }: HeroStatsProps) {
 
             <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
               <span className="text-xl font-bold text-accent-600 sm:text-2xl dark:text-accent-400">
-                {linkedinConnectionCount}
+                <span aria-hidden={linkedinConnectionCountUp.phase === 'idle'}>
+                  {linkedinConnectionCount}
+                </span>
               </span>
               <span>{profile.linkedinConnectionsLabel}</span>
             </span>

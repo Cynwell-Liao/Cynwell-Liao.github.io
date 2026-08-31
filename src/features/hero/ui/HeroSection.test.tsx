@@ -1,5 +1,7 @@
-import { act, fireEvent, render, screen, waitFor } from '@testing-library/react'
+import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+
+import { setMockReducedMotion } from '../../../test/setup'
 
 import { HeroSection } from './HeroSection'
 
@@ -96,12 +98,13 @@ describe('HeroSection', () => {
     expect(screen.getByRole('status')).toHaveTextContent(
       profile.contributionsLoadingLabel
     )
-    expect(
-      screen.getByRole('region', { name: 'Professional activity' })
-    ).toHaveAttribute('aria-busy', 'true')
-    expect(screen.getByText('500+')).toBeInTheDocument()
-    expect(screen.getByText('…')).toBeInTheDocument()
-    expect(screen.queryByText('0')).not.toBeInTheDocument()
+    const activity = screen.getByRole('region', {
+      name: 'Professional activity',
+    })
+    expect(activity).toHaveAttribute('aria-busy', 'true')
+    expect(within(activity).getAllByText('…')).toHaveLength(2)
+    expect(within(activity).queryByText('500+')).not.toBeInTheDocument()
+    expect(within(activity).queryByText('0')).not.toBeInTheDocument()
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -112,6 +115,60 @@ describe('HeroSection', () => {
         })
       )
     })
+  })
+
+  it('starts both counters together after GitHub contributions load', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    setMockReducedMotion(false)
+    let resolveRequest:
+      ((response: ReturnType<typeof successfulResponse>) => void) | undefined
+    const fetchMock = vi.fn(
+      () =>
+        new Promise<ReturnType<typeof successfulResponse>>((resolve) => {
+          resolveRequest = resolve
+        })
+    )
+    const requestAnimationFrameMock = vi
+      .spyOn(window, 'requestAnimationFrame')
+      .mockImplementation(() => 1)
+    vi.stubGlobal('fetch', fetchMock)
+
+    renderHero()
+
+    const activity = screen.getByRole('region', {
+      name: 'Professional activity',
+    })
+    expect(within(activity).getAllByText('…')).toHaveLength(2)
+
+    act(() => {
+      vi.advanceTimersByTime(450)
+    })
+
+    expect(requestAnimationFrameMock).not.toHaveBeenCalled()
+
+    const completeRequest = resolveRequest
+    if (!completeRequest) {
+      throw new Error('Expected the contribution request to be pending')
+    }
+
+    await act(async () => {
+      completeRequest(successfulResponse({ total: { lastYear: 1234 } }))
+      await Promise.resolve()
+    })
+
+    expect(within(activity).getAllByText('0')).toHaveLength(2)
+
+    act(() => {
+      vi.advanceTimersByTime(449)
+    })
+
+    expect(requestAnimationFrameMock).not.toHaveBeenCalled()
+
+    act(() => {
+      vi.advanceTimersByTime(1)
+    })
+
+    expect(requestAnimationFrameMock).toHaveBeenCalledTimes(2)
   })
 
   it('reveals the contribution count after a valid response', async () => {
