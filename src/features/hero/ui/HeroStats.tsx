@@ -23,7 +23,6 @@ interface ContributionState {
 }
 
 const COUNT_UP_DURATION_MS = 1800
-const COUNT_UP_START_DELAY_MS = 450
 const LINKEDIN_PUBLIC_LIMIT_HOLD_MS = 260
 const CONTRIBUTION_REQUEST_TIMEOUT_MS = 8000
 
@@ -48,7 +47,6 @@ export function HeroStats({ profile }: HeroStatsProps) {
     target: contributionStatus === 'loading' ? null : linkedinConnectionTarget,
     shouldAnimate: shouldAnimateCounts,
     durationMs: COUNT_UP_DURATION_MS,
-    startDelayMs: COUNT_UP_START_DELAY_MS,
     finalHoldMs:
       profile.linkedinConnectionCount > linkedinConnectionTarget
         ? LINKEDIN_PUBLIC_LIMIT_HOLD_MS
@@ -58,7 +56,6 @@ export function HeroStats({ profile }: HeroStatsProps) {
     target: hasContributionData ? contributions : null,
     shouldAnimate: shouldAnimateCounts,
     durationMs: COUNT_UP_DURATION_MS,
-    startDelayMs: COUNT_UP_START_DELAY_MS,
   })
   const linkedinConnectionCount =
     linkedinConnectionCountUp.phase === 'idle'

@@ -117,8 +117,7 @@ describe('HeroSection', () => {
     })
   })
 
-  it('starts both counters together after GitHub contributions load', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+  it('starts both counters immediately and together after GitHub contributions load', async () => {
     setMockReducedMotion(false)
     let resolveRequest:
       ((response: ReturnType<typeof successfulResponse>) => void) | undefined
@@ -139,11 +138,6 @@ describe('HeroSection', () => {
       name: 'Professional activity',
     })
     expect(within(activity).getAllByText('…')).toHaveLength(2)
-
-    act(() => {
-      vi.advanceTimersByTime(450)
-    })
-
     expect(requestAnimationFrameMock).not.toHaveBeenCalled()
 
     const completeRequest = resolveRequest
@@ -157,17 +151,6 @@ describe('HeroSection', () => {
     })
 
     expect(within(activity).getAllByText('0')).toHaveLength(2)
-
-    act(() => {
-      vi.advanceTimersByTime(449)
-    })
-
-    expect(requestAnimationFrameMock).not.toHaveBeenCalled()
-
-    act(() => {
-      vi.advanceTimersByTime(1)
-    })
-
     expect(requestAnimationFrameMock).toHaveBeenCalledTimes(2)
   })
 
