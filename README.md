@@ -23,9 +23,12 @@ Forks and small improvements are welcome.
 
 ## Fork and Run
 
-Prerequisites: Node.js 24.15 or newer within the 24.x LTS line, and npm 11. If you
-use `nvm`, run `nvm use` from the repository root to select the version declared
-in `.nvmrc`.
+Prerequisites: Node.js 24.20.0 or newer within the 24.x LTS line
+(`>=24.20.0 <25`), and npm 11.x. On Windows, install Node.js 24.20.0 using the
+official Windows `.msi` installer linked from the
+[Node.js release page](https://nodejs.org/en/blog/release/v24.20.0); npm is included.
+Restart your terminal after installation. A version manager is optional: if you
+use `nvm`, run `nvm use` from the repository root to select 24.20.0 from `.nvmrc`.
 
 1. Fork this repository on GitHub.
 2. Clone your fork locally.
@@ -39,6 +42,11 @@ npm run dev
 ```
 
 3. Open `http://localhost:5173`.
+
+If Windows PowerShell blocks `npm.ps1`, use `npm.cmd` and `npx.cmd` in place of
+`npm` and `npx` in these commands (for example, `npm.cmd ci` and
+`npm.cmd run dev`). These launchers work without changing PowerShell's execution
+policy.
 
 ## Customize for Your Portfolio
 

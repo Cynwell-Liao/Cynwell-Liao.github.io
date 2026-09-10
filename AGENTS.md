@@ -10,7 +10,7 @@ It is deployed to GitHub Pages. Do not introduce server-side logic, API routes, 
 - React 19 · Vite 8 · TypeScript ~6.0 (strict) · Tailwind CSS 4 · Framer Motion 13
 - Runtime content validation with Zod
 - CI/CD via GitHub Actions
-- Node 24.15+ within 24.x (pinned in CI)
+- Node.js >=24.20.0 <25 with npm 11.x (`.nvmrc` selects 24.20.0; CI selects Node 24.x)
 
 ## Setup & Commands
 

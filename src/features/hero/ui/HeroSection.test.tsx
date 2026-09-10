@@ -349,10 +349,11 @@ describe('HeroSection', () => {
   })
 
   it('never requests GitHub Releases for its displayed deploy version', async () => {
-    const fetchMock = vi.fn((input: RequestInfo | URL) => {
-      void input
-      return Promise.resolve(successfulResponse({ total: { lastYear: 42 } }))
-    })
+    const fetchMock = vi
+      .fn<
+        (input: RequestInfo | URL) => Promise<ReturnType<typeof successfulResponse>>
+      >()
+      .mockResolvedValue(successfulResponse({ total: { lastYear: 42 } }))
     vi.stubGlobal('fetch', fetchMock)
 
     renderHero()
