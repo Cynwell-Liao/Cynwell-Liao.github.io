@@ -77,7 +77,7 @@ export function CertificationMarquee({
   return (
     <section aria-labelledby="hero-certifications-heading" className="mt-8 max-w-2xl">
       <h2
-        className="mb-3 text-xs font-semibold tracking-[0.24em] text-slate-500 uppercase dark:text-slate-400"
+        className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-accent-700 dark:text-accent-300"
         id="hero-certifications-heading"
       >
         {heading}

@@ -173,7 +173,9 @@ export function HeroStats({ profile }: HeroStatsProps) {
                   {linkedinConnectionCount}
                 </span>
               </span>
-              <span>{profile.linkedinConnectionsLabel}</span>
+              <span className="text-base font-normal leading-relaxed text-slate-600 dark:text-slate-300">
+                {profile.linkedinConnectionsLabel}
+              </span>
             </span>
           </div>
 
@@ -207,7 +209,9 @@ export function HeroStats({ profile }: HeroStatsProps) {
                   {contributionCount}
                 </span>
               </span>
-              <span>{profile.contributionsSuffixLabel}</span>
+              <span className="text-base font-normal leading-relaxed text-slate-600 dark:text-slate-300">
+                {profile.contributionsSuffixLabel}
+              </span>
             </span>
           </div>
         </div>
