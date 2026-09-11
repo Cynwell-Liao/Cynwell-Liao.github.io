@@ -168,7 +168,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
             </m.a>
 
             <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
-              <span className="text-xl font-bold text-accent-600 sm:text-2xl dark:text-accent-400">
+              <span className="text-lg font-bold text-accent-600 sm:text-xl dark:text-accent-400">
                 <span aria-hidden={linkedinConnectionCountUp.phase === 'idle'}>
                   {linkedinConnectionCount}
                 </span>
@@ -204,7 +204,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
             </m.a>
 
             <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
-              <span className="text-xl font-bold text-accent-600 sm:text-2xl dark:text-accent-400">
+              <span className="text-lg font-bold text-accent-600 sm:text-xl dark:text-accent-400">
                 <span aria-hidden={contributionStatus !== 'success'}>
                   {contributionCount}
                 </span>
