@@ -1,7 +1,6 @@
 import { m } from 'framer-motion'
 
 import { CertificationMarquee } from './CertificationMarquee'
-import { ContributionChart } from './ContributionChart'
 import { HeroStats } from './HeroStats'
 
 import type { ProfileData } from '../model/profile.types'
@@ -59,12 +58,6 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
           </h1>
 
           <HeroStats profile={profile} />
-          <ContributionChart
-            githubLabel={profile.githubLabel}
-            githubUrl={profile.githubUrl}
-            githubUsername={profile.githubUsername}
-            name={profile.name}
-          />
           <CertificationMarquee
             certifications={profile.heroCertifications}
             heading={profile.heroCertificationsHeading}

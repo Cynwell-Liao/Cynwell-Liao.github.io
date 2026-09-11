@@ -285,37 +285,21 @@ describe('HeroSection', () => {
     expect(requestSignal?.aborted).toBe(true)
   })
 
-  it('renders a labelled, dimensioned contribution figure with a fallback', () => {
+  it('omits the contribution chart and its fallback link', () => {
     renderHero()
 
-    const figure = screen.getByRole('figure', {
-      name: `${profile.name}'s GitHub contribution activity`,
-    })
-    const chart = screen.getByRole('img', {
-      name: `${profile.name}'s GitHub contribution chart`,
-    })
-    expect(figure).toContainElement(chart)
+    expect(screen.queryByRole('figure')).not.toBeInTheDocument()
     expect(
-      screen.getByRole('link', {
-        name: `View ${profile.name}'s GitHub contribution chart`,
+      screen.queryByRole('img', { name: /contribution chart/i })
+    ).not.toBeInTheDocument()
+    expect(
+      screen.queryByRole('link', {
+        name: /contribution chart/i,
       })
-    ).toHaveAttribute('href', profile.githubUrl)
-    expect(chart).toHaveAttribute(
-      'src',
-      `https://ghchart.rshah.org/${profile.githubUsername}`
-    )
-    expect(chart).toHaveAttribute('width', '663')
-    expect(chart).toHaveAttribute('height', '104')
-    expect(chart).toHaveAttribute('fetchpriority', 'high')
-    expect(chart).toHaveAttribute('decoding', 'async')
-    expect(chart).toHaveAttribute('referrerpolicy', 'no-referrer')
-
-    fireEvent.error(chart)
-
-    expect(screen.queryByRole('img', { name: /contribution chart/i })).toBeNull()
+    ).not.toBeInTheDocument()
     expect(
-      screen.getByRole('link', { name: `View ${profile.githubLabel} activity` })
-    ).toHaveAttribute('href', profile.githubUrl)
+      screen.queryByRole('link', { name: `View ${profile.githubLabel} activity` })
+    ).not.toBeInTheDocument()
   })
 
   it('keeps one semantic certification set and a non-tabbable visual clone', () => {
