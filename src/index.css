@@ -98,35 +98,14 @@
 }
 
 @utility hero-cert-marquee__viewport {
-  @apply relative overflow-hidden rounded-2xl border border-slate-200/80 bg-white/70 p-2 dark:border-white/10 dark:bg-slate-900/50;
-
-  &::before {
-    content: '';
-    @apply pointer-events-none absolute inset-y-0 z-10 w-10;
-  }
-
-  &::after {
-    content: '';
-    @apply pointer-events-none absolute inset-y-0 z-10 w-10;
-  }
-
-  &::before {
-    @apply left-0;
-    background: linear-gradient(
-      to right,
-      rgba(248, 250, 252, 0.98),
-      rgba(248, 250, 252, 0)
-    );
-  }
-
-  &::after {
-    @apply right-0;
-    background: linear-gradient(
-      to left,
-      rgba(248, 250, 252, 0.98),
-      rgba(248, 250, 252, 0)
-    );
-  }
+  @apply relative overflow-hidden p-2;
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    #000 2.5rem,
+    #000 calc(100% - 2.5rem),
+    transparent
+  );
 }
 
 @utility hero-cert-marquee__track {
@@ -211,9 +190,8 @@
     padding-right: 0.75rem;
   }
 
-  .hero-cert-marquee__viewport::before,
-  .hero-cert-marquee__viewport::after {
-    display: none;
+  .hero-cert-marquee__viewport {
+    mask-image: none;
   }
 }
 
@@ -233,6 +211,7 @@
 
   .hero-cert-marquee__viewport {
     overflow-x: auto;
+    mask-image: none;
   }
 
   .hero-cert-marquee__track {
@@ -257,12 +236,4 @@
 
 .hero-orb-delay-4000 {
   animation-delay: 4s;
-}
-
-html.dark .hero-cert-marquee__viewport::before {
-  background: linear-gradient(to right, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0));
-}
-
-html.dark .hero-cert-marquee__viewport::after {
-  background: linear-gradient(to left, rgba(15, 23, 42, 0.98), rgba(15, 23, 42, 0));
 }

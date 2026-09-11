@@ -82,7 +82,7 @@ export function CertificationMarquee({
       >
         {heading}
       </h2>
-      <div className="hero-cert-marquee">
+      <div className="glass-panel hero-cert-marquee">
         <div className="hero-cert-marquee__viewport">
           <div className="hero-cert-marquee__track">
             <CertificationList certifications={certifications} />
