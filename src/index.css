@@ -111,12 +111,15 @@
 @utility hero-cert-marquee__track {
   display: flex;
   width: max-content;
+  min-width: 200%;
   animation: hero-cert-marquee-scroll 24s linear infinite;
   will-change: transform;
 }
 
 @utility hero-cert-marquee__set {
   display: flex;
+  flex: 1;
+  justify-content: space-around;
   gap: 1rem;
   padding-right: 1rem;
 }
@@ -218,10 +221,12 @@
     animation: none;
     transform: none;
     width: auto;
+    min-width: 0;
   }
 
   .hero-cert-marquee__set {
     flex-wrap: wrap;
+    justify-content: flex-start;
     padding-right: 0;
   }
 
