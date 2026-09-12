@@ -26,7 +26,7 @@ function CertificationBadge({
       target="_blank"
     >
       {hasImageError ? (
-        <span className="flex h-[105px] w-[105px] items-center justify-center p-3 text-center text-xs font-medium text-slate-700 dark:text-slate-200">
+        <span className="flex h-[100px] w-[100px] items-center justify-center p-3 text-center text-xs font-medium text-slate-700 dark:text-slate-200">
           {certification.imageAlt}
         </span>
       ) : (
@@ -34,14 +34,14 @@ function CertificationBadge({
           alt={isClone ? '' : certification.imageAlt}
           className="hero-cert-marquee__badge-image"
           decoding="async"
-          height={certification.imageHeight ?? 105}
+          height={100}
           loading="lazy"
           onError={() => {
             setHasImageError(true)
           }}
           referrerPolicy="no-referrer"
           src={certification.imageUrl}
-          width={certification.imageWidth ?? 105}
+          width={100}
         />
       )}
     </a>

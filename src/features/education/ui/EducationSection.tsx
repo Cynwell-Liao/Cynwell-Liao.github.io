@@ -89,7 +89,7 @@ export function EducationSection({
           return (
             <m.article
               className={cn(
-                'glass-panel group flex flex-col p-8 md:p-10',
+                'glass-panel group flex flex-col p-8',
                 isHero ? 'md:col-span-2' : 'md:col-span-1'
               )}
               initial={{ opacity: 0, y: 30 }}

@@ -2,12 +2,13 @@ import { expect, test } from './fixtures'
 
 const viewports = [
   { name: 'mobile', width: 390, height: 844, tag: '@mobile' },
+  { name: 'tablet', width: 768, height: 1024, tag: '@desktop' },
   { name: 'desktop', width: 1280, height: 900, tag: '@desktop' },
   { name: 'wide desktop', width: 1920, height: 1080, tag: '@desktop' },
 ] as const
 
 for (const viewport of viewports) {
-  test(`hero certifications align with About and fill the marquee on ${viewport.name} ${viewport.tag}`, async ({
+  test(`hero certifications align with About, keep compact vertical padding, and fill the marquee on ${viewport.name} ${viewport.tag}`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
@@ -71,6 +72,45 @@ for (const viewport of viewports) {
     expect(setWidths[0]).toBeCloseTo(setWidths[1], 0)
     for (const width of setWidths) {
       expect(width).toBeGreaterThanOrEqual(viewportContentWidth)
+    }
+
+    const cardPaddings = await page
+      .locator(
+        '#about .glass-panel, #education article, #projects article, #tech-stack article'
+      )
+      .evaluateAll((cards) =>
+        cards.map((card) => {
+          const style = getComputedStyle(card)
+          return {
+            top: parseFloat(style.paddingTop),
+            right: parseFloat(style.paddingRight),
+            bottom: parseFloat(style.paddingBottom),
+            left: parseFloat(style.paddingLeft),
+          }
+        })
+      )
+    expect(cardPaddings.length).toBeGreaterThan(0)
+    for (const padding of cardPaddings) {
+      expect(padding).toEqual({ top: 32, right: 32, bottom: 32, left: 32 })
+    }
+
+    for (const reducedMotion of ['no-preference', 'reduce'] as const) {
+      await page.emulateMedia({ reducedMotion })
+      const contentInsets = await page
+        .locator('.hero-cert-marquee__track')
+        .evaluate((track) => {
+          const viewport = track.parentElement
+          if (!viewport) throw new Error('Certification viewport is missing')
+          const viewportBounds = viewport.getBoundingClientRect()
+          const trackBounds = track.getBoundingClientRect()
+          return {
+            top: trackBounds.top - viewportBounds.top,
+            bottom: viewportBounds.bottom - trackBounds.bottom,
+          }
+        })
+
+      expect(contentInsets.top).toBeCloseTo(8, 0)
+      expect(contentInsets.bottom).toBeCloseTo(8, 0)
     }
   })
 }

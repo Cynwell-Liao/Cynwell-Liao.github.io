@@ -60,7 +60,7 @@ export function AboutSection({
         </div>
 
         <div className="lg:col-span-7">
-          <div className="glass-panel group p-8 md:p-12">
+          <div className="glass-panel group p-8">
             <div
               aria-hidden="true"
               className="absolute top-0 right-0 h-64 w-64 rounded-full bg-secondary-500/10 opacity-0 blur-[80px] transition-opacity duration-500 group-hover:opacity-100"

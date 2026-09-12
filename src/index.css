@@ -131,6 +131,9 @@
 
 @utility hero-cert-marquee__badge-image {
   display: block;
+  height: 100px;
+  object-fit: contain;
+  width: 100px;
 }
 
 @layer base {
