@@ -73,7 +73,7 @@
 }
 
 @utility social-icon-button {
-  @apply relative grid h-10 w-10 shrink-0 place-items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-400 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
+  @apply relative grid h-10 w-10 shrink-0 place-items-center rounded-xl focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-accent-400 dark:focus-visible:ring-offset-slate-950;
   transform-origin: center bottom;
 }
 
@@ -125,8 +125,9 @@
 }
 
 @utility hero-cert-marquee__badge-link {
-  @apply block shrink-0 rounded-lg transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
+  @apply block shrink-0 rounded-lg transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
   line-height: 0;
+  scroll-margin-block: 6rem;
 }
 
 @utility hero-cert-marquee__badge-image {
@@ -198,6 +199,30 @@
 
   .hero-cert-marquee__viewport {
     mask-image: none;
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .hero-cert-marquee:has(:focus-visible) {
+    .hero-cert-marquee__viewport {
+      overflow-x: auto;
+      mask-image: none;
+    }
+
+    .hero-cert-marquee__track {
+      animation: none;
+      transform: none;
+      min-width: 100%;
+    }
+
+    .hero-cert-marquee__set {
+      flex-wrap: nowrap;
+      padding-right: 0;
+    }
+
+    .hero-cert-marquee__set[data-clone='true'] {
+      display: none;
+    }
   }
 }
 

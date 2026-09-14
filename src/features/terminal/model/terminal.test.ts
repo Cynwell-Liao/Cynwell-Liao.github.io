@@ -35,7 +35,7 @@ describe('terminal', () => {
   it('defines theme-aware tone class mappings', () => {
     expect(getTerminalToneClass('default', 'light')).toContain('text-slate-900')
     expect(getTerminalToneClass('default', 'dark')).toContain('text-slate-100')
-    expect(getTerminalToneClass('error', 'light')).toContain('text-red-600')
+    expect(getTerminalToneClass('error', 'light')).toContain('text-red-700')
     expect(getTerminalToneClass('success', 'dark')).toContain('text-emerald-400')
     expect(terminalThemeClasses.light.chrome).toContain('bg-white')
     expect(terminalThemeClasses.dark.chrome).toContain('bg-[#1e1e1e]')
@@ -141,6 +141,29 @@ describe('terminal', () => {
     ])
     expect(noLink?.openUrl).toBeUndefined()
   })
+
+  it.each(['3d-editor', '1abc', '123'])('opens the valid project id %s', (id) => {
+    const project = { ...projects[0], id }
+    expect(
+      runCommand(`open ${id.toUpperCase()}`, { commandProjects: [project] })?.openUrl
+    ).toBe(project.liveUrl)
+  })
+
+  it('prefers a matching numeric id over the positional index', () => {
+    const numericIdProject = { ...projects[1], id: '1' }
+    expect(
+      runCommand('open 1', { commandProjects: [projects[0], numericIdProject] })
+        ?.openUrl
+    ).toBe(numericIdProject.repoUrl)
+  })
+
+  it.each(['0', '99', '9007199254740992'])(
+    'rejects the out-of-range index %s',
+    (selector) => {
+      expect(runCommand(`open ${selector}`)?.openUrl).toBeUndefined()
+      expect(runCommand(`open ${selector}`)?.output[0].text).toContain('not found')
+    }
+  )
 
   it('resolves theme command variants', () => {
     const noArg = runCommand('theme', { theme: 'light' })

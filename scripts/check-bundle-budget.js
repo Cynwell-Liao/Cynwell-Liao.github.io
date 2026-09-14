@@ -6,39 +6,56 @@ import { gzipSync } from 'node:zlib'
 
 const MAX_RAW_BYTES = 500_000
 const MAX_GZIP_BYTES = 170_000
+const MAX_TOTAL_RAW_BYTES = 600_000
+const MAX_TOTAL_GZIP_BYTES = 195_000
 const scriptDirectory = path.dirname(fileURLToPath(import.meta.url))
 const repositoryRoot = path.resolve(scriptDirectory, '..')
 
-const getAttribute = (tag, attribute) => {
-  const match = tag.match(new RegExp(`\\b${attribute}=["']([^"']+)["']`, 'i'))
-  return match?.[1]
-}
+const findInitialJavaScript = (manifest) => {
+  if (!manifest || typeof manifest !== 'object' || Array.isArray(manifest)) {
+    throw new Error('Build manifest must be an object of output chunks')
+  }
 
-const findInitialJavaScript = (html) => {
+  const visited = new Set()
   const resources = new Set()
+  const visit = (key) => {
+    if (visited.has(key)) return
+    visited.add(key)
 
-  for (const match of html.matchAll(/<(?:script|link)\b[^>]*>/gi)) {
-    const tag = match[0]
-    const isModuleScript =
-      /^<script\b/i.test(tag) && getAttribute(tag, 'type') === 'module'
-    const isModulePreload =
-      /^<link\b/i.test(tag) && getAttribute(tag, 'rel') === 'modulepreload'
-    if (!isModuleScript && !isModulePreload) continue
+    const chunk = Object.hasOwn(manifest, key) ? manifest[key] : undefined
+    if (!chunk || typeof chunk.file !== 'string' || !chunk.file) {
+      throw new Error(`Build manifest chunk is missing or invalid: ${key}`)
+    }
+    if (/\.m?js$/i.test(chunk.file)) resources.add(chunk.file)
 
-    const resource = getAttribute(tag, isModuleScript ? 'src' : 'href')
-    if (resource && /\.js(?:[?#]|$)/i.test(resource)) resources.add(resource)
+    const imports = chunk.imports ?? []
+    if (!Array.isArray(imports) || imports.some((key) => typeof key !== 'string')) {
+      throw new Error(`Build manifest chunk imports are invalid: ${key}`)
+    }
+    // Dynamic imports are deferred until the feature is opened.
+    imports.forEach(visit)
+  }
+
+  for (const [key, chunk] of Object.entries(manifest)) {
+    if (chunk?.isEntry === true) visit(key)
   }
 
   return [...resources]
 }
 
 const resolveAssetPath = (distDirectory, resource) => {
-  const pathname = decodeURIComponent(
-    new URL(resource, 'https://bundle.local/').pathname
-  )
-  const assetPath = path.resolve(distDirectory, pathname.replace(/^[/\\]+/, ''))
+  // Manifest files are output-relative, independent of the deployed base URL.
+  const pathname = decodeURIComponent(resource).replaceAll('\\', '/')
+  const assetPath = path.resolve(distDirectory, pathname)
   const relativePath = path.relative(distDirectory, assetPath)
-  if (relativePath.startsWith('..') || path.isAbsolute(relativePath)) {
+  if (
+    path.posix.isAbsolute(pathname) ||
+    path.win32.isAbsolute(pathname) ||
+    /^[a-z][a-z\d+.-]*:/i.test(pathname) ||
+    relativePath === '..' ||
+    relativePath.startsWith(`..${path.sep}`) ||
+    path.isAbsolute(relativePath)
+  ) {
     throw new Error(`Initial bundle asset escapes the dist directory: ${resource}`)
   }
   if (!existsSync(assetPath) || !statSync(assetPath).isFile()) {
@@ -62,7 +79,8 @@ const run = () => {
   if (values.help) {
     console.log(`Usage: node scripts/check-bundle-budget.js [--dist <directory>]
 
-Fails when the largest initial JavaScript asset exceeds 500 kB raw or 170 kB gzip.`)
+Reads .vite/manifest.json and checks all statically imported initial JavaScript.
+Limits: 500 kB raw / 170 kB gzip per asset; 600 kB raw / 195 kB gzip in total.`)
     return
   }
 
@@ -72,9 +90,15 @@ Fails when the largest initial JavaScript asset exceeds 500 kB raw or 170 kB gzi
     throw new Error(`Built index.html was not found: ${indexPath}`)
   }
 
-  const resources = findInitialJavaScript(readFileSync(indexPath, 'utf8'))
+  const manifestPath = path.join(distDirectory, '.vite', 'manifest.json')
+  if (!existsSync(manifestPath) || !statSync(manifestPath).isFile()) {
+    throw new Error(`Build manifest was not found: ${manifestPath}`)
+  }
+  const resources = findInitialJavaScript(
+    JSON.parse(readFileSync(manifestPath, 'utf8'))
+  )
   if (resources.length === 0) {
-    throw new Error(`No initial JavaScript assets were found in ${indexPath}`)
+    throw new Error(`No initial JavaScript assets were found in ${manifestPath}`)
   }
 
   const measurements = resources.map((resource) => {
@@ -93,6 +117,13 @@ Fails when the largest initial JavaScript asset exceeds 500 kB raw or 170 kB gzi
   const largestGzip = measurements.reduce((largest, item) =>
     item.gzipBytes > largest.gzipBytes ? item : largest
   )
+  const totals = measurements.reduce(
+    (total, item) => ({
+      rawBytes: total.rawBytes + item.rawBytes,
+      gzipBytes: total.gzipBytes + item.gzipBytes,
+    }),
+    { rawBytes: 0, gzipBytes: 0 }
+  )
 
   for (const measurement of measurements) {
     console.log(
@@ -100,6 +131,10 @@ Fails when the largest initial JavaScript asset exceeds 500 kB raw or 170 kB gzi
         `${formatKilobytes(measurement.gzipBytes)} gzip`
     )
   }
+  console.log(
+    `Total initial JavaScript: ${formatKilobytes(totals.rawBytes)} raw, ` +
+      `${formatKilobytes(totals.gzipBytes)} gzip`
+  )
 
   const failures = []
   if (largestRaw.rawBytes > MAX_RAW_BYTES) {
@@ -112,6 +147,16 @@ Fails when the largest initial JavaScript asset exceeds 500 kB raw or 170 kB gzi
     failures.push(
       `gzip size ${formatKilobytes(largestGzip.gzipBytes)} exceeds 170.00 kB ` +
         `(${largestGzip.resource})`
+    )
+  }
+  if (totals.rawBytes > MAX_TOTAL_RAW_BYTES) {
+    failures.push(
+      `total raw size ${formatKilobytes(totals.rawBytes)} exceeds 600.00 kB`
+    )
+  }
+  if (totals.gzipBytes > MAX_TOTAL_GZIP_BYTES) {
+    failures.push(
+      `total gzip size ${formatKilobytes(totals.gzipBytes)} exceeds 195.00 kB`
     )
   }
   if (failures.length > 0) {

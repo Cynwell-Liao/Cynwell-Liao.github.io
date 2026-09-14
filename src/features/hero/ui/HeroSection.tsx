@@ -1,13 +1,15 @@
 import { m } from 'framer-motion'
 
+import { SECTION_ID } from '@shared/lib/navigation'
+
 import { CertificationMarquee } from './CertificationMarquee'
 import { HeroStats } from './HeroStats'
 
-import type { ProfileData } from '../model/profile.types'
+import type { HeroProfile } from '../model/profile.types'
 
 interface HeroSectionProps {
   deployVersion: string
-  profile: ProfileData
+  profile: HeroProfile
 }
 
 export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
@@ -15,7 +17,7 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
     <section
       aria-labelledby="home-heading"
       className="relative flex min-h-dvh scroll-mt-24 items-center justify-center overflow-hidden pt-32 pb-12 sm:pt-32 lg:pt-36"
-      id="home"
+      id={SECTION_ID.home}
     >
       <div
         aria-hidden="true"
@@ -39,10 +41,10 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
             <span className="flex items-center gap-2 whitespace-nowrap">
-              <span className="font-semibold tracking-[0.24em] text-emerald-600 dark:text-emerald-300">
+              <span className="font-semibold tracking-[0.24em] text-emerald-800 dark:text-emerald-300">
                 {profile.heroStatusLabel}
               </span>
-              <span className="text-[0.68rem] font-medium tracking-[0.28em] text-slate-500 dark:text-slate-400">
+              <span className="text-[0.68rem] font-medium tracking-[0.28em] text-slate-600 dark:text-slate-400">
                 {deployVersion}
               </span>
             </span>
@@ -52,7 +54,7 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
             className="text-5xl leading-[1.1] font-bold tracking-tight break-words text-slate-900 sm:text-6xl md:text-7xl lg:text-[5.5rem] dark:text-white"
             id="home-heading"
           >
-            <span className="bg-gradient-to-r from-accent-600 via-secondary-500 to-purple-600 bg-clip-text text-transparent dark:from-accent-400 dark:via-secondary-300 dark:to-purple-400">
+            <span className="bg-gradient-to-r from-accent-600 via-secondary-700 to-purple-700 bg-clip-text text-transparent dark:from-accent-400 dark:via-secondary-300 dark:to-purple-400">
               {profile.title}
             </span>
           </h1>

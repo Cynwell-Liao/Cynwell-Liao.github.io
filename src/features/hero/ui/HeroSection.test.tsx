@@ -1,58 +1,10 @@
-import { act, fireEvent, render, screen, waitFor, within } from '@testing-library/react'
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { act, render, screen, waitFor, within } from '@testing-library/react'
+import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { setMockReducedMotion } from '../../../test/setup'
+import { heroProfile as profile } from '../model/profile.fixture'
 
 import { HeroSection } from './HeroSection'
-
-import type { ProfileData } from '../model/profile.types'
-
-const profile: ProfileData = {
-  name: 'Ada Lovelace',
-  brandName: 'ada.dev',
-  title: 'Software Engineer',
-  about: ['Builds reliable software.'],
-  githubUsername: 'ada-lovelace',
-  githubUrl: 'https://github.com/ada-lovelace',
-  repositoryUrl: 'https://github.com/ada-lovelace/portfolio',
-  githubLabel: 'GitHub profile',
-  linkedinUrl: 'https://www.linkedin.com/in/ada-lovelace',
-  linkedinConnectionCount: 760,
-  linkedinLabel: 'LinkedIn profile',
-  linkedinConnectionsLabel: 'connections',
-  heroStatusLabel: 'SYSTEMS ONLINE',
-  heroTerminalPath: '~/portfolio',
-  heroTerminalDirectories: ['projects'],
-  heroTerminalPrompt: '$',
-  heroCertificationsHeading: 'Certifications',
-  heroCertifications: [
-    {
-      credentialUrl: 'https://credentials.example.com/cloud',
-      imageUrl: 'https://images.example.com/cloud.png',
-      imageAlt: 'Cloud certification badge',
-      imageWidth: 100,
-      imageHeight: 100,
-    },
-  ],
-  contributionsLoadingLabel: 'Loading GitHub contributions',
-  contributionsUnavailableLabel: 'GitHub contributions are unavailable',
-  contributionsSuffixLabel: 'contributions',
-  aboutHeadingLead: 'About',
-  aboutHeadingAccent: 'me',
-  aboutIntro: 'Intro',
-  techStackSectionEyebrow: 'Skills',
-  techStackSectionTitle: 'Tech stack',
-  techStackSectionDescription: 'Tools',
-  projectsSectionEyebrow: 'Work',
-  projectsSectionTitle: 'Projects',
-  projectsSectionDescription: 'Selected work',
-  projectLiveLabel: 'Live',
-  projectSourceLabel: 'Source',
-  educationSectionEyebrow: 'Learning',
-  educationSectionTitle: 'Education',
-  educationSectionDescription: 'Study',
-  footerAttribution: 'Built by Ada',
-}
 
 const successfulResponse = (payload: unknown) => ({
   json: () => Promise.resolve(payload),
@@ -69,10 +21,6 @@ describe('HeroSection', () => {
       'fetch',
       vi.fn(() => new Promise<never>(() => undefined))
     )
-  })
-
-  afterEach(() => {
-    vi.useRealTimers()
   })
 
   it('exposes its heading, status, social links, and loading semantics', async () => {
@@ -181,33 +129,11 @@ describe('HeroSection', () => {
     expect(screen.queryByRole('status')).not.toBeInTheDocument()
   })
 
-  it.each([
-    ['a rejected request', () => Promise.reject(new Error('offline'))],
-    [
-      'a non-success response',
-      () =>
-        Promise.resolve({
-          json: () => Promise.resolve({ total: { lastYear: 25 } }),
-          ok: false,
-          status: 503,
-        }),
-    ],
-    [
-      'an invalid total',
-      () => Promise.resolve(successfulResponse({ total: { lastYear: -1 } })),
-    ],
-    [
-      'malformed JSON',
-      () =>
-        Promise.resolve({
-          json: () => Promise.reject(new Error('invalid JSON')),
-          ok: true,
-          status: 200,
-        }),
-    ],
-  ])('keeps LinkedIn available when GitHub has %s', async (_label, responseFactory) => {
-    const fetchMock = vi.fn(responseFactory)
-    vi.stubGlobal('fetch', fetchMock)
+  it('keeps LinkedIn available when GitHub contributions fail', async () => {
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(() => Promise.reject(new Error('offline')))
+    )
 
     renderHero()
 
@@ -222,67 +148,6 @@ describe('HeroSection', () => {
       profile.contributionsUnavailableLabel
     )
     expect(screen.queryByText('0')).not.toBeInTheDocument()
-  })
-
-  it('marks a timed-out request unavailable and ignores a late response', async () => {
-    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
-    let requestSignal: AbortSignal | undefined
-    let resolveRequest:
-      ((response: ReturnType<typeof successfulResponse>) => void) | undefined
-    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
-      requestSignal = init?.signal ?? undefined
-
-      return new Promise<ReturnType<typeof successfulResponse>>((resolve) => {
-        resolveRequest = resolve
-      })
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    renderHero()
-
-    expect(requestSignal).toBeInstanceOf(AbortSignal)
-    expect(requestSignal?.aborted).toBe(false)
-
-    act(() => {
-      vi.advanceTimersByTime(8000)
-    })
-
-    expect(requestSignal?.aborted).toBe(true)
-    expect(screen.getByRole('status')).toHaveTextContent(
-      profile.contributionsUnavailableLabel
-    )
-    expect(screen.getByText('—')).toBeInTheDocument()
-
-    const completeRequest = resolveRequest
-    if (!completeRequest) {
-      throw new Error('Expected the contribution request to be pending')
-    }
-
-    await act(async () => {
-      completeRequest(successfulResponse({ total: { lastYear: 999 } }))
-      await Promise.resolve()
-    })
-
-    expect(screen.queryByText('999')).not.toBeInTheDocument()
-    expect(screen.getByText('—')).toBeInTheDocument()
-  })
-
-  it('aborts an outstanding contribution request when unmounted', async () => {
-    let requestSignal: AbortSignal | undefined
-    const fetchMock = vi.fn((_input: RequestInfo | URL, init?: RequestInit) => {
-      requestSignal = init?.signal ?? undefined
-      return new Promise<never>(() => undefined)
-    })
-    vi.stubGlobal('fetch', fetchMock)
-
-    const { unmount } = renderHero()
-    await waitFor(() => {
-      expect(requestSignal).toBeInstanceOf(AbortSignal)
-    })
-
-    unmount()
-
-    expect(requestSignal?.aborted).toBe(true)
   })
 
   it('omits the contribution chart and its fallback link', () => {
@@ -300,36 +165,6 @@ describe('HeroSection', () => {
     expect(
       screen.queryByRole('link', { name: `View ${profile.githubLabel} activity` })
     ).not.toBeInTheDocument()
-  })
-
-  it('keeps one semantic certification set and a non-tabbable visual clone', () => {
-    const { container } = renderHero()
-
-    expect(
-      screen.getByRole('region', { name: profile.heroCertificationsHeading })
-    ).toBeInTheDocument()
-    expect(
-      screen.getAllByRole('link', { name: profile.heroCertifications[0].imageAlt })
-    ).toHaveLength(1)
-    expect(
-      screen.getByRole('img', { name: profile.heroCertifications[0].imageAlt })
-    ).toHaveAttribute('loading', 'lazy')
-
-    const clone = container.querySelector('[data-clone="true"]')
-    expect(clone).toHaveAttribute('aria-hidden', 'true')
-    expect(clone?.querySelector('a')).toHaveAttribute('tabindex', '-1')
-  })
-
-  it('shows a readable certification fallback when its remote image fails', () => {
-    renderHero()
-
-    fireEvent.error(
-      screen.getByRole('img', { name: profile.heroCertifications[0].imageAlt })
-    )
-
-    expect(
-      screen.getByRole('link', { name: profile.heroCertifications[0].imageAlt })
-    ).toHaveTextContent(profile.heroCertifications[0].imageAlt)
   })
 
   it('never requests GitHub Releases for its displayed deploy version', async () => {

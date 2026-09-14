@@ -54,7 +54,8 @@ policy.
 
 Edit `src/content/data/profile.json`:
 
-- **`name` / `title` / `tagline`** — core identity.
+- **`name` / `title`** — displayed identity. `tagline` is retained in the content
+  model but is not currently rendered; the social cover text is edited separately.
 - **`about`** — biography paragraphs.
 - **`hero`** — terminal prompt and directories.
 - **`certifications`** — certification badge URLs.
@@ -107,13 +108,36 @@ Use one of these modes:
 Then:
 
 1. In GitHub: `Settings` -> `Pages` -> `Build and deployment` -> `Source: GitHub Actions`.
-2. Push to `main` (or run `cd.yml` manually with workflow dispatch).
+2. Follow the release procedure below. Successful CI on the release commit triggers
+   deployment. Workflow dispatch can redeploy an existing release.
+
+Every commit landing on `main` must be a release: matching package version,
+`release: vX.Y.Z` commit, `vX.Y.Z` tag, and GitHub Release. Validate before bumping;
+choose `patch` for fixes and refactoring, `minor` for compatible features, or `major`
+for breaking changes. Run the following from `main`, substituting the selected bump
+and the resulting version:
+
+```bash
+npm run check
+npm version <patch|minor|major> --no-git-tag-version
+git add .
+git commit -m "release: vX.Y.Z"
+git tag vX.Y.Z
+git push origin main
+git push origin vX.Y.Z
+gh release create vX.Y.Z --generate-notes
+```
 
 ## Quality Commands
 
 `npm run check` is the authoritative local quality gate and mirrors CI. It runs
 formatting validation, ESLint, strict type checking, coverage, the production build
 (including the JavaScript bundle budget), and Playwright end-to-end tests.
+
+The build manifest determines all initial JavaScript, including recursive static
+imports and excluding deferred features. Budgets are 500 kB raw / 170 kB gzip per
+file and 600 kB raw / 195 kB gzip combined. Browser tests are included in strict
+TypeScript checking through `tsconfig.e2e.json`.
 
 ```bash
 npm run check

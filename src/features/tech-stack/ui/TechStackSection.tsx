@@ -3,6 +3,8 @@ import { createElement } from 'react'
 
 import { cn } from '@shared/lib/cn'
 import { resolveIcon } from '@shared/lib/icons'
+import { cardReveal } from '@shared/lib/motion'
+import { SECTION_ID } from '@shared/lib/navigation'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { SkillCategory } from '../model/skill.types'
@@ -24,7 +26,7 @@ export function TechStackSection({
     <section
       aria-labelledby="tech-stack-heading"
       className="section-wrap relative scroll-mt-24 py-24"
-      id="tech-stack"
+      id={SECTION_ID.techStack}
     >
       <div
         aria-hidden="true"
@@ -41,16 +43,9 @@ export function TechStackSection({
       <div className="relative z-10 mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {categories.map((category, categoryIndex) => (
           <m.article
+            {...cardReveal(categoryIndex * 0.1)}
             className="glass-panel group/card p-8"
-            initial={{ opacity: 0, y: 30 }}
             key={category.title}
-            transition={{
-              duration: 0.6,
-              delay: categoryIndex * 0.1,
-              ease: [0.16, 1, 0.3, 1],
-            }}
-            viewport={{ once: true, amount: 0.2 }}
-            whileInView={{ opacity: 1, y: 0 }}
           >
             <div
               aria-hidden="true"

@@ -1,43 +1,28 @@
 import { m, useReducedMotion } from 'framer-motion'
-import { useEffect, useState } from 'react'
 
-import { fetchContributionTotal } from '../model/contributions'
 import { useCountUpNumber } from '../model/countUp'
 import {
   formatLinkedInConnectionCount,
   getLinkedInConnectionCountTarget,
 } from '../model/linkedinConnections'
+import { useContributionTotal } from '../model/useContributionTotal'
 
-import type { ProfileData } from '../model/profile.types'
+import type { HeroStatsProfile } from '../model/profile.types'
 
 interface HeroStatsProps {
-  profile: ProfileData
-}
-
-type ContributionStatus = 'loading' | 'success' | 'error'
-
-interface ContributionState {
-  readonly githubUsername: string
-  readonly status: ContributionStatus
-  readonly total: number | null
+  profile: HeroStatsProfile
 }
 
 const COUNT_UP_DURATION_MS = 1800
 const LINKEDIN_PUBLIC_LIMIT_HOLD_MS = 260
-const CONTRIBUTION_REQUEST_TIMEOUT_MS = 8000
 
 const appIconHoverAnimation = { scale: 1.05 }
 
 export function HeroStats({ profile }: HeroStatsProps) {
   const shouldReduceMotion = useReducedMotion()
-  const [contributionState, setContributionState] = useState<ContributionState>(() => ({
-    githubUsername: profile.githubUsername,
-    status: 'loading',
-    total: null,
-  }))
-  const isCurrentRequest = contributionState.githubUsername === profile.githubUsername
-  const contributions = isCurrentRequest ? contributionState.total : null
-  const contributionStatus = isCurrentRequest ? contributionState.status : 'loading'
+  const { status: contributionStatus, total: contributions } = useContributionTotal(
+    profile.githubUsername
+  )
   const shouldAnimateCounts = shouldReduceMotion !== true
   const linkedinConnectionTarget = getLinkedInConnectionCountTarget(
     profile.linkedinConnectionCount
@@ -76,53 +61,6 @@ export function HeroStats({ profile }: HeroStatsProps) {
       : contributionStatus === 'error'
         ? profile.contributionsUnavailableLabel
         : null
-
-  useEffect(() => {
-    const controller = new AbortController()
-    let isActive = true
-    const timeoutId = window.setTimeout(() => {
-      controller.abort()
-      if (isActive) {
-        setContributionState({
-          githubUsername: profile.githubUsername,
-          status: 'error',
-          total: null,
-        })
-      }
-    }, CONTRIBUTION_REQUEST_TIMEOUT_MS)
-
-    void fetchContributionTotal({
-      githubUsername: profile.githubUsername,
-      signal: controller.signal,
-    })
-      .then((totalContributions) => {
-        if (isActive && !controller.signal.aborted) {
-          setContributionState({
-            githubUsername: profile.githubUsername,
-            status: 'success',
-            total: totalContributions,
-          })
-        }
-      })
-      .catch(() => {
-        if (isActive && !controller.signal.aborted) {
-          setContributionState({
-            githubUsername: profile.githubUsername,
-            status: 'error',
-            total: null,
-          })
-        }
-      })
-      .finally(() => {
-        window.clearTimeout(timeoutId)
-      })
-
-    return () => {
-      isActive = false
-      window.clearTimeout(timeoutId)
-      controller.abort()
-    }
-  }, [profile.githubUsername])
 
   return (
     <section
@@ -168,7 +106,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
             </m.a>
 
             <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
-              <span className="text-lg font-bold text-accent-600 sm:text-xl dark:text-accent-400">
+              <span className="text-lg font-bold text-accent-800 sm:text-xl sm:text-accent-700 dark:text-accent-300 sm:dark:text-accent-400">
                 <span aria-hidden={linkedinConnectionCountUp.phase === 'idle'}>
                   {linkedinConnectionCount}
                 </span>
@@ -204,7 +142,7 @@ export function HeroStats({ profile }: HeroStatsProps) {
             </m.a>
 
             <span className="flex flex-wrap items-baseline gap-2 text-base sm:text-lg">
-              <span className="text-lg font-bold text-accent-600 sm:text-xl dark:text-accent-400">
+              <span className="text-lg font-bold text-accent-800 sm:text-xl sm:text-accent-700 dark:text-accent-300 sm:dark:text-accent-400">
                 <span aria-hidden={contributionStatus !== 'success'}>
                   {contributionCount}
                 </span>

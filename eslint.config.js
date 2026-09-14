@@ -1,3 +1,5 @@
+import { readdirSync } from 'node:fs'
+
 import js from '@eslint/js'
 import { defineConfig } from 'eslint/config'
 import importPlugin from 'eslint-plugin-import'
@@ -6,6 +8,49 @@ import reactHooks from 'eslint-plugin-react-hooks'
 import reactRefresh from 'eslint-plugin-react-refresh'
 import globals from 'globals'
 import tseslint from 'typescript-eslint'
+
+const featureModules = readdirSync(new URL('./src/features/', import.meta.url), {
+  withFileTypes: true,
+})
+  .filter((entry) => entry.isDirectory())
+  .map((entry) => `./src/features/${entry.name}`)
+const publicModules = ['./src/content', ...featureModules]
+
+const layerZones = [
+  {
+    target: './src/shared',
+    from: ['./src/app', './src/features', './src/content'],
+    message: 'Shared layer must not depend on app, features, or content.',
+  },
+  {
+    target: './src/features',
+    from: ['./src/app', './src/content'],
+    message: 'Feature layer must not depend on app or content.',
+  },
+  {
+    target: './src/content',
+    from: ['./src/app', './src/features'],
+    message: 'Content layer must not depend on app or features.',
+  },
+]
+
+const restrictedPaths = (ownModule) => [
+  'error',
+  {
+    basePath: import.meta.dirname,
+    zones: [
+      ...layerZones,
+      ...publicModules
+        .filter((module) => module !== ownModule)
+        .map((module) => ({
+          target: './src',
+          from: module,
+          except: ['./index.ts'],
+          message: 'Import other feature/content modules through their public barrel.',
+        })),
+    ],
+  },
+]
 
 const importOrderRules = {
   'import/no-duplicates': 'error',
@@ -77,68 +122,16 @@ export default defineConfig([
         'error',
         { checksVoidReturn: { attributes: false } },
       ],
-      'no-restricted-imports': [
-        'error',
-        {
-          patterns: [
-            {
-              group: ['@features/*/ui/*', '@features/*/model/*'],
-              message: 'Import feature modules via @features/<feature> public API.',
-            },
-            {
-              group: ['@content/data/*', '@content/loaders/*', '@content/schemas/*'],
-              message:
-                'Import content only via @content barrel — never reach into data/, loaders/, or schemas/ directly.',
-            },
-          ],
-        },
-      ],
-      'import/no-restricted-paths': [
-        'error',
-        {
-          zones: [
-            {
-              target: './src/shared',
-              from: './src/app',
-              message: 'Shared layer must not depend on app.',
-            },
-            {
-              target: './src/shared',
-              from: './src/features',
-              message: 'Shared layer must not depend on features.',
-            },
-            {
-              target: './src/shared',
-              from: './src/content',
-              message: 'Shared layer must not depend on content.',
-            },
-            {
-              target: './src/features',
-              from: './src/app',
-              message: 'Feature layer must not depend on app.',
-            },
-            {
-              target: './src/features',
-              from: './src/content',
-              message: 'Feature layer must not depend on content.',
-            },
-            {
-              target: './src/content',
-              from: './src/app',
-              message: 'Content layer must not depend on app.',
-            },
-            {
-              target: './src/content',
-              from: './src/features',
-              message: 'Content layer must not depend on features.',
-            },
-          ],
-        },
-      ],
+      'import/no-restricted-paths': restrictedPaths(),
       'import/no-default-export': 'off',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
     },
   },
+  // Modules may compose their own internals; external consumers use the barrel.
+  ...publicModules.map((module) => ({
+    files: [`${module.slice(2)}/**/*.{ts,tsx}`],
+    rules: { 'import/no-restricted-paths': restrictedPaths(module) },
+  })),
   {
     files: ['src/**/*.{test,spec}.{ts,tsx}', 'src/test/**/*.ts'],
     rules: {

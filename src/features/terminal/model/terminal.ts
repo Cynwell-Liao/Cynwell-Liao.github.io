@@ -1,6 +1,7 @@
 import type { ThemeMode } from '@shared/types/common'
-import type { ProfileData, Project } from '@shared/types/portfolio.types'
+import type { Project } from '@shared/types/portfolio.types'
 
+import type { TerminalProfile } from './terminal.types'
 import type { TerminalTone } from './terminalTheme'
 
 export type { TerminalTone } from './terminalTheme'
@@ -21,7 +22,7 @@ export interface TerminalCommandResult {
 
 interface ResolveTerminalCommandParams {
   rawInput: string
-  profile: ProfileData
+  profile: TerminalProfile
   projects: readonly Project[]
   theme: ThemeMode
   commandHistory: readonly string[]
@@ -35,7 +36,9 @@ export const appendTerminalLines = (
   newLines: readonly TerminalLine[]
 ): TerminalLine[] => [...existingLines, ...newLines].slice(-MAX_TERMINAL_OUTPUT_LINES)
 
-export const createInitialTerminalLines = (profile: ProfileData): TerminalLine[] => [
+export const createInitialTerminalLines = (
+  profile: TerminalProfile
+): TerminalLine[] => [
   { text: 'Last login: Wed May 15 10:24:08 on ttys001', tone: 'muted' },
   { text: "Type 'help' to explore commands.", tone: 'muted' },
   { text: `${profile.heroTerminalPath} % ls -la`, tone: 'default' },
@@ -49,10 +52,13 @@ const resolveOpenCommand = (
   projects: readonly Project[]
 ): Pick<TerminalCommandResult, 'output' | 'openUrl'> => {
   const normalizedToken = token.toLowerCase()
+  const matchingId = projects.find(
+    (project) => project.id.toLowerCase() === normalizedToken
+  )
   const isNumericSelector = /^\d+$/u.test(normalizedToken)
   const isMalformedNumericSelector = /^\d/u.test(normalizedToken) && !isNumericSelector
 
-  if (isMalformedNumericSelector) {
+  if (!matchingId && isMalformedNumericSelector) {
     return {
       output: [
         {
@@ -66,9 +72,10 @@ const resolveOpenCommand = (
   const index = isNumericSelector ? Number(normalizedToken) : Number.NaN
 
   const selectedProject =
-    Number.isInteger(index) && index >= 1 && index <= projects.length
+    matchingId ??
+    (Number.isInteger(index) && index >= 1 && index <= projects.length
       ? projects[index - 1]
-      : projects.find((project) => project.id.toLowerCase() === normalizedToken)
+      : undefined)
 
   if (!selectedProject) {
     return {

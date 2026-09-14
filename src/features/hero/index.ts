@@ -1,3 +1,3 @@
 export { HeroSection } from './ui/HeroSection'
 
-export type { ProfileData } from './model/profile.types'
+export type { HeroProfile, HeroStatsProfile, ProfileData } from './model/profile.types'

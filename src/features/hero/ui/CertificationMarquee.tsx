@@ -2,9 +2,42 @@ import { useState } from 'react'
 
 import type { CertificationItem } from '@shared/types/portfolio.types'
 
+import type { FocusEvent } from 'react'
+
 interface CertificationMarqueeProps {
   certifications: readonly CertificationItem[]
   heading: string
+}
+
+const FOCUS_RING_PADDING_PX = 8
+
+function revealFocusedBadge(event: FocusEvent<HTMLDivElement>) {
+  const badge = event.target
+  if (!(badge instanceof HTMLAnchorElement) || !badge.matches(':focus-visible')) {
+    return
+  }
+
+  // Cancel any smooth scroll started by the previous focused link before deciding
+  // whether this badge is already visible.
+  window.scrollTo({ top: window.scrollY, left: window.scrollX, behavior: 'instant' })
+  badge.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' })
+  const viewport = event.currentTarget
+  const viewportBounds = viewport.getBoundingClientRect()
+  const badgeBounds = badge.getBoundingClientRect()
+  const leftEdge = viewportBounds.left + FOCUS_RING_PADDING_PX
+  const rightEdge = viewportBounds.right - FOCUS_RING_PADDING_PX
+
+  if (badgeBounds.left < leftEdge) {
+    viewport.scrollLeft += badgeBounds.left - leftEdge
+  } else if (badgeBounds.right > rightEdge) {
+    viewport.scrollLeft += badgeBounds.right - rightEdge
+  }
+}
+
+function resetScrollOnBlur(event: FocusEvent<HTMLDivElement>) {
+  if (!event.currentTarget.contains(event.relatedTarget)) {
+    event.currentTarget.scrollLeft = 0
+  }
 }
 
 function CertificationBadge({
@@ -77,13 +110,17 @@ export function CertificationMarquee({
   return (
     <section aria-labelledby="hero-certifications-heading" className="mt-8 w-full">
       <h2
-        className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-accent-700 dark:text-accent-300"
+        className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-accent-800 dark:text-accent-300"
         id="hero-certifications-heading"
       >
         {heading}
       </h2>
       <div className="glass-panel hero-cert-marquee">
-        <div className="hero-cert-marquee__viewport">
+        <div
+          className="hero-cert-marquee__viewport"
+          onBlur={resetScrollOnBlur}
+          onFocus={revealFocusedBadge}
+        >
           <div className="hero-cert-marquee__track">
             <CertificationList certifications={certifications} />
             <CertificationList certifications={certifications} isClone />

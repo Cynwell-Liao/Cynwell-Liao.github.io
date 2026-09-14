@@ -2,15 +2,12 @@ import { motion, useDragControls } from 'framer-motion'
 import {
   type PointerEvent,
   type SyntheticEvent,
-  useCallback,
   useEffect,
+  useLayoutEffect,
   useRef,
   useState,
 } from 'react'
 import { FiX } from 'react-icons/fi'
-
-import type { ThemeMode } from '@shared/types/common'
-import type { ProfileData, Project } from '@shared/types/portfolio.types'
 
 import {
   appendTerminalLines,
@@ -20,13 +17,7 @@ import {
 } from '../model/terminal'
 import { getTerminalToneClass, terminalThemeClasses } from '../model/terminalTheme'
 
-interface TerminalWindowProps {
-  profile: ProfileData
-  projects: readonly Project[]
-  theme: ThemeMode
-  onClose: () => void
-  onToggleTheme: () => void
-}
+import type { TerminalWindowProps } from '../model/terminal.types'
 
 export function TerminalWindow({
   profile,
@@ -39,7 +30,6 @@ export function TerminalWindow({
   const dragControls = useDragControls()
   const constraintsRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
-  const openerRef = useRef<HTMLElement | null>(null)
   const outputRef = useRef<HTMLDivElement>(null)
   const [terminalInput, setTerminalInput] = useState('')
   const [terminalLines, setTerminalLines] = useState<TerminalLine[]>(() =>
@@ -47,34 +37,9 @@ export function TerminalWindow({
   )
   const [commandHistory, setCommandHistory] = useState<string[]>([])
 
-  useEffect(() => {
-    openerRef.current =
-      document.activeElement instanceof HTMLElement ? document.activeElement : null
+  useLayoutEffect(() => {
     inputRef.current?.focus()
-
-    return () => {
-      openerRef.current?.focus()
-    }
   }, [])
-
-  const closeTerminal = useCallback(() => {
-    openerRef.current?.focus()
-    onClose()
-  }, [onClose])
-
-  useEffect(() => {
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        closeTerminal()
-      }
-    }
-
-    window.addEventListener('keydown', onKeyDown)
-
-    return () => {
-      window.removeEventListener('keydown', onKeyDown)
-    }
-  }, [closeTerminal])
 
   useEffect(() => {
     if (outputRef.current) {
@@ -159,7 +124,7 @@ export function TerminalWindow({
             <button
               aria-label="Close terminal"
               className="group flex h-6 w-6 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-500"
-              onClick={closeTerminal}
+              onClick={onClose}
               onPointerDown={(event) => {
                 event.stopPropagation()
               }}
@@ -215,7 +180,7 @@ export function TerminalWindow({
             <input
               aria-label="Terminal command input"
               autoComplete="off"
-              className={`min-w-0 flex-1 rounded-sm bg-transparent outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-500 ${terminalTheme.input}`}
+              className={`min-w-0 flex-1 rounded-sm bg-transparent outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-emerald-600 dark:focus-visible:outline-emerald-500 ${terminalTheme.input}`}
               id="floating-terminal-input"
               onChange={(event) => {
                 setTerminalInput(event.target.value)

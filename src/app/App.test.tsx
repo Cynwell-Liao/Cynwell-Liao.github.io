@@ -2,7 +2,7 @@ import { render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { profile } from '@content'
+import { navLinks, profile } from '@content'
 
 import App from './App'
 
@@ -29,6 +29,9 @@ describe('App', () => {
       '#main-content'
     )
     expect(screen.getByRole('main')).toHaveAttribute('id', 'main-content')
+    for (const link of navLinks) {
+      expect(document.querySelectorAll(link.href)).toHaveLength(1)
+    }
 
     await waitFor(() => {
       expect(fetchMock).toHaveBeenCalledWith(
@@ -71,6 +74,9 @@ describe('App', () => {
     expect(
       screen.getByLabelText<HTMLInputElement>('Terminal command input')
     ).toHaveFocus()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Terminal' })).toHaveFocus()
   })
 
   it('keeps the floating terminal profile in sync with the site theme', async () => {

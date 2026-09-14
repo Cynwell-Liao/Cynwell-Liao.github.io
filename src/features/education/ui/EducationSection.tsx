@@ -3,6 +3,8 @@ import { createElement, useState } from 'react'
 
 import { cn } from '@shared/lib/cn'
 import { resolveIcon } from '@shared/lib/icons'
+import { cardReveal } from '@shared/lib/motion'
+import { SECTION_ID } from '@shared/lib/navigation'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { EducationItem } from '../model/education.types'
@@ -67,7 +69,7 @@ export function EducationSection({
     <section
       aria-labelledby="education-heading"
       className="section-wrap relative z-10 scroll-mt-24 py-24"
-      id="education"
+      id={SECTION_ID.education}
     >
       <div
         aria-hidden="true"
@@ -88,19 +90,12 @@ export function EducationSection({
 
           return (
             <m.article
+              {...cardReveal(index * 0.15)}
               className={cn(
                 'glass-panel group flex flex-col p-8',
                 isHero ? 'md:col-span-2' : 'md:col-span-1'
               )}
-              initial={{ opacity: 0, y: 30 }}
               key={item.institution}
-              transition={{
-                duration: 0.6,
-                delay: index * 0.15,
-                ease: [0.16, 1, 0.3, 1],
-              }}
-              viewport={{ once: true, amount: 0.2 }}
-              whileInView={{ opacity: 1, y: 0 }}
             >
               <div
                 aria-hidden="true"

@@ -62,4 +62,38 @@ describe('ProjectsSection', () => {
       screen.queryByRole('link', { name: /Example Project/u })
     ).not.toBeInTheDocument()
   })
+
+  it('keeps each project and its available actions in content order', () => {
+    render(
+      <ProjectsSection
+        {...headingProps}
+        projects={[
+          createProject({ id: 'live-only', title: 'Live only', repoUrl: undefined }),
+          createProject({
+            id: 'source-only',
+            title: 'Source only',
+            liveUrl: undefined,
+          }),
+        ]}
+      />
+    )
+
+    const articles = screen.getAllByRole('article')
+
+    expect(articles).toHaveLength(2)
+    expect(within(articles[0]).getByRole('heading', { level: 3 })).toHaveTextContent(
+      'Live only'
+    )
+    expect(within(articles[1]).getByRole('heading', { level: 3 })).toHaveTextContent(
+      'Source only'
+    )
+    expect(within(articles[0]).getAllByRole('link')).toHaveLength(1)
+    expect(within(articles[1]).getAllByRole('link')).toHaveLength(1)
+    expect(
+      within(articles[0]).getByRole('link', { name: 'View live: Live only' })
+    ).toHaveAttribute('title', 'View live: Live only')
+    expect(
+      within(articles[1]).getByRole('link', { name: 'View source: Source only' })
+    ).toHaveAttribute('title', 'View source: Source only')
+  })
 })

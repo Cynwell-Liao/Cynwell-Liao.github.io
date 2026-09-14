@@ -6,8 +6,9 @@ const TRANSPARENT_PNG = Buffer.from(
   'base64'
 )
 
-export const test = base.extend({
-  page: async ({ baseURL, page }, use, testInfo) => {
+export const test = base.extend<{ expectedAssetFailures: RegExp[] }>({
+  expectedAssetFailures: [[], { option: true }],
+  page: async ({ baseURL, page, expectedAssetFailures }, use, testInfo) => {
     if (!baseURL) {
       throw new Error(
         'Playwright baseURL is required for third-party request isolation.'
@@ -20,6 +21,13 @@ export const test = base.extend({
 
     page.on('console', (message) => {
       if (message.type() === 'error') {
+        // Fault-injection tests may expect resource errors for their exact asset.
+        // Runtime errors and errors from every other URL remain failures.
+        if (
+          message.text().startsWith('Failed to load resource:') &&
+          expectedAssetFailures.some((pattern) => pattern.test(message.location().url))
+        )
+          return
         consoleErrors.push(message.text())
       }
     })

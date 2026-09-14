@@ -1,6 +1,8 @@
 import { m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { useRef } from 'react'
 
+import { SECTION_ID } from '@shared/lib/navigation'
+
 interface AboutSectionProps {
   headingLead: string
   headingAccent: string
@@ -28,7 +30,7 @@ export function AboutSection({
     <section
       aria-labelledby="about-heading"
       className="section-wrap relative scroll-mt-24 py-24 lg:py-32"
-      id="about"
+      id={SECTION_ID.about}
       ref={containerRef}
     >
       <div
@@ -49,11 +51,11 @@ export function AboutSection({
             >
               {headingLead}
               <br />
-              <span className="bg-gradient-to-r from-accent-600 to-secondary-600 bg-clip-text text-transparent dark:from-accent-400 dark:to-secondary-400">
+              <span className="bg-gradient-to-r from-accent-600 to-secondary-700 bg-clip-text text-transparent dark:from-accent-400 dark:to-secondary-400">
                 {headingAccent}
               </span>
             </h2>
-            <p className="max-w-md text-lg font-light text-slate-600 dark:text-slate-400">
+            <p className="max-w-md text-lg font-light text-slate-700 dark:text-slate-400">
               {intro}
             </p>
           </m.div>

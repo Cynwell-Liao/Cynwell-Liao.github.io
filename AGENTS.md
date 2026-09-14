@@ -58,15 +58,18 @@ content  →  shared
 **Feature module convention:**
 
 - Each feature has `index.ts` (public API), `ui/` (components), `model/` (types, logic).
-- Import features only via `@features/<name>` — never reach into `ui/` or `model/` directly.
+- Import other features only via `@features/<name>`. A feature may import its own
+  internals. Resolved-path lint rules also prevent relative imports into other modules.
 
 **Content module convention:**
 
 - Content data is strictly JSON in `src/content/data/`.
 - Loaders and schemas are internal to the module (`loaders/`, `schemas/`).
-- Import content only via `@content` barrel — never reach into internal directories directly.
+- External consumers import content only via the `@content` barrel; content may
+  import its own internal directories.
 
-**Import aliases** (configured in `vite.config.ts` and `tsconfig.app.json`):
+**Import aliases** (shared by Vite/Vitest in `config/sharedViteConfig.ts`, and configured
+for TypeScript in `tsconfig.app.json`):
 
 - `@app/*`, `@features/*`, `@shared/*`, `@content/*`
 
@@ -84,8 +87,9 @@ All personal data is centralized in the following static content JSON files:
 | `public/favicon.ico`, `public/assets/og-cover.png` | Branding assets                                              | Images |
 
 **Icon registry:** Skills and education reference icons by string keys (e.g., `"java"`, `"python"`).
-The registry is in `src/shared/lib/icons/iconRegistry.ts`. To add an icon, import the component
-and add a key-value entry — no other files need changes.
+To add an icon, add its content key to `src/shared/lib/icons/iconKeys.ts`, then import
+and map the component in `src/shared/lib/icons/iconRegistry.ts`. Content validation
+uses the keys without loading the component registry.
 
 **SEO injection:** `index.html` uses `__PLACEHOLDER__` tokens replaced at build time by a Vite
 `transformIndexHtml` plugin reading from `site-meta.json`. Do not hardcode personal data in `index.html`.
@@ -123,6 +127,7 @@ Key conventions that cannot be inferred from tool configs alone:
 - Tests run against a Vite preview server — `npm run build` must succeed first.
 - Use `@desktop` and `@mobile` tags to scope tests by viewport (Chromium + Pixel 7 projects).
 - Playwright config: `playwright.config.ts`.
+- Browser tests are strictly type-checked by the referenced `tsconfig.e2e.json` project.
 
 ### Adding Tests
 

@@ -16,7 +16,7 @@ export function Footer({ name, repositoryUrl, attribution }: FooterProps) {
           © {currentYear} {name}. {attribution}
         </p>
         <a
-          className="rounded-sm font-medium text-slate-500 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:hover:text-accent-300 dark:focus-visible:ring-offset-slate-950"
+          className="rounded-sm font-medium text-slate-600 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:hover:text-accent-300 dark:focus-visible:ring-offset-slate-950"
           href={repositoryUrl}
           rel="noreferrer"
           target="_blank"

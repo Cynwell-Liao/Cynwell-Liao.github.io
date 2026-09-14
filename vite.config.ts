@@ -1,38 +1,24 @@
-import path from 'node:path'
-import { fileURLToPath } from 'node:url'
-
 import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-import {
-  injectSiteMetadata,
-  readAppVersion,
-  readSiteMetadata,
-} from './config/buildMetadata.ts'
-
-const srcDir = fileURLToPath(new URL('./src', import.meta.url))
-
-const appVersion = readAppVersion()
+import { injectSiteMetadata, readSiteMetadata } from './config/buildMetadata.ts'
+import { sharedViteConfig } from './config/sharedViteConfig.ts'
 const siteMetadata = readSiteMetadata()
 
 // https://vite.dev/config/
 export default defineConfig({
+  ...sharedViteConfig,
   base: '/',
   build: {
+    manifest: true,
     rolldownOptions: {
       output: {
         codeSplitting: {
-          groups: [
-            { name: 'icons', test: /node_modules[\\/]react-icons/ },
-            { name: 'vendor', test: /node_modules/ },
-          ],
+          groups: [{ name: 'icons', test: /node_modules[\\/]react-icons/ }],
         },
       },
     },
-  },
-  define: {
-    'import.meta.env.VITE_APP_VERSION': JSON.stringify(appVersion),
   },
   plugins: [
     tailwindcss(),
@@ -47,12 +33,4 @@ export default defineConfig({
       },
     },
   ],
-  resolve: {
-    alias: {
-      '@app': path.resolve(srcDir, 'app'),
-      '@features': path.resolve(srcDir, 'features'),
-      '@shared': path.resolve(srcDir, 'shared'),
-      '@content': path.resolve(srcDir, 'content'),
-    },
-  },
 })

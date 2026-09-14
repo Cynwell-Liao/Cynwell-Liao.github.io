@@ -66,6 +66,9 @@ describe('Navbar', () => {
     await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
 
     expect(onOpenTerminal).toHaveBeenCalledTimes(1)
+    expect(onOpenTerminal).toHaveBeenCalledWith(
+      screen.getByRole('button', { name: 'Terminal' })
+    )
     expect(onToggleTheme).toHaveBeenCalledTimes(1)
   })
 

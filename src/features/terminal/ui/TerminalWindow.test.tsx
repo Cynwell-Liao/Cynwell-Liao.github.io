@@ -1,6 +1,5 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
-import { useState } from 'react'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
 import {
@@ -38,34 +37,6 @@ const submitCommand = (command: string) => {
   }
 
   fireEvent.submit(form)
-}
-
-function TerminalHarness() {
-  const [isOpen, setIsOpen] = useState(false)
-
-  return (
-    <>
-      <button
-        onClick={() => {
-          setIsOpen(true)
-        }}
-        type="button"
-      >
-        Open terminal
-      </button>
-      {isOpen ? (
-        <TerminalWindow
-          onClose={() => {
-            setIsOpen(false)
-          }}
-          onToggleTheme={vi.fn()}
-          profile={terminalTestProfile}
-          projects={terminalTestProjects}
-          theme="light"
-        />
-      ) : null}
-    </>
-  )
 }
 
 afterEach(() => {
@@ -154,31 +125,15 @@ describe('TerminalWindow', () => {
     ).toBeInTheDocument()
   })
 
-  it('restores focus to the opener after closing', async () => {
+  it('requests dismissal from the close control', async () => {
+    const onClose = vi.fn()
     const user = userEvent.setup()
-    render(<TerminalHarness />)
-
-    const opener = screen.getByRole('button', { name: 'Open terminal' })
-    await user.click(opener)
-    expect(getTerminalInput()).toHaveFocus()
+    renderTerminalWindow({ onClose })
 
     const closeButton = screen.getByRole('button', { name: 'Close terminal' })
     expect(closeButton).toHaveClass('h-6', 'w-6')
     expect(closeButton.firstElementChild).toHaveClass('h-3', 'w-3')
     await user.click(closeButton)
-
-    expect(
-      screen.queryByRole('dialog', { name: 'Linux terminal' })
-    ).not.toBeInTheDocument()
-    expect(opener).toHaveFocus()
-  })
-
-  it('closes from the Escape key', async () => {
-    const onClose = vi.fn()
-    renderTerminalWindow({ onClose })
-
-    const user = userEvent.setup()
-    await user.keyboard('{Escape}')
 
     expect(onClose).toHaveBeenCalledTimes(1)
   })

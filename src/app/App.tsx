@@ -1,5 +1,5 @@
 import { domAnimation, LazyMotion, MotionConfig } from 'framer-motion'
-import { lazy, Suspense, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { education, navLinks, profile, projects, skillCategories } from '@content'
 import { AboutSection } from '@features/about'
@@ -11,15 +11,14 @@ import { ProjectsSection } from '@features/projects'
 import { TechStackSection } from '@features/tech-stack'
 import { useTheme } from '@shared/lib/theme/useTheme'
 
-const TerminalWindow = lazy(async () => {
-  const terminal = await import('@features/terminal')
-
-  return { default: terminal.TerminalWindow }
-})
+import { TerminalHost } from './TerminalHost'
 
 function App() {
   const { theme, toggleTheme } = useTheme()
-  const [isTerminalOpen, setIsTerminalOpen] = useState(false)
+  const [terminalOpener, setTerminalOpener] = useState<HTMLElement | null>(null)
+  const closeTerminal = useCallback(() => {
+    setTerminalOpener(null)
+  }, [])
 
   return (
     <LazyMotion features={domAnimation}>
@@ -41,9 +40,7 @@ function App() {
           <Navbar
             brandName={profile.brandName}
             links={navLinks}
-            onOpenTerminal={() => {
-              setIsTerminalOpen(true)
-            }}
+            onOpenTerminal={setTerminalOpener}
             onToggleTheme={toggleTheme}
             theme={theme}
           />
@@ -84,18 +81,15 @@ function App() {
             name={profile.name}
             repositoryUrl={profile.repositoryUrl}
           />
-          {isTerminalOpen ? (
-            <Suspense fallback={null}>
-              <TerminalWindow
-                onClose={() => {
-                  setIsTerminalOpen(false)
-                }}
-                onToggleTheme={toggleTheme}
-                profile={profile}
-                projects={projects}
-                theme={theme}
-              />
-            </Suspense>
+          {terminalOpener ? (
+            <TerminalHost
+              opener={terminalOpener}
+              onClose={closeTerminal}
+              onToggleTheme={toggleTheme}
+              profile={profile}
+              projects={projects}
+              theme={theme}
+            />
           ) : null}
         </div>
       </MotionConfig>
