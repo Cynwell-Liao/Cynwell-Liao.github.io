@@ -5,7 +5,6 @@ export const createValidEducation = () => [
     degree: 'Master of Software Engineering',
     duration: '2022 — 2024',
     achievements: ['Graduated with distinction'],
-    icon: 'graduation-cap',
     logoUrl: 'https://example.com/institute.png',
     color: '#123ABC',
   },

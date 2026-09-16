@@ -1,8 +1,7 @@
 import { m } from 'framer-motion'
-import { createElement, useState } from 'react'
+import { useState } from 'react'
 
 import { cn } from '@shared/lib/cn'
-import { resolveIcon } from '@shared/lib/icons'
 import { cardReveal } from '@shared/lib/motion'
 import { SECTION_ID } from '@shared/lib/navigation'
 import { SectionHeading } from '@shared/ui/SectionHeading'
@@ -16,29 +15,19 @@ interface EducationSectionProps {
   headingDescription: string
 }
 
-function EducationBrandMark({ item }: { item: EducationItem }) {
+function EducationLogo({ logoUrl }: { logoUrl: string | undefined }) {
   const [hasLogoError, setHasLogoError] = useState(false)
-  const Icon = resolveIcon(item.icon)
-  const shouldShowLogo = Boolean(item.logoUrl) && !hasLogoError
 
-  if (!shouldShowLogo && !Icon) {
+  if (!logoUrl || hasLogoError) {
     return null
   }
 
   return (
-    <span
-      aria-hidden="true"
-      className={cn(
-        'inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 dark:border-white/10',
-        shouldShowLogo ? 'p-0' : 'p-1.5'
-      )}
-      style={
-        item.color && !shouldShowLogo
-          ? { color: item.color, borderColor: `${item.color}40` }
-          : undefined
-      }
-    >
-      {shouldShowLogo && item.logoUrl ? (
+    <div className="mt-1 flex-shrink-0 sm:mt-0">
+      <span
+        aria-hidden="true"
+        className="inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 dark:border-white/10"
+      >
         <img
           alt=""
           className="h-full w-full scale-110 object-cover mix-blend-multiply dark:mix-blend-normal"
@@ -49,13 +38,11 @@ function EducationBrandMark({ item }: { item: EducationItem }) {
             setHasLogoError(true)
           }}
           referrerPolicy="no-referrer"
-          src={item.logoUrl}
+          src={logoUrl}
           width={56}
         />
-      ) : Icon ? (
-        createElement(Icon, { 'aria-hidden': true, className: 'h-7 w-7' })
-      ) : null}
-    </span>
+      </span>
+    </div>
   )
 }
 
@@ -122,9 +109,7 @@ export function EducationSection({
                     )}
                   </div>
 
-                  <div className="mt-1 flex-shrink-0 sm:mt-0">
-                    <EducationBrandMark item={item} />
-                  </div>
+                  <EducationLogo logoUrl={item.logoUrl} />
                 </div>
 
                 <div className="mb-6 flex flex-col gap-1">

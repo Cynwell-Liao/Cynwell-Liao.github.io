@@ -1,6 +1,5 @@
 import { DiMsqlServer } from 'react-icons/di'
 import { FaAws, FaDatabase, FaDocker, FaJava } from 'react-icons/fa'
-import { LuBookOpen, LuGraduationCap, LuLibrary } from 'react-icons/lu'
 import {
   SiClaude,
   SiDjango,
@@ -42,7 +41,7 @@ import type { IconType } from 'react-icons'
 /**
  * Flat registry mapping string keys to react-icons components.
  *
- * Content JSON files reference icons by these keys (e.g. `"icon": "java"`).
+ * Skill content references icons by these keys (e.g. `"icon": "java"`).
  * Add new public keys to `iconKeys.ts`, then map the matching component here.
  */
 const iconRegistry = {
@@ -96,11 +95,6 @@ const iconRegistry = {
   mongodb: SiMongodb,
   redis: SiRedis,
   elasticsearch: SiElasticsearch,
-
-  // ── Education ──
-  library: LuLibrary,
-  'book-open': LuBookOpen,
-  'graduation-cap': LuGraduationCap,
 } satisfies Record<IconKey, IconType>
 
 export const resolveIcon = (key: IconKey | undefined): IconType | undefined =>

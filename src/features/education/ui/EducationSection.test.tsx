@@ -51,30 +51,21 @@ describe('EducationSection', () => {
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 
-  it('falls back to the configured icon when a remote logo fails', () => {
+  it('removes a failed logo and its container while preserving education details', () => {
     const { container } = render(
       <EducationSection {...headingProps} education={[createEducationItem()]} />
     )
     const logo = container.querySelector('img')
+    const logoContainer = logo?.parentElement?.parentElement
 
     expect(logo).not.toBeNull()
+    expect(logoContainer).toBeInTheDocument()
     fireEvent.error(logo as HTMLImageElement)
 
-    expect(container.querySelector('img')).not.toBeInTheDocument()
-    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true')
-  })
-
-  it('removes failed logo media gracefully when no fallback icon exists', () => {
-    const item = createEducationItem({ icon: undefined })
-    const { container } = render(
-      <EducationSection {...headingProps} education={[item]} />
-    )
-    const logo = container.querySelector('img')
-
-    expect(logo).not.toBeNull()
-    fireEvent.error(logo as HTMLImageElement)
-
+    expect(logoContainer).not.toBeInTheDocument()
     expect(screen.getByText('Example Institute of Technology')).toBeInTheDocument()
+    expect(screen.getByText('Master of Software Engineering')).toBeInTheDocument()
+    expect(screen.getByText('Graduated with distinction')).toBeInTheDocument()
     expect(container.querySelector('img')).not.toBeInTheDocument()
     expect(container.querySelector('svg')).not.toBeInTheDocument()
   })
@@ -83,24 +74,31 @@ describe('EducationSection', () => {
     const item = createEducationItem({
       color: undefined,
       location: undefined,
-      logoUrl: undefined,
     })
     const { container } = render(
       <EducationSection {...headingProps} education={[item]} />
     )
 
     expect(screen.queryByText('Example City')).not.toBeInTheDocument()
-    expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true')
+    expect(container.querySelector('img')).toBeInTheDocument()
     expect(screen.getByText('Graduated with distinction')).toBeInTheDocument()
   })
 
-  it('renders no empty brand mark when neither a logo nor icon is configured', () => {
-    const item = createEducationItem({ icon: undefined, logoUrl: undefined })
+  it('preserves education details without an empty logo container when no URL is configured', () => {
+    const item = createEducationItem({ logoUrl: undefined })
     const { container } = render(
       <EducationSection {...headingProps} education={[item]} />
     )
 
-    expect(screen.getByText('Example Institute of Technology')).toBeInTheDocument()
+    const institutionHeading = screen.getByRole('heading', {
+      level: 3,
+      name: 'Example Institute of Technology',
+    })
+
+    expect(institutionHeading).toBeInTheDocument()
+    expect(institutionHeading.parentElement?.parentElement?.children).toHaveLength(1)
+    expect(screen.getByText('Master of Software Engineering')).toBeInTheDocument()
+    expect(screen.getByText('Graduated with distinction')).toBeInTheDocument()
     expect(container.querySelector('img')).not.toBeInTheDocument()
     expect(container.querySelector('svg')).not.toBeInTheDocument()
   })

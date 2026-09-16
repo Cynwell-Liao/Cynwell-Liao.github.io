@@ -86,10 +86,14 @@ All personal data is centralized in the following static content JSON files:
 | `site-meta.json`                                   | SEO metadata (injected into `index.html` at build time)      | JSON   |
 | `public/favicon.ico`, `public/assets/og-cover.png` | Branding assets                                              | Images |
 
-**Icon registry:** Skills and education reference icons by string keys (e.g., `"java"`, `"python"`).
+**Icon registry:** Skills reference icons by string keys (e.g., `"java"`, `"python"`).
 To add an icon, add its content key to `src/shared/lib/icons/iconKeys.ts`, then import
 and map the component in `src/shared/lib/icons/iconRegistry.ts`. Content validation
 uses the keys without loading the component registry.
+
+**Education logos:** Education entries use an optional HTTPS `logoUrl` for the
+institution's logo. The logo is omitted when its URL is absent or the image fails
+to load.
 
 **SEO injection:** `index.html` uses `__PLACEHOLDER__` tokens replaced at build time by a Vite
 `transformIndexHtml` plugin reading from `site-meta.json`. Do not hardcode personal data in `index.html`.

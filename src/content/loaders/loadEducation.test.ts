@@ -12,6 +12,12 @@ describe('education content', () => {
     expect(parseEducation(createValidEducation())).toEqual(createValidEducation())
   })
 
+  it('accepts education entries without a logo', () => {
+    const item = { ...createValidEducation()[0], logoUrl: undefined }
+
+    expect(parseEducation([item])).toEqual([item])
+  })
+
   it.each([
     ['an empty collection', []],
     ['empty achievements', [{ ...createValidEducation()[0], achievements: [] }]],
@@ -23,7 +29,7 @@ describe('education content', () => {
       'a non-HTTPS logo',
       [{ ...createValidEducation()[0], logoUrl: 'http://example.com/logo.png' }],
     ],
-    ['an unknown icon', [{ ...createValidEducation()[0], icon: 'unknown-icon' }]],
+    ['the removed icon field', [{ ...createValidEducation()[0], icon: 'typescript' }]],
     ['an invalid color', [{ ...createValidEducation()[0], color: 'blue' }]],
     ['an unknown property', [{ ...createValidEducation()[0], unexpected: true }]],
   ])('rejects %s', (_description, input) => {

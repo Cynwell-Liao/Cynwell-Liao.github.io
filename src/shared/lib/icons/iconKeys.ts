@@ -38,9 +38,6 @@ export const ICON_KEYS = [
   'mongodb',
   'redis',
   'elasticsearch',
-  'library',
-  'book-open',
-  'graduation-cap',
 ] as const
 
 export type IconKey = (typeof ICON_KEYS)[number]

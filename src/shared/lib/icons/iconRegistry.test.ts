@@ -18,4 +18,11 @@ describe('icon registry', () => {
     expect(isIconKey('unknown-icon')).toBe(false)
     expect(isIconKey(null)).toBe(false)
   })
+
+  it.each(['library', 'book-open', 'graduation-cap'])(
+    'rejects retired education icon key %s',
+    (key) => {
+      expect(isIconKey(key)).toBe(false)
+    }
+  )
 })

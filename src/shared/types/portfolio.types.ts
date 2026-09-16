@@ -59,7 +59,6 @@ export interface EducationItem {
   readonly degree: string
   readonly duration: string
   readonly achievements: readonly string[]
-  readonly icon?: IconKey
   readonly logoUrl?: string
   readonly color?: string
 }

@@ -1,11 +1,6 @@
 import { z } from 'zod'
 
-import {
-  hexColorSchema,
-  httpsUrlSchema,
-  iconKeySchema,
-  nonBlankTextSchema,
-} from './primitives'
+import { hexColorSchema, httpsUrlSchema, nonBlankTextSchema } from './primitives'
 
 export const educationItemSchema = z
   .object({
@@ -14,7 +9,6 @@ export const educationItemSchema = z
     degree: nonBlankTextSchema,
     duration: nonBlankTextSchema,
     achievements: z.array(nonBlankTextSchema).min(1),
-    icon: iconKeySchema.optional(),
     logoUrl: httpsUrlSchema.optional(),
     color: hexColorSchema.optional(),
   })

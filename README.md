@@ -69,8 +69,13 @@ Edit `src/content/data/projects.json` — title, summary, highlights, stack, lin
 
 ### Step 3 — Skills & Education _(required)_
 
-Edit `src/content/data/skills.json` — tech stack categories. Icons reference keys from `src/shared/lib/icons/iconRegistry.ts`.
+Edit `src/content/data/skills.json` — tech stack categories. Skill icons reference
+keys declared in `src/shared/lib/icons/iconKeys.ts` and mapped to components in
+`src/shared/lib/icons/iconRegistry.ts`.
+
 Edit `src/content/data/education.json` — academic background and achievements.
+Education entries use an optional HTTPS `logoUrl` for the institution's logo; the
+logo is omitted when no URL is provided or the image fails to load.
 
 ### Step 4 — SEO Metadata _(required)_
 
