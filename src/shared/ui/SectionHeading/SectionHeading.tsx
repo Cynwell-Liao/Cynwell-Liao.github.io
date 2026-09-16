@@ -24,15 +24,10 @@ export function SectionHeading({
       <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-accent-700 dark:text-accent-300">
         {eyebrow}
       </p>
-      <h2
-        className="text-3xl font-semibold text-slate-900 dark:text-slate-50 md:text-4xl"
-        id={id}
-      >
+      <h2 className="section-title text-slate-900 dark:text-slate-50" id={id}>
         {title}
       </h2>
-      <p className="mt-4 text-base leading-relaxed text-slate-600 dark:text-slate-300">
-        {description}
-      </p>
+      <p className="body-copy mt-4 text-slate-600 dark:text-slate-300">{description}</p>
     </m.div>
   )
 }

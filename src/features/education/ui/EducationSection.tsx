@@ -99,7 +99,7 @@ export function EducationSection({
               <div className="relative z-10 flex h-full flex-col">
                 <div className="mb-8 flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-start dark:border-white/10">
                   <div className="flex flex-col gap-2">
-                    <h3 className="text-2xl font-bold tracking-tight text-slate-900 transition-colors group-hover:text-accent-600 sm:text-3xl dark:text-white dark:group-hover:text-accent-300">
+                    <h3 className="text-2xl font-bold tracking-tight text-slate-900 transition-colors group-hover:text-accent-600 dark:text-white dark:group-hover:text-accent-300">
                       {item.institution}
                     </h3>
                     {item.location && (
@@ -124,7 +124,7 @@ export function EducationSection({
                 <ul className="mt-auto space-y-3">
                   {item.achievements.map((achievement) => (
                     <li
-                      className="flex items-start gap-3 text-base leading-relaxed font-light text-slate-600 dark:text-slate-400"
+                      className="body-copy flex items-start gap-3 text-slate-600 dark:text-slate-400"
                       key={achievement}
                     >
                       <span

@@ -55,19 +55,19 @@ export function ProjectCard({
           </div>
         </div>
 
-        <p className="mb-8 text-base leading-relaxed font-light text-slate-700 dark:text-slate-300">
+        <p className="body-copy mb-8 text-slate-700 dark:text-slate-300">
           {project.summary}
         </p>
 
         <ul className="mb-8 space-y-3 flex-grow">
           {project.highlights.map((highlight) => (
             <li
-              className="flex items-start gap-3 text-sm leading-relaxed font-light text-slate-600 dark:text-slate-400"
+              className="body-copy flex items-start gap-3 text-slate-600 dark:text-slate-400"
               key={highlight}
             >
               <span
                 aria-hidden="true"
-                className="mt-1.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(227,132,178,0.8)]"
+                className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-accent-400 shadow-[0_0_8px_rgba(227,132,178,0.8)]"
               />
               <span>{highlight}</span>
             </li>
@@ -77,7 +77,7 @@ export function ProjectCard({
         <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-200 pt-6 dark:border-white/10">
           {project.stack.map((tech) => (
             <span
-              className="rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 font-mono text-[11px] tracking-wider text-accent-700 uppercase transition-colors group-hover:border-accent-400/50 dark:border-white/10 dark:bg-white/5 dark:text-accent-100 dark:group-hover:border-accent-500/30"
+              className="rounded-md border border-slate-200 bg-slate-100 px-2.5 py-1 font-mono text-xs tracking-wider text-accent-700 uppercase transition-colors group-hover:border-accent-400/50 dark:border-white/10 dark:bg-white/5 dark:text-accent-100 dark:group-hover:border-accent-500/30"
               key={tech}
             >
               {tech}

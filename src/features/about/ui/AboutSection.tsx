@@ -46,7 +46,7 @@ export function AboutSection({
           >
             <h2
               aria-label={`${headingLead} ${headingAccent}`}
-              className="mb-6 text-4xl font-bold tracking-tight text-slate-900 dark:text-white lg:text-5xl"
+              className="section-title mb-6 text-slate-900 dark:text-white"
               id="about-heading"
             >
               {headingLead}
@@ -55,7 +55,7 @@ export function AboutSection({
                 {headingAccent}
               </span>
             </h2>
-            <p className="max-w-md text-lg font-light text-slate-700 dark:text-slate-400">
+            <p className="max-w-md text-lg leading-relaxed font-normal text-slate-700 dark:text-slate-400">
               {intro}
             </p>
           </m.div>
@@ -71,7 +71,7 @@ export function AboutSection({
             <div className="relative z-10 space-y-8">
               {paragraphs.map((paragraph, idx) => (
                 <m.p
-                  className="text-lg leading-relaxed font-light text-slate-700 dark:text-slate-300"
+                  className="body-copy text-slate-700 dark:text-slate-300"
                   initial={{ opacity: 0, x: 20 }}
                   key={`${String(idx)}-${paragraph}`}
                   transition={{ duration: 0.6, delay: idx * 0.2 }}

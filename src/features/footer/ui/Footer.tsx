@@ -11,7 +11,7 @@ export function Footer({ name, repositoryUrl, attribution }: FooterProps) {
 
   return (
     <footer className="section-wrap relative z-10 pt-8 pb-12">
-      <div className="flex flex-col items-center gap-4 border-t border-slate-200 pt-8 text-center text-sm font-light text-slate-600 md:flex-row md:justify-between dark:border-white/10 dark:text-slate-400">
+      <div className="flex flex-col items-center gap-4 border-t border-slate-200 pt-8 text-center text-sm font-normal text-slate-600 md:flex-row md:justify-between dark:border-white/10 dark:text-slate-400">
         <p>
           © {currentYear} {name}. {attribution}
         </p>

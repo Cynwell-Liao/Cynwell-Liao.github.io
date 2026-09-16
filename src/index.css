@@ -58,6 +58,14 @@
   @apply mx-auto w-full max-w-6xl px-6;
 }
 
+@utility section-title {
+  @apply text-3xl font-semibold tracking-tight md:text-4xl;
+}
+
+@utility body-copy {
+  @apply text-base leading-relaxed font-normal;
+}
+
 @utility glass-panel {
   @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);

@@ -44,7 +44,7 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
               <span className="font-semibold tracking-[0.24em] text-emerald-800 dark:text-emerald-300">
                 {profile.heroStatusLabel}
               </span>
-              <span className="text-[0.68rem] font-medium tracking-[0.28em] text-slate-600 dark:text-slate-400">
+              <span className="text-xs font-medium tracking-[0.28em] text-slate-600 dark:text-slate-400">
                 {deployVersion}
               </span>
             </span>

@@ -82,7 +82,7 @@ export function TechStackSection({
                       <span className="block text-base font-semibold text-slate-900 dark:text-slate-100">
                         {item.name}
                       </span>
-                      <span className="mt-1 block text-sm leading-snug font-light text-slate-500 dark:text-slate-400">
+                      <span className="mt-1 block text-sm leading-snug font-normal text-slate-500 dark:text-slate-400">
                         {item.note}
                       </span>
                     </div>
