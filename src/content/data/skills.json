@@ -22,7 +22,7 @@
       },
       {
         "name": "TypeScript",
-        "note": "Typed full-stack environments",
+        "note": "Typed JavaScript development",
         "icon": "typescript",
         "color": "#3178C6"
       },
@@ -41,31 +41,31 @@
     ]
   },
   {
-    "title": "Backend & Web Frameworks",
+    "title": "Backend & Frontend",
     "items": [
       {
         "name": "Spring Boot",
-        "note": "Robust APIs & microservices",
+        "note": "JVM app framework",
         "icon": "springboot",
         "color": "#6DB33F"
       },
       {
         "name": "Django",
-        "note": "Python web scaffolding",
+        "note": "Python web framework",
         "icon": "django",
         "color": "#092E20"
       },
       {
         "name": "Node.js",
-        "note": "Server-side runtimes",
+        "note": "JavaScript runtime",
         "icon": "nodejs",
         "color": "#5FA04E"
       },
       {
-        "name": "Next.js",
-        "note": "React meta-framework",
-        "icon": "nextjs",
-        "color": "#000000"
+        "name": "React",
+        "note": "Component-based UI library",
+        "icon": "react",
+        "color": "#61DAFB"
       }
     ]
   },
@@ -80,9 +80,9 @@
       },
       {
         "name": "LangChain",
-        "note": "Agentic orchestration",
+        "note": "LLM app framework",
         "icon": "langchain",
-        "color": "#1C3C3C"
+        "color": "#7FC8FF"
       },
       {
         "name": "Claude",
@@ -104,7 +104,7 @@
       },
       {
         "name": "Ollama",
-        "note": "Local LLM APIs",
+        "note": "Local model serving",
         "icon": "ollama",
         "color": "#000000"
       }
@@ -115,19 +115,19 @@
     "items": [
       {
         "name": "LangSmith",
-        "note": "LLM evaluation and tracing",
+        "note": "LLM observability & evaluation",
         "icon": "langchain",
-        "color": "#1C3C3C"
+        "color": "#7FC8FF"
       },
       {
         "name": "OpenTelemetry",
-        "note": "Distributed tracing system",
+        "note": "Telemetry tooling",
         "icon": "opentelemetry",
         "color": "#000000"
       },
       {
         "name": "Prometheus",
-        "note": "Metric reporting & Micrometer",
+        "note": "Metrics monitoring & alerting",
         "icon": "prometheus",
         "color": "#E6522C"
       },
@@ -144,10 +144,10 @@
         "color": "#0A9EDC"
       },
       {
-        "name": "Testcontainers",
-        "note": "Integration testing",
-        "icon": "docker-alt",
-        "color": "#2496ED"
+        "name": "Go test",
+        "note": "Go testing toolchain",
+        "icon": "go",
+        "color": "#00ADD8"
       }
     ]
   },
@@ -167,12 +167,6 @@
         "color": "#FF9900"
       },
       {
-        "name": "Azure",
-        "note": "Cloud computing platform",
-        "icon": "azure",
-        "color": "#0089D6"
-      },
-      {
         "name": "Docker",
         "note": "Containerization",
         "icon": "docker",
@@ -185,8 +179,14 @@
         "color": "#326CE5"
       },
       {
+        "name": "Helm",
+        "note": "Kubernetes package manager",
+        "icon": "helm",
+        "color": "#0F1689"
+      },
+      {
         "name": "Terraform",
-        "note": "Infrastructure-as-Code",
+        "note": "Infrastructure as code",
         "icon": "terraform",
         "color": "#844FBA"
       }
@@ -197,7 +197,7 @@
     "items": [
       {
         "name": "MySQL",
-        "note": "Relational databases",
+        "note": "Relational database",
         "icon": "mysql",
         "color": "#4479A1"
       },
@@ -209,19 +209,19 @@
       },
       {
         "name": "MongoDB",
-        "note": "Document databases",
+        "note": "Document database",
         "icon": "mongodb",
         "color": "#47A248"
       },
       {
         "name": "Redis",
-        "note": "In-memory caching",
+        "note": "In-memory data store",
         "icon": "redis",
         "color": "#FF4438"
       },
       {
         "name": "Elasticsearch",
-        "note": "High-performance search",
+        "note": "Search and analytics engine",
         "icon": "elasticsearch",
         "color": "#005571"
       }

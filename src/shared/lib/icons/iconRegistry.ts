@@ -11,6 +11,7 @@ import {
   SiGooglecloud,
   SiGooglegemini,
   SiHtml5,
+  SiHelm,
   SiHuggingface,
   SiJavascript,
   SiJunit5,
@@ -27,6 +28,7 @@ import {
   SiPytest,
   SiPython,
   SiPytorch,
+  SiReact,
   SiRedis,
   SiSpringboot,
   SiTerraform,
@@ -55,13 +57,14 @@ const iconRegistry = {
   sql: FaDatabase,
   html: SiHtml5,
 
-  // ── Backend & Web Frameworks ──
+  // ── Backend & Frontend ──
   springboot: SiSpringboot,
   dotnet: SiDotnet,
   django: SiDjango,
   flask: SiFlask,
   nodejs: SiNodedotjs,
   nextjs: SiNextdotjs,
+  react: SiReact,
 
   // ── ML & AI ──
   claude: SiClaude,
@@ -84,6 +87,7 @@ const iconRegistry = {
   azure: VscAzure,
   docker: SiDocker,
   'docker-alt': FaDocker,
+  helm: SiHelm,
   kubernetes: SiKubernetes,
   terraform: SiTerraform,
 
