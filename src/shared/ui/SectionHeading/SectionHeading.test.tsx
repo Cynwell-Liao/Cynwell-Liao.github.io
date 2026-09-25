@@ -20,4 +20,26 @@ describe('SectionHeading', () => {
     expect(screen.getByText('Example eyebrow')).toBeInTheDocument()
     expect(screen.getByText('A deterministic section description.')).toBeInTheDocument()
   })
+
+  it('renders an optional colored title accent', () => {
+    render(
+      <SectionHeading
+        description="A deterministic section description."
+        eyebrow="Example eyebrow"
+        id="example-heading"
+        title="Engineering mindset,"
+        titleAccent="product velocity."
+      />
+    )
+
+    const accent = screen.getByText('product velocity.')
+
+    expect(accent).toHaveClass('bg-gradient-to-r')
+    expect(
+      screen.getByRole('heading', {
+        level: 2,
+        name: 'Engineering mindset, product velocity.',
+      })
+    ).toBeInTheDocument()
+  })
 })

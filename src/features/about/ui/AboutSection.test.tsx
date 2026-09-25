@@ -28,6 +28,7 @@ describe('AboutSection', () => {
     expect(heading).toHaveAttribute('id', 'about-heading')
     expect(region).toHaveAttribute('id', 'about')
     expect(region).toHaveAttribute('aria-labelledby', 'about-heading')
+    expect(screen.getByText('About')).toBeInTheDocument()
     expect(screen.getByText('A deterministic introduction.')).toBeInTheDocument()
     expect(screen.getByText('First test paragraph.')).toBeInTheDocument()
     expect(screen.getByText('Second test paragraph.')).toBeInTheDocument()

@@ -1,7 +1,7 @@
-import { m, useReducedMotion, useScroll, useTransform } from 'framer-motion'
-import { useRef } from 'react'
+import { m } from 'framer-motion'
 
 import { SECTION_ID } from '@shared/lib/navigation'
+import { SectionHeading } from '@shared/ui/SectionHeading'
 
 interface AboutSectionProps {
   headingLead: string
@@ -16,52 +16,27 @@ export function AboutSection({
   intro,
   paragraphs,
 }: AboutSectionProps) {
-  const containerRef = useRef<HTMLElement>(null)
-  const shouldReduceMotion = useReducedMotion()
-
-  const { scrollYProgress } = useScroll({
-    target: containerRef,
-    offset: ['start end', 'end start'],
-  })
-
-  const y = useTransform(scrollYProgress, [0, 1], [100, -100])
-
   return (
     <section
       aria-labelledby="about-heading"
-      className="section-wrap relative scroll-mt-24 py-24 lg:py-32"
+      className="section-wrap relative scroll-mt-24 py-24"
       id={SECTION_ID.about}
-      ref={containerRef}
     >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute top-1/2 left-0 h-72 w-72 rounded-full bg-secondary-500/10 mix-blend-screen blur-[120px]"
       />
 
-      <div className="relative z-10 grid items-center gap-12 lg:grid-cols-12 lg:gap-8">
-        <div className="relative lg:col-span-5">
-          <m.div
-            className="lg:sticky lg:top-24"
-            style={{ y: shouldReduceMotion ? 0 : y }}
-          >
-            <h2
-              aria-label={`${headingLead} ${headingAccent}`}
-              className="section-title mb-6 text-slate-900 dark:text-white"
-              id="about-heading"
-            >
-              {headingLead}
-              <br />
-              <span className="bg-gradient-to-r from-accent-600 to-secondary-700 bg-clip-text text-transparent dark:from-accent-400 dark:to-secondary-400">
-                {headingAccent}
-              </span>
-            </h2>
-            <p className="max-w-md text-lg leading-relaxed font-normal text-slate-700 dark:text-slate-400">
-              {intro}
-            </p>
-          </m.div>
-        </div>
+      <div className="relative z-10">
+        <SectionHeading
+          description={intro}
+          eyebrow="About"
+          id="about-heading"
+          title={headingLead}
+          titleAccent={headingAccent}
+        />
 
-        <div className="lg:col-span-7">
+        <div className="mt-12">
           <div className="glass-panel group p-8">
             <div
               aria-hidden="true"
