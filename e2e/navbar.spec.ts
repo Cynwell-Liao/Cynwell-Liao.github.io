@@ -140,13 +140,40 @@ test('reduced motion places the indicator without sliding between sections @desk
 })
 
 const headerViewports = [
-  { name: 'narrow mobile', width: 320, height: 844, tag: '@mobile' },
-  { name: 'tablet', width: 768, height: 1024, tag: '@desktop' },
-  { name: 'desktop', width: 1280, height: 900, tag: '@desktop' },
+  {
+    name: 'narrow mobile',
+    width: 320,
+    height: 844,
+    tag: '@mobile',
+    platterHeight: 66,
+    navigationHeight: 0,
+    themeHeight: 40,
+    outerInsets: [21, 15, 15, 21, 13, 13],
+  },
+  {
+    name: 'tablet',
+    width: 768,
+    height: 1024,
+    tag: '@desktop',
+    platterHeight: 70,
+    navigationHeight: 44,
+    themeHeight: 40,
+    outerInsets: [25, 17, 17, 25, 15, 15],
+  },
+  {
+    name: 'desktop',
+    width: 1280,
+    height: 900,
+    tag: '@desktop',
+    platterHeight: 70,
+    navigationHeight: 44,
+    themeHeight: 40,
+    outerInsets: [25, 17, 17, 25, 15, 15],
+  },
 ] as const
 
 for (const viewport of headerViewports) {
-  test(`the complete header keeps one compact platter on ${viewport.name} before and after scrolling ${viewport.tag}`, async ({
+  test(`the complete header keeps its roomier platter on ${viewport.name} before and after scrolling ${viewport.tag}`, async ({
     page,
   }) => {
     await page.setViewportSize({ width: viewport.width, height: viewport.height })
@@ -207,17 +234,19 @@ for (const viewport of headerViewports) {
         }
       })
 
-      expect(bounds.platterHeight).toBeCloseTo(44, 1)
+      expect(bounds.platterHeight).toBeCloseTo(viewport.platterHeight, 1)
       expect(bounds.brandHeight).toBeCloseTo(36, 1)
-      expect(bounds.themeHeight).toBeCloseTo(36, 1)
-      for (const inset of bounds.outerInsets) expect(inset).toBeCloseTo(4, 1)
+      expect(bounds.themeHeight).toBeCloseTo(viewport.themeHeight, 1)
+      bounds.outerInsets.forEach((inset, index) => {
+        expect(inset).toBeCloseTo(viewport.outerInsets[index], 1)
+      })
       expect(bounds.brandRight).toBeLessThanOrEqual(bounds.controlsLeft)
       expect(bounds.platterLeft).toBeGreaterThanOrEqual(0)
       expect(bounds.platterRight).toBeLessThanOrEqual(viewport.width)
       expect(bounds.pageWidth).toBeLessThanOrEqual(viewport.width)
 
       if (viewport.tag === '@desktop') {
-        expect(bounds.navigationHeight).toBeCloseTo(36, 1)
+        expect(bounds.navigationHeight).toBeCloseTo(viewport.navigationHeight, 1)
         expect(bounds.brandRight).toBeLessThanOrEqual(bounds.navigationLeft)
         expect(bounds.navigationRight).toBeLessThanOrEqual(bounds.controlsLeft)
       }

@@ -54,13 +54,13 @@ export function SectionNavigation({ links, theme }: SectionNavigationProps) {
   return (
     <nav
       aria-label="Primary navigation"
-      className="relative isolate hidden h-9 items-center rounded-full bg-slate-200/80 px-1 backdrop-blur-xl md:flex dark:bg-white/10"
+      className="relative isolate hidden items-center rounded-full bg-slate-200/80 p-1 backdrop-blur-xl md:flex dark:bg-white/10"
       ref={navigationRef}
     >
       {indicator && (
         <m.span
           aria-hidden="true"
-          className="pointer-events-none absolute inset-y-0 left-0 rounded-full bg-slate-900 transition-none dark:bg-slate-100"
+          className="pointer-events-none absolute top-1 bottom-1 left-0 rounded-full bg-slate-900 transition-none dark:bg-slate-100"
           data-testid="navbar-indicator"
           initial={false}
           animate={
