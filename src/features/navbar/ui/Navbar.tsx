@@ -6,6 +6,8 @@ import { cn } from '@shared/lib/cn'
 import { SECTION_ID } from '@shared/lib/navigation'
 import type { ThemeMode } from '@shared/types/common'
 
+import { SectionNavigation } from './SectionNavigation'
+
 import type { NavLink } from '../model/nav.types'
 
 interface NavbarProps {
@@ -42,48 +44,31 @@ export function Navbar({
     >
       <div
         className={cn(
-          'pointer-events-auto grid w-full grid-cols-[minmax(0,1fr)_auto] items-center rounded-full border px-5 py-3 transition-[max-width,background-color,border-color,box-shadow] duration-500 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)] md:px-6',
+          'pointer-events-auto grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-x-3 rounded-full border-0 p-1 transition-[max-width,background-color,border-color,box-shadow] duration-500 md:grid-cols-[minmax(0,1fr)_auto_minmax(0,1fr)]',
           isScrolled
-            ? 'max-w-4xl border-slate-200 bg-white/80 shadow-soft backdrop-blur-xl dark:border-white/10 dark:bg-slate-900/40 dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]'
-            : 'max-w-6xl border-transparent bg-transparent'
+            ? 'max-w-4xl bg-white/80 shadow-soft ring-1 ring-slate-200 backdrop-blur-xl dark:bg-slate-900/40 dark:ring-white/10 dark:shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]'
+            : 'max-w-6xl bg-transparent'
         )}
       >
         <a
           aria-label={`${brandName} home`}
-          className="flex min-w-0 items-center gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950"
+          className="flex min-w-0 items-center gap-4 rounded-lg focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:focus-visible:ring-offset-slate-950 md:max-lg:gap-2"
           href={`#${SECTION_ID.home}`}
         >
-          <img alt="" className="h-9 w-9 rounded-sm" src={logoUrl} />
+          <img alt="" className="h-9 w-9 shrink-0 rounded-sm" src={logoUrl} />
           <span
             aria-hidden="true"
-            className="hidden h-4 w-px bg-slate-300 dark:bg-white/20 sm:block"
+            className="hidden h-4 w-px shrink-0 bg-slate-300 dark:bg-white/20 sm:block md:max-lg:hidden"
           />
           <span
-            className="relative flex min-w-0 items-center gap-2 overflow-hidden text-sm font-bold tracking-widest text-slate-900 dark:text-white"
+            className="min-w-0 truncate text-sm font-bold tracking-widest text-slate-900 dark:text-white md:max-lg:text-xs md:max-lg:tracking-normal"
             data-testid="navbar-brand"
           >
             {brandName}
           </span>
         </a>
 
-        <nav
-          aria-label="Primary navigation"
-          className="hidden items-center gap-8 md:flex"
-        >
-          {links.map((link) => (
-            <a
-              key={link.href}
-              className="group relative rounded-sm text-sm font-medium tracking-wide text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-4 focus-visible:ring-offset-white dark:text-slate-300 dark:hover:text-white dark:focus-visible:ring-offset-slate-950"
-              href={link.href}
-            >
-              {link.label}
-              <span
-                aria-hidden="true"
-                className="absolute -bottom-2 left-1/2 h-1 w-1 -translate-x-1/2 rounded-full bg-accent-400 opacity-0 transition-[opacity,transform] duration-300 group-hover:-translate-y-1 group-hover:opacity-100 group-focus-visible:-translate-y-1 group-focus-visible:opacity-100"
-              />
-            </a>
-          ))}
-        </nav>
+        <SectionNavigation links={links} theme={theme} />
 
         <div className="flex items-center justify-self-end gap-3 md:col-start-3 md:gap-4">
           <button
@@ -104,7 +89,7 @@ export function Navbar({
             aria-label={
               theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'
             }
-            className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-500 transition-[color,background-color,border-color] hover:border-slate-300 hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-offset-slate-950"
+            className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-500 transition-[color,background-color,border-color] hover:border-slate-300 hover:bg-slate-200 hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:hover:border-white/20 dark:hover:bg-white/10 dark:hover:text-white dark:focus-visible:ring-offset-slate-950"
             onClick={onToggleTheme}
             type="button"
           >

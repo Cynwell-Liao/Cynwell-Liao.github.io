@@ -11,6 +11,7 @@ const TRANSIENT_MOTION_PROPS = [
   'exit',
   'whileInView',
   'whileHover',
+  'whileFocus',
   'whileTap',
   'whileDrag',
   'variants',
