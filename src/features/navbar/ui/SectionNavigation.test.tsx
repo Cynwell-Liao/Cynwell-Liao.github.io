@@ -164,6 +164,49 @@ describe('SectionNavigation', () => {
     })
   })
 
+  it('resets the indicator at home before selecting another section', () => {
+    vi.stubGlobal('scrollY', 900)
+    renderNavigation()
+    render(<section id="home" />)
+    const about = screen.getByRole('link', { name: 'About' })
+    const projects = screen.getByRole('link', { name: 'Projects' })
+    mockLinkDimensions(about, 4, 96)
+    mockLinkDimensions(projects, 100, 112)
+    clickWithoutFollowing(projects)
+    const previousIndicator = screen.getByTestId('navbar-indicator')
+
+    window.history.replaceState({}, '', '/#home')
+    fireEvent(window, new HashChangeEvent('hashchange'))
+
+    expect(about).not.toHaveAttribute('aria-current')
+    expect(previousIndicator).not.toBeInTheDocument()
+
+    for (const { href } of links) {
+      const section = document.getElementById(href.slice(1))
+      if (!section) throw new Error('Section fixture is missing')
+      vi.spyOn(section, 'getBoundingClientRect').mockReturnValue(
+        new DOMRect(0, 1000, 1000, 1000)
+      )
+    }
+    vi.stubGlobal('scrollY', 0)
+    fireEvent.scroll(window)
+    act(() => {
+      vi.advanceTimersByTime(20)
+    })
+
+    expect(projects).not.toHaveAttribute('aria-current')
+    expect(screen.queryByTestId('navbar-indicator')).not.toBeInTheDocument()
+
+    clickWithoutFollowing(about)
+
+    expect(about).toHaveAttribute('aria-current', 'location')
+    expect(screen.getByTestId('navbar-indicator')).not.toBe(previousIndicator)
+    expect(screen.getByTestId('navbar-indicator')).toHaveStyle({
+      width: '96px',
+      transform: 'translateX(4px)',
+    })
+  })
+
   it('waits for measurable links and remeasures them when their layout changes', () => {
     const observers: TestResizeObserver[] = []
     class TestResizeObserver implements ResizeObserver {

@@ -23,8 +23,7 @@ const SCROLL_KEYS = new Set([
 function hashDestination(links: readonly NavLink[]): Destination | null {
   const hash = window.location.hash
   const link = links.find(({ href }) => href === hash)
-  if (link) return { href: link.href, id: link.href.slice(1) }
-  return hash === `#${SECTION_ID.home}` ? { href: null, id: SECTION_ID.home } : null
+  return link ? { href: link.href, id: link.href.slice(1) } : null
 }
 
 function visibleSection(links: readonly NavLink[]): ActiveHref {
@@ -66,7 +65,11 @@ export function useActiveSection(links: readonly NavLink[]) {
     const destination = pending.current
     if (destination && document.getElementById(destination.id)) {
       // Keep the clicked pill selected while smooth scrolling past other sections.
-      if (visible !== destination.href) return
+      const arrived =
+        destination.id === SECTION_ID.home
+          ? window.scrollY <= 1
+          : visible === destination.href
+      if (!arrived) return
     }
     clearPending()
     setActiveHref(visible)
@@ -98,6 +101,16 @@ export function useActiveSection(links: readonly NavLink[]) {
     [selectDestination]
   )
 
+  const selectHome = useCallback(() => {
+    if (window.scrollY <= 1) {
+      clearPending()
+      setActiveHref(null)
+      return
+    }
+    // Clear the pill immediately and keep it clear during the native scroll home.
+    selectDestination({ href: null, id: SECTION_ID.home })
+  }, [clearPending, selectDestination])
+
   useEffect(() => {
     let frame: number | null = null
     const onScroll = () => {
@@ -107,12 +120,30 @@ export function useActiveSection(links: readonly NavLink[]) {
       })
     }
     const onHashChange = () => {
+      if (window.location.hash === `#${SECTION_ID.home}`) {
+        selectHome()
+        return
+      }
       const destination = hashDestination(links)
       if (destination) selectDestination(destination)
       else {
         clearPending()
         syncSection()
       }
+    }
+    const onHomeClick = (event: MouseEvent) => {
+      if (
+        event.defaultPrevented ||
+        event.button !== 0 ||
+        event.metaKey ||
+        event.ctrlKey ||
+        event.shiftKey ||
+        event.altKey
+      ) {
+        return
+      }
+      const anchor = event.target instanceof Element ? event.target.closest('a') : null
+      if (anchor?.getAttribute('href') === `#${SECTION_ID.home}`) selectHome()
     }
     const releaseSelection = () => {
       clearPending()
@@ -137,6 +168,7 @@ export function useActiveSection(links: readonly NavLink[]) {
     window.addEventListener('scroll', onScroll, { passive: true })
     window.addEventListener('resize', onScroll)
     window.addEventListener('hashchange', onHashChange)
+    window.addEventListener('click', onHomeClick)
     window.addEventListener('scrollend', releaseSelection)
     window.addEventListener('wheel', releaseSelection, { passive: true })
     window.addEventListener('touchstart', releaseSelection, { passive: true })
@@ -148,12 +180,13 @@ export function useActiveSection(links: readonly NavLink[]) {
       window.removeEventListener('scroll', onScroll)
       window.removeEventListener('resize', onScroll)
       window.removeEventListener('hashchange', onHashChange)
+      window.removeEventListener('click', onHomeClick)
       window.removeEventListener('scrollend', releaseSelection)
       window.removeEventListener('wheel', releaseSelection)
       window.removeEventListener('touchstart', releaseSelection)
       window.removeEventListener('keydown', onKeyDown)
     }
-  }, [clearPending, links, selectDestination, syncSection])
+  }, [clearPending, links, selectDestination, selectHome, syncSection])
 
   return { activeHref, selectSection }
 }

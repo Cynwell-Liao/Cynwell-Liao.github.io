@@ -101,15 +101,27 @@ describe('Navbar', () => {
       screen.getByRole('link', { name: 'Example Engineer home' }).parentElement
 
     expect(getNavbarShell()).toHaveClass('max-w-4xl')
+    expect(screen.getByRole('navigation')).toHaveClass('bg-transparent')
+    expect(screen.getByRole('navigation')).not.toHaveClass('backdrop-blur-xl')
 
     unmount()
     setMockScrollY(0)
     renderNavbar()
     expect(getNavbarShell()).toHaveClass('max-w-6xl')
+    expect(screen.getByRole('navigation')).toHaveClass('bg-transparent')
+    expect(screen.getByRole('navigation')).not.toHaveClass('backdrop-blur-xl')
 
     act(() => {
       setMockScrollY(100)
     })
     expect(getNavbarShell()).toHaveClass('max-w-4xl')
+    expect(screen.getByRole('navigation')).toHaveClass('bg-transparent')
+    expect(screen.getByRole('navigation')).not.toHaveClass('backdrop-blur-xl')
+
+    act(() => {
+      setMockScrollY(0)
+    })
+    expect(screen.getByRole('navigation')).toHaveClass('bg-transparent')
+    expect(screen.getByRole('navigation')).not.toHaveClass('backdrop-blur-xl')
   })
 })

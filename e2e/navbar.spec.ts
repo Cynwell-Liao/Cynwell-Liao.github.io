@@ -58,6 +58,122 @@ test('one pill follows the selected section and clears at home @desktop', async 
   await expectNoSelection(navigation)
 })
 
+test('returning home resets the next pill position while direct section changes still slide @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  await page.evaluate(async () => {
+    await document.fonts.ready
+  })
+  const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
+
+  await navigation.getByRole('link', { name: 'Education', exact: true }).click()
+  await expectIndicatorToMatch(navigation, 'Education')
+  await page.getByRole('link', { name: /home$/u }).click()
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+  await expectNoSelection(navigation)
+
+  const sampleTransition = (href: string) =>
+    navigation.evaluate(async (element, destinationHref) => {
+      const destination = element.querySelector<HTMLAnchorElement>(
+        `a[href="${destinationHref}"]`
+      )
+      if (!destination) throw new Error('Destination link is missing')
+      const previousIndicator = element.querySelector(
+        '[data-testid="navbar-indicator"]'
+      )
+      const initialDistance = previousIndicator
+        ? Math.abs(
+            previousIndicator.getBoundingClientRect().left -
+              destination.getBoundingClientRect().left
+          )
+        : 0
+      destination.click()
+
+      const visibleFrames: { leftError: number; widthError: number }[] = []
+      for (let frame = 0; frame < 24; frame += 1) {
+        await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+        const indicator = element.querySelector('[data-testid="navbar-indicator"]')
+        if (!indicator || Number(getComputedStyle(indicator).opacity) === 0) continue
+        const current = indicator.getBoundingClientRect()
+        const target = destination.getBoundingClientRect()
+        visibleFrames.push({
+          leftError: Math.abs(current.left - target.left),
+          widthError: Math.abs(current.width - target.width),
+        })
+      }
+      return { initialDistance, visibleFrames }
+    }, href)
+
+  const freshSelection = await sampleTransition('#about')
+  expect(freshSelection.visibleFrames.length).toBeGreaterThan(0)
+  for (const frame of freshSelection.visibleFrames) {
+    expect(frame.leftError).toBeLessThan(2)
+    expect(frame.widthError).toBeLessThan(2)
+  }
+  await expectIndicatorToMatch(navigation, 'About')
+
+  const directSwitch = await sampleTransition('#projects')
+  expect(
+    directSwitch.visibleFrames.some(
+      ({ leftError }) => leftError > 2 && leftError < directSwitch.initialDistance - 2
+    )
+  ).toBe(true)
+  await expectIndicatorToMatch(navigation, 'Projects')
+})
+
+test('the logo clears the pill before returning home and the next tab appears directly @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  await page.evaluate(async () => {
+    await document.fonts.ready
+  })
+  const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
+  await navigation.getByRole('link', { name: 'Education', exact: true }).click()
+  await expectIndicatorToMatch(navigation, 'Education')
+  await expect(page.locator('#education')).toBeInViewport()
+
+  const result = await navigation.evaluate(async (element) => {
+    const home = document.querySelector<HTMLAnchorElement>('header a[href="#home"]')
+    const next = element.querySelector<HTMLAnchorElement>('a[href="#tech-stack"]')
+    if (!home || !next) throw new Error('Navigation links are missing')
+    home.click()
+    for (let frame = 0; frame < 2; frame += 1) {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+    }
+    const clearedDuringReturn =
+      window.scrollY > 1 &&
+      !element.querySelector('[aria-current]') &&
+      !element.querySelector('[data-testid="navbar-indicator"]')
+
+    // Choose a new destination before the return-home scroll has completed.
+    next.click()
+    const alignmentErrors: number[] = []
+    for (let frame = 0; frame < 24; frame += 1) {
+      await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      const indicator = element.querySelector('[data-testid="navbar-indicator"]')
+      if (!indicator) continue
+      const actual = indicator.getBoundingClientRect()
+      const target = next.getBoundingClientRect()
+      alignmentErrors.push(
+        Math.max(
+          Math.abs(actual.left - target.left),
+          Math.abs(actual.width - target.width)
+        )
+      )
+    }
+    return { clearedDuringReturn, alignmentErrors }
+  })
+
+  expect(result.clearedDuringReturn).toBe(true)
+  expect(result.alignmentErrors.length).toBeGreaterThan(0)
+  expect(Math.max(...result.alignmentErrors)).toBeLessThan(2)
+  await expectIndicatorToMatch(navigation, 'Tech Stack')
+})
+
 test('selection follows deep links, history, and scrolling independently of the hash @desktop', async ({
   page,
 }) => {
@@ -110,6 +226,9 @@ test('reduced motion places the indicator without sliding between sections @desk
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/#about')
+  await page.evaluate(async () => {
+    await document.fonts.ready
+  })
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
   await expectIndicatorToMatch(navigation, 'About')
 
@@ -138,6 +257,59 @@ test('reduced motion places the indicator without sliding between sections @desk
   expect(Math.max(...alignmentErrors)).toBeLessThan(2)
   await expectIndicatorToMatch(navigation, 'Education')
 })
+
+for (const theme of ['light', 'dark'] as const) {
+  test(`${theme} navigation stays transparent while the selected pill remains visible after scrolling @desktop`, async ({
+    page,
+  }) => {
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' })
+    await page.goto('/')
+    await page.evaluate(async () => {
+      await document.fonts.ready
+    })
+
+    const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
+    const transparentBackground = 'rgba(0, 0, 0, 0)'
+    const getSize = () =>
+      navigation.evaluate((element) => {
+        const bounds = element.getBoundingClientRect()
+        return { width: bounds.width, height: bounds.height }
+      })
+
+    await expect(navigation).toBeVisible()
+    await expect(navigation).toHaveCSS('background-color', transparentBackground)
+    await expect(navigation).toHaveCSS('backdrop-filter', 'none')
+    const initialSize = await getSize()
+    expect(initialSize.height).toBe(44)
+
+    for (const scrollY of [50, 51]) {
+      await page.evaluate(async (top) => {
+        window.scrollTo({ top, behavior: 'instant' })
+        for (let frame = 0; frame < 2; frame += 1) {
+          await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+        }
+      }, scrollY)
+      await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(scrollY)
+      await expect(navigation).toHaveCSS('background-color', transparentBackground)
+      await expect(navigation).toHaveCSS('backdrop-filter', 'none')
+      expect(await getSize()).toEqual(initialSize)
+    }
+
+    await navigation.getByRole('link', { name: 'Projects', exact: true }).click()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(50)
+    await expectIndicatorToMatch(navigation, 'Projects')
+    await expect(navigation).toHaveCSS('background-color', transparentBackground)
+    await expect(navigation).toHaveCSS('backdrop-filter', 'none')
+    expect(await getSize()).toEqual(initialSize)
+
+    await page.getByRole('link', { name: /home$/u }).click()
+    await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
+    await expect(navigation).toHaveCSS('background-color', transparentBackground)
+    await expect(navigation).toHaveCSS('backdrop-filter', 'none')
+    await expectNoSelection(navigation)
+    expect(await getSize()).toEqual(initialSize)
+  })
+}
 
 const headerViewports = [
   {

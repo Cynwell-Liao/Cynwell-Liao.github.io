@@ -114,7 +114,7 @@ describe('useActiveSection', () => {
     expect(result.current.activeHref).toBe('#projects')
   })
 
-  it('handles hash history navigation and keeps the pill hidden while returning home', () => {
+  it('clears the selection immediately and keeps it clear while returning home', () => {
     const { result } = renderHook(() => useActiveSection(links))
     flushFrame()
     scrollTo(2800)
@@ -125,14 +125,75 @@ describe('useActiveSection', () => {
     scrollTo(800)
     expect(result.current.activeHref).toBe('#about')
 
+    scrollTo(3600)
+    expect(result.current.activeHref).toBe('#education')
     changeHash('#home')
     expect(result.current.activeHref).toBeNull()
+    scrollTo(2800)
+    expect(result.current.activeHref).toBeNull()
+    scrollTo(1800)
+    expect(result.current.activeHref).toBeNull()
     scrollTo(750)
+    expect(result.current.activeHref).toBeNull()
+    scrollTo(100)
     expect(result.current.activeHref).toBeNull()
     scrollTo(0)
     expect(result.current.activeHref).toBeNull()
     scrollTo(800)
     expect(result.current.activeHref).toBe('#about')
+  })
+
+  it('releases a pending section click when home is requested before arrival', () => {
+    const { result } = renderHook(() => useActiveSection(links))
+    flushFrame()
+    scrollTo(1800)
+    act(() => {
+      result.current.selectSection('#education')
+    })
+    expect(result.current.activeHref).toBe('#education')
+
+    changeHash('#home')
+    expect(result.current.activeHref).toBeNull()
+    scrollTo(800)
+    expect(result.current.activeHref).toBeNull()
+    scrollTo(0)
+    expect(result.current.activeHref).toBeNull()
+  })
+
+  it('handles logo clicks even when the URL already ends in home', () => {
+    window.history.replaceState(null, '', '#home')
+    const { result } = renderHook(() => useActiveSection(links))
+    flushFrame()
+    expect(result.current.activeHref).toBeNull()
+    scrollTo(3600)
+    expect(result.current.activeHref).toBe('#education')
+
+    const home = document.createElement('a')
+    home.href = '#home'
+    const logo = document.createElement('img')
+    home.append(logo)
+    document.body.append(home)
+
+    act(() => {
+      logo.dispatchEvent(new MouseEvent('click', { bubbles: true, ctrlKey: true }))
+    })
+    expect(result.current.activeHref).toBe('#education')
+    act(() => {
+      logo.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(result.current.activeHref).toBeNull()
+    scrollTo(2800)
+    expect(result.current.activeHref).toBeNull()
+
+    act(() => {
+      window.dispatchEvent(new Event('wheel'))
+    })
+    expect(result.current.activeHref).toBe('#projects')
+    scrollTo(0)
+    act(() => {
+      logo.dispatchEvent(new MouseEvent('click', { bubbles: true }))
+    })
+    expect(result.current.activeHref).toBeNull()
   })
 
   it('does not lock a destination that is already in view', () => {
@@ -261,6 +322,7 @@ describe('useActiveSection', () => {
       'scroll',
       'resize',
       'hashchange',
+      'click',
       'scrollend',
       'wheel',
       'touchstart',

@@ -26,7 +26,12 @@ export function SectionNavigation({ links, theme }: SectionNavigationProps) {
       const activeLink = navigation.querySelector<HTMLAnchorElement>(
         '[aria-current="location"]'
       )
-      if (!activeLink || activeLink.offsetWidth === 0) return
+      if (!activeLink) {
+        // Start fresh after home instead of animating from the last selected tab.
+        setIndicator(null)
+        return
+      }
+      if (activeLink.offsetWidth === 0) return
 
       const next = { x: activeLink.offsetLeft, width: activeLink.offsetWidth }
       setIndicator((current) =>
@@ -54,7 +59,7 @@ export function SectionNavigation({ links, theme }: SectionNavigationProps) {
   return (
     <nav
       aria-label="Primary navigation"
-      className="relative isolate hidden items-center rounded-full bg-slate-200/80 p-1 backdrop-blur-xl md:flex dark:bg-white/10"
+      className="relative isolate hidden items-center rounded-full bg-transparent p-1 md:flex"
       ref={navigationRef}
     >
       {indicator && (
