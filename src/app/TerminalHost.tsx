@@ -97,7 +97,7 @@ export function TerminalHost({ opener, onClose, ...terminalProps }: TerminalHost
 
   useEffect(() => {
     const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') onClose()
+      if (event.key === 'Escape' && !event.defaultPrevented) onClose()
     }
     window.addEventListener('keydown', handleEscape)
     return () => {

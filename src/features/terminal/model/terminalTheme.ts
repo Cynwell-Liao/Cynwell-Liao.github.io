@@ -2,51 +2,20 @@ import type { ThemeMode } from '@shared/types/common'
 
 export type TerminalTone = 'default' | 'error' | 'success' | 'muted'
 
-export interface TerminalThemeClasses {
-  chrome: string
-  titleBar: string
-  title: string
-  prompt: string
-  promptSymbol: string
-  input: string
-  cursor: string
-  tones: Record<TerminalTone, string>
-}
-
-export const terminalThemeClasses: Record<ThemeMode, TerminalThemeClasses> = {
+const terminalTones: Record<ThemeMode, Record<TerminalTone, string>> = {
   light: {
-    chrome:
-      'border-slate-300/50 bg-white/85 backdrop-blur-xl text-slate-900 shadow-[0_20px_60px_rgba(0,0,0,0.15)] ring-1 ring-black/5',
-    titleBar: 'border-b border-black/5 bg-transparent',
-    title: 'text-slate-600',
-    prompt: 'text-emerald-700 font-bold',
-    promptSymbol: 'text-slate-600 font-bold',
-    input: 'text-slate-900 placeholder:text-slate-600',
-    cursor: 'text-slate-900',
-    tones: {
-      default: 'text-slate-900',
-      error: 'text-red-700',
-      success: 'text-emerald-700',
-      muted: 'text-slate-600',
-    },
+    default: 'text-[#161616]',
+    error: 'text-[#b42318]',
+    success: 'text-[#237524]',
+    muted: 'text-[#161616]',
   },
   dark: {
-    chrome:
-      'border-slate-700/50 bg-[#1e1e1e]/80 backdrop-blur-xl text-slate-100 shadow-[0_30px_80px_rgba(0,0,0,0.5)] ring-1 ring-white/10',
-    titleBar: 'border-b border-white/10 bg-transparent',
-    title: 'text-slate-300',
-    prompt: 'text-emerald-400 font-bold',
-    promptSymbol: 'text-slate-300 font-bold',
-    input: 'text-slate-100 placeholder:text-slate-400',
-    cursor: 'text-slate-100',
-    tones: {
-      default: 'text-slate-100',
-      error: 'text-red-400',
-      success: 'text-emerald-400',
-      muted: 'text-slate-400',
-    },
+    default: 'text-[#f0f0f0]',
+    error: 'text-[#ff817b]',
+    success: 'text-[#87d68a]',
+    muted: 'text-[#f0f0f0]',
   },
 }
 
 export const getTerminalToneClass = (tone: TerminalTone, theme: ThemeMode) =>
-  terminalThemeClasses[theme].tones[tone]
+  terminalTones[theme][tone]

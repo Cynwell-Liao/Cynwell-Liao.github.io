@@ -1,0 +1,172 @@
+.terminal-window-controls {
+  position: relative;
+  display: inline-flex;
+  flex-shrink: 0;
+  height: 24px;
+  width: 72px;
+  cursor: default;
+  font-family:
+    ui-sans-serif,
+    system-ui,
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
+}
+
+.terminal-window-control {
+  display: flex;
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: default;
+  outline: none;
+}
+
+.terminal-window-control:focus-visible {
+  outline: 2px solid #007aff;
+  outline-offset: 1px;
+}
+
+.terminal-window-control-dot {
+  display: block;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 15%);
+}
+
+.terminal-window-control--close .terminal-window-control-dot {
+  background: #ff5f57;
+  color: #4d0000;
+}
+
+.terminal-window-control--minimize .terminal-window-control-dot {
+  background: #febc2e;
+  color: #995700;
+}
+
+.terminal-window-control--expand .terminal-window-control-dot {
+  background: #28c840;
+  color: #006500;
+}
+
+.terminal-window[data-active='false']
+  .terminal-window-controls:not(:hover):not(:has(:focus-visible))
+  .terminal-window-control-dot {
+  background: #d0d0d0;
+}
+
+.terminal-window[data-active='false'][data-theme='dark']
+  .terminal-window-controls:not(:hover):not(:has(:focus-visible))
+  .terminal-window-control-dot {
+  background: #575757;
+}
+
+.terminal-window-control-dot svg {
+  display: block;
+  width: 12px;
+  height: 12px;
+  opacity: 0;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.1;
+}
+
+.terminal-window-control-dot .terminal-window-expand-glyph {
+  fill: currentColor;
+  stroke: none;
+}
+
+.terminal-window-controls:hover .terminal-window-control-dot svg,
+.terminal-window-controls:has(:focus-visible) .terminal-window-control-dot svg {
+  opacity: 1;
+}
+
+.terminal-window-control:active .terminal-window-control-dot {
+  filter: brightness(0.86);
+}
+
+.terminal-window-menu {
+  position: absolute;
+  z-index: 10;
+  top: 26px;
+  left: 46px;
+  width: max-content;
+  max-width: calc(100vw - 5rem);
+  padding: 5px;
+  border: 1px solid rgb(0 0 0 / 16%);
+  border-radius: 7px;
+  background: rgb(246 246 246 / 97%);
+  color: #252525;
+  box-shadow:
+    0 5px 18px rgb(0 0 0 / 24%),
+    inset 0 0 0 1px rgb(255 255 255 / 55%);
+  backdrop-filter: blur(20px);
+}
+
+.terminal-window-menu::before {
+  position: absolute;
+  top: -8px;
+  left: 0;
+  width: 100%;
+  height: 8px;
+  content: '';
+}
+
+.terminal-window-menu button {
+  display: flex;
+  width: 100%;
+  min-height: 27px;
+  align-items: center;
+  gap: 9px;
+  padding: 4px 9px;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  color: inherit;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 1.4;
+  text-align: left;
+  cursor: default;
+  outline: none;
+}
+
+.terminal-window-menu button:hover,
+.terminal-window-menu button:focus-visible {
+  background: #006cde;
+  color: white;
+}
+
+.terminal-window-menu-icon {
+  display: block;
+  width: 14px;
+  height: 11px;
+  flex-shrink: 0;
+  border: 1px solid currentColor;
+  border-radius: 1px;
+  background: currentColor;
+}
+
+.terminal-window-menu-icon--left {
+  background: linear-gradient(to right, currentColor 50%, transparent 50%);
+}
+
+.terminal-window-menu-icon--right {
+  background: linear-gradient(to left, currentColor 50%, transparent 50%);
+}
+
+[data-theme='dark'] .terminal-window-menu {
+  border-color: rgb(0 0 0 / 65%);
+  background: rgb(48 48 48 / 97%);
+  color: #f3f3f3;
+  box-shadow:
+    0 5px 18px rgb(0 0 0 / 40%),
+    inset 0 0 0 1px rgb(255 255 255 / 10%);
+}

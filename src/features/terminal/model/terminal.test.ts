@@ -10,7 +10,7 @@ import {
   resolveTerminalCommand,
 } from './terminal'
 import { terminalTestProfile, terminalTestProjects } from './terminal.test-fixtures'
-import { getTerminalToneClass, terminalThemeClasses } from './terminalTheme'
+import { getTerminalToneClass } from './terminalTheme'
 
 const profile = terminalTestProfile
 const projects = terminalTestProjects
@@ -33,12 +33,16 @@ const runCommand = (
 
 describe('terminal', () => {
   it('defines theme-aware tone class mappings', () => {
-    expect(getTerminalToneClass('default', 'light')).toContain('text-slate-900')
-    expect(getTerminalToneClass('default', 'dark')).toContain('text-slate-100')
-    expect(getTerminalToneClass('error', 'light')).toContain('text-red-700')
-    expect(getTerminalToneClass('success', 'dark')).toContain('text-emerald-400')
-    expect(terminalThemeClasses.light.chrome).toContain('bg-white')
-    expect(terminalThemeClasses.dark.chrome).toContain('bg-[#1e1e1e]')
+    expect(getTerminalToneClass('default', 'light')).toBe('text-[#161616]')
+    expect(getTerminalToneClass('default', 'dark')).toBe('text-[#f0f0f0]')
+    expect(getTerminalToneClass('error', 'light')).toBe('text-[#b42318]')
+    expect(getTerminalToneClass('success', 'dark')).toBe('text-[#87d68a]')
+    expect(getTerminalToneClass('muted', 'light')).toBe(
+      getTerminalToneClass('default', 'light')
+    )
+    expect(getTerminalToneClass('muted', 'dark')).toBe(
+      getTerminalToneClass('default', 'dark')
+    )
   })
 
   it('builds initial terminal lines from profile content', () => {

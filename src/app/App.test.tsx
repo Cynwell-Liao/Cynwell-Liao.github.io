@@ -68,9 +68,7 @@ describe('App', () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Terminal' }))
 
-    expect(
-      await screen.findByRole('dialog', { name: 'Linux terminal' })
-    ).toBeInTheDocument()
+    expect(await screen.findByRole('dialog', { name: 'Terminal' })).toBeInTheDocument()
     expect(
       screen.getByLabelText<HTMLInputElement>('Terminal command input')
     ).toHaveFocus()
@@ -85,17 +83,36 @@ describe('App', () => {
     const user = userEvent.setup()
     await user.click(screen.getByRole('button', { name: 'Terminal' }))
 
-    expect(
-      await screen.findByRole('dialog', { name: 'Linux terminal' })
-    ).toHaveAttribute('data-theme', 'light')
+    expect(await screen.findByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
+      'data-theme',
+      'light'
+    )
 
     await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
 
     await waitFor(() => {
-      expect(screen.getByRole('dialog', { name: 'Linux terminal' })).toHaveAttribute(
+      expect(screen.getByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
         'data-theme',
         'dark'
       )
     })
+  })
+
+  it('restores the window from full screen before Escape closes the terminal', async () => {
+    render(<App />)
+
+    const user = userEvent.setup()
+    const opener = screen.getByRole('button', { name: 'Terminal' })
+    await user.click(opener)
+    const dialog = await screen.findByRole('dialog', { name: 'Terminal' })
+    await user.click(screen.getByRole('button', { name: 'Enter full screen' }))
+
+    await user.keyboard('{Escape}')
+    expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
+    expect(dialog).toBeInTheDocument()
+
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
   })
 })

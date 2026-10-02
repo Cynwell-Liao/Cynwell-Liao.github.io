@@ -66,7 +66,8 @@ for (const viewport of viewports) {
       })
     const setWidths = await page
       .locator('.hero-cert-marquee__set')
-      .evaluateAll((sets) => sets.map((set) => set.getBoundingClientRect().width))
+      // Measure layout width without floating-point rounding from the scrolling transform.
+      .evaluateAll((sets) => sets.map((set) => parseFloat(getComputedStyle(set).width)))
 
     expect(setWidths).toHaveLength(2)
     expect(setWidths[0]).toBeCloseTo(setWidths[1], 0)

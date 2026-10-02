@@ -80,7 +80,7 @@ test('terminal opens, submits a command, closes, and restores focus @desktop', a
   const opener = page.getByRole('button', { name: 'Terminal', exact: true })
   await opener.click()
 
-  const dialog = page.getByRole('dialog', { name: 'Linux terminal' })
+  const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const output = page.getByRole('log', { name: 'Terminal output' })
   await expect(dialog).toBeVisible()
@@ -183,5 +183,5 @@ test('mobile navbar intentionally exposes only brand and theme controls @mobile'
   await expect(
     page.getByRole('button', { name: 'Terminal', exact: true, includeHidden: true })
   ).toBeHidden()
-  await expect(page.getByRole('dialog', { name: 'Linux terminal' })).toHaveCount(0)
+  await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveCount(0)
 })
