@@ -2,6 +2,8 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { setMockReducedMotion } from '../../../test/setup'
+
 import { TerminalWindowControls } from './TerminalWindowControls'
 
 const renderControls = (expanded = false) => {
@@ -27,19 +29,23 @@ afterEach(() => {
 })
 
 describe('TerminalWindowControls', () => {
-  it('connects each traffic light to its window action', async () => {
-    const user = userEvent.setup()
-    const handlers = renderControls()
+  it.each([true, false])(
+    'connects each traffic light to its window action with reduced motion %s',
+    async (reducedMotion) => {
+      setMockReducedMotion(reducedMotion)
+      const user = userEvent.setup()
+      const handlers = renderControls()
 
-    await user.click(screen.getByRole('button', { name: 'Close terminal' }))
-    await user.click(screen.getByRole('button', { name: 'Minimize terminal' }))
-    await user.click(expandButton())
+      await user.click(screen.getByRole('button', { name: 'Close terminal' }))
+      await user.click(screen.getByRole('button', { name: 'Minimize terminal' }))
+      await user.click(expandButton())
 
-    expect(handlers.onClose).toHaveBeenCalledTimes(1)
-    expect(handlers.onMinimize).toHaveBeenCalledTimes(1)
-    expect(handlers.onToggleExpanded).toHaveBeenCalledTimes(1)
-    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
-  })
+      expect(handlers.onClose).toHaveBeenCalledTimes(1)
+      expect(handlers.onMinimize).toHaveBeenCalledTimes(1)
+      expect(handlers.onToggleExpanded).toHaveBeenCalledTimes(1)
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    }
+  )
 
   it('opens after hovering green and lets the pointer enter the menu', () => {
     vi.useFakeTimers()

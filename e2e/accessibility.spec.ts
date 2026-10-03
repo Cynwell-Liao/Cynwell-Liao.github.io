@@ -45,6 +45,7 @@ const scanForViolations = async (page: Page, testInfo: TestInfo) => {
     impact: violation.impact,
     help: violation.help,
     targets: violation.nodes.map((node) => node.target),
+    details: violation.nodes.map((node) => node.failureSummary),
   }))
 }
 
@@ -71,6 +72,18 @@ for (const theme of ['light', 'dark'] as const) {
     await input.press('Enter')
     await input.fill(`theme ${theme}`)
     await input.press('Enter')
+    await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
+      'data-theme',
+      theme
+    )
+    await expect(page.locator('.terminal-screen')).toHaveCSS(
+      'background-color',
+      theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
+    )
+    await expect(input).toHaveCSS(
+      'color',
+      theme === 'dark' ? 'rgb(240, 240, 240)' : 'rgb(22, 22, 22)'
+    )
     expect(await scanForViolations(page, testInfo)).toEqual([])
   })
 }

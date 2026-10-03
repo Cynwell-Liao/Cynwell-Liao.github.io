@@ -1,10 +1,17 @@
 .terminal-desktop {
+  --terminal-system-font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --terminal-window-radius: 14px;
+  --terminal-inner-radius: calc(var(--terminal-window-radius) - 1px);
   --terminal-background: #fff;
   --terminal-text: #161616;
-  --terminal-border: #aaa;
-  --terminal-title-top: #ededed;
-  --terminal-title-bottom: #dedede;
+  --terminal-glass-solid: #ececee;
+  --terminal-glass-background: rgb(245 245 247 / 86%);
+  --terminal-glass-highlight: rgb(255 255 255 / 85%);
+  --terminal-glass-edge: rgb(0 0 0 / 18%);
+  --terminal-divider: rgb(0 0 0 / 14%);
   --terminal-title-text: #3d3d3d;
+  --terminal-window-shadow:
+    0 24px 64px -12px rgb(0 0 0 / 32%), 0 6px 20px -4px rgb(0 0 0 / 18%);
   position: fixed;
   inset: 0;
   z-index: 70;
@@ -14,72 +21,96 @@
 .terminal-desktop[data-theme='dark'] {
   --terminal-background: #1e1e1e;
   --terminal-text: #f0f0f0;
-  --terminal-border: #575757;
-  --terminal-title-top: #3c3b3b;
-  --terminal-title-bottom: #303030;
+  --terminal-glass-solid: #303032;
+  --terminal-glass-background: rgb(44 44 46 / 86%);
+  --terminal-glass-highlight: rgb(255 255 255 / 20%);
+  --terminal-glass-edge: rgb(0 0 0 / 65%);
+  --terminal-divider: rgb(255 255 255 / 12%);
   --terminal-title-text: #dedede;
+  --terminal-window-shadow:
+    0 24px 64px -12px rgb(0 0 0 / 55%), 0 6px 20px -4px rgb(0 0 0 / 35%);
 }
 
 .terminal-window {
   position: absolute;
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--terminal-border);
-  border-radius: 9px;
-  background: var(--terminal-background);
+  border: 1px solid var(--terminal-glass-edge);
+  border-radius: var(--terminal-window-radius);
+  background: transparent;
   color: var(--terminal-text);
-  box-shadow:
-    0 22px 65px #0005,
-    0 3px 12px #0003;
+  box-shadow: var(--terminal-window-shadow);
   pointer-events: auto;
   isolation: isolate;
 }
 
 .terminal-window--fullscreen {
-  border-radius: 0;
+  --terminal-window-radius: 0px;
+  --terminal-inner-radius: 0px;
+  border-color: transparent;
+  box-shadow: none;
 }
 
 .terminal-window[data-active='false'] {
-  box-shadow: 0 10px 28px #0003;
+  --terminal-window-shadow: 0 10px 28px -6px rgb(0 0 0 / 20%);
+}
+
+/* An inner rim keeps the glass edge distinct without clipping the hover menu. */
+.terminal-window::after {
+  position: absolute;
+  z-index: 3;
+  inset: 0;
+  border: 1px solid var(--terminal-glass-highlight);
+  border-radius: var(--terminal-inner-radius);
+  content: '';
+  pointer-events: none;
+}
+
+.terminal-window--fullscreen::after {
+  display: none;
 }
 
 .terminal-titlebar {
   position: relative;
   z-index: 2;
   display: flex;
-  flex: 0 0 28px;
+  flex: 0 0 36px;
   align-items: center;
   justify-content: center;
-  border-bottom: 1px solid #0003;
-  border-radius: 8px 8px 0 0;
-  background: linear-gradient(var(--terminal-title-top), var(--terminal-title-bottom));
-  box-shadow: inset 0 1px #ffffff40;
+  border-bottom: 1px solid var(--terminal-divider);
+  border-radius: var(--terminal-inner-radius) var(--terminal-inner-radius) 0 0;
+  box-shadow: inset 0 1px var(--terminal-glass-highlight);
   color: var(--terminal-title-text);
   cursor: default;
   touch-action: none;
   user-select: none;
 }
 
-.terminal-window--fullscreen .terminal-titlebar {
-  border-radius: 0;
+/* Keep filtering off the menu's ancestors so it can blur the screen beneath it. */
+.terminal-titlebar::before {
+  position: absolute;
+  z-index: -1;
+  inset: 0;
+  border-radius: inherit;
+  background: var(--terminal-glass-solid);
+  content: '';
+  pointer-events: none;
 }
 
 .terminal-controls-position {
   position: absolute;
-  left: 4px;
-  top: 1px;
+  left: 8px;
+  top: 50%;
+  height: 24px;
+  translate: 0 -50%;
 }
 
 .terminal-title {
   color: var(--terminal-title-text);
   display: block;
   overflow: hidden;
-  max-width: calc(100% - 148px);
-  font:
-    500 13px/1.4 -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  max-width: calc(100% - 176px);
+  font: 500 13px/1.4 var(--terminal-system-font);
   text-overflow: ellipsis;
   white-space: nowrap;
 }
@@ -99,10 +130,13 @@
   flex: 1;
   min-height: 0;
   overflow: auto;
-  border-radius: 0 0 8px 8px;
+  border-radius: 0 0 var(--terminal-inner-radius) var(--terminal-inner-radius);
+  /* Terminal output stays opaque; glass is reserved for window chrome. */
+  background: var(--terminal-background);
   padding: 4px 6px;
   font:
-    400 13px/17px Menlo,
+    400 13px/17px 'SFMono-Regular',
+    Menlo,
     Monaco,
     'Cascadia Mono',
     'Liberation Mono',
@@ -113,9 +147,6 @@
   overscroll-behavior: contain;
 }
 
-.terminal-window--fullscreen .terminal-screen {
-  border-radius: 0;
-}
 .terminal-screen ::selection {
   background: #b4d5fe;
   color: #111;
@@ -222,17 +253,15 @@
   gap: 10px;
   padding: 9px 18px 12px 10px;
   translate: -50% 0;
-  border: 1px solid var(--terminal-border);
-  border-radius: 14px;
-  background: var(--terminal-title-bottom);
+  border: 1px solid var(--terminal-glass-edge);
+  border-radius: var(--terminal-window-radius);
+  background: var(--terminal-glass-solid);
   color: var(--terminal-text);
-  box-shadow: 0 8px 25px #0003;
+  box-shadow:
+    0 8px 25px #0003,
+    inset 0 1px var(--terminal-glass-highlight);
   pointer-events: auto;
-  font:
-    500 13px -apple-system,
-    BlinkMacSystemFont,
-    'Segoe UI',
-    sans-serif;
+  font: 500 13px var(--terminal-system-font);
 }
 
 .terminal-dock-item:focus-visible {
@@ -260,10 +289,55 @@
   background: currentColor;
 }
 
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .terminal-titlebar::before,
+  .terminal-dock-item {
+    background: var(--terminal-glass-background);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    backdrop-filter: blur(24px) saturate(1.4);
+  }
+}
+
+.terminal-window[data-active='false'] .terminal-titlebar::before {
+  background: var(--terminal-glass-solid);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .terminal-titlebar::before,
+  .terminal-dock-item {
+    background: var(--terminal-glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .terminal-window,
+  .terminal-titlebar,
+  .terminal-titlebar::before,
+  .terminal-screen,
+  .terminal-dock-item {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+  }
+
+  .terminal-title,
+  .terminal-prompt,
+  .terminal-input {
+    color: CanvasText;
+  }
+
+  .terminal-cursor {
+    color: CanvasText;
+    forced-color-adjust: none;
+  }
+}
+
 @media (max-width: 480px) {
   .terminal-title {
-    max-width: calc(100% - 102px);
-    margin-left: 72px;
+    max-width: calc(100% - 104px);
+    margin-left: 80px;
     font-size: 11px;
   }
   .terminal-proxy-icon {

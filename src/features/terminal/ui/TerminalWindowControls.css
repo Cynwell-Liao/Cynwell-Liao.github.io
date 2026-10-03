@@ -5,12 +5,7 @@
   height: 24px;
   width: 72px;
   cursor: default;
-  font-family:
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    sans-serif;
+  font-family: var(--terminal-system-font);
 }
 
 .terminal-window-control {
@@ -38,7 +33,10 @@
   width: 12px;
   height: 12px;
   border-radius: 50%;
-  box-shadow: inset 0 0 0 0.5px rgb(0 0 0 / 15%);
+  box-shadow:
+    inset 0 0 0 0.5px rgb(0 0 0 / 18%),
+    inset 0 1px 0 rgb(255 255 255 / 28%),
+    0 0.5px 0 rgb(255 255 255 / 18%);
 }
 
 .terminal-window-control--close .terminal-window-control-dot {
@@ -100,14 +98,16 @@
   width: max-content;
   max-width: calc(100vw - 5rem);
   padding: 5px;
-  border: 1px solid rgb(0 0 0 / 16%);
-  border-radius: 7px;
-  background: rgb(246 246 246 / 97%);
+  border: 1px solid var(--terminal-glass-edge);
+  border-radius: 12px;
+  background: var(--terminal-glass-solid);
   color: #252525;
   box-shadow:
-    0 5px 18px rgb(0 0 0 / 24%),
-    inset 0 0 0 1px rgb(255 255 255 / 55%);
-  backdrop-filter: blur(20px);
+    0 8px 28px rgb(0 0 0 / 20%),
+    0 2px 6px rgb(0 0 0 / 10%),
+    inset 0 1px 0 var(--terminal-glass-highlight),
+    inset 0 0 0 0.5px var(--terminal-glass-highlight);
+  transform-origin: 12px 0;
 }
 
 .terminal-window-menu::before {
@@ -127,7 +127,7 @@
   gap: 9px;
   padding: 4px 9px;
   border: 0;
-  border-radius: 4px;
+  border-radius: 7px;
   background: transparent;
   color: inherit;
   font-size: 13px;
@@ -139,7 +139,7 @@
 }
 
 .terminal-window-menu button:hover,
-.terminal-window-menu button:focus-visible {
+.terminal-window-menu button:focus {
   background: #006cde;
   color: white;
 }
@@ -163,10 +163,44 @@
 }
 
 [data-theme='dark'] .terminal-window-menu {
-  border-color: rgb(0 0 0 / 65%);
-  background: rgb(48 48 48 / 97%);
   color: #f3f3f3;
   box-shadow:
-    0 5px 18px rgb(0 0 0 / 40%),
-    inset 0 0 0 1px rgb(255 255 255 / 10%);
+    0 8px 28px rgb(0 0 0 / 40%),
+    0 2px 6px rgb(0 0 0 / 20%),
+    inset 0 1px 0 var(--terminal-glass-highlight),
+    inset 0 0 0 0.5px var(--terminal-glass-highlight);
+}
+
+@supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
+  .terminal-window-menu {
+    background: var(--terminal-glass-background);
+    -webkit-backdrop-filter: blur(24px) saturate(1.4);
+    backdrop-filter: blur(24px) saturate(1.4);
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .terminal-window-menu {
+    background: var(--terminal-glass-solid);
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+}
+
+@media (forced-colors: active) {
+  .terminal-window-menu,
+  [data-theme='dark'] .terminal-window-menu {
+    border-color: CanvasText;
+    background: Canvas;
+    color: CanvasText;
+    -webkit-backdrop-filter: none;
+    backdrop-filter: none;
+  }
+
+  .terminal-window-menu button:hover,
+  .terminal-window-menu button:focus {
+    background: Highlight;
+    color: HighlightText;
+    forced-color-adjust: none;
+  }
 }

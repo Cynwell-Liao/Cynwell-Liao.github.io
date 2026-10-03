@@ -1,3 +1,4 @@
+import { motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
 
 import './TerminalWindowControls.css'
@@ -12,6 +13,11 @@ interface TerminalWindowControlsProps {
   onTile: (side: 'left' | 'right') => void
 }
 
+const dotVariants = {
+  idle: { scale: 1 },
+  pressed: { scale: 0.92 },
+}
+
 export function TerminalWindowControls({
   expanded,
   onClose,
@@ -19,6 +25,7 @@ export function TerminalWindowControls({
   onToggleExpanded,
   onTile,
 }: TerminalWindowControlsProps) {
+  const reducedMotion = useReducedMotion()
   const [menuOpen, setMenuOpen] = useState(false)
   const menuId = useId()
   const controlsRef = useRef<HTMLDivElement>(null)
@@ -152,13 +159,20 @@ export function TerminalWindowControls({
       ref={controlsRef}
       role="group"
     >
-      <button
+      <motion.button
+        animate="idle"
         aria-label="Close terminal"
         className="terminal-window-control terminal-window-control--close"
+        initial={false}
         onClick={onClose}
         type="button"
+        whileTap={reducedMotion ? undefined : 'pressed'}
       >
-        <span className="terminal-window-control-dot">
+        <motion.span
+          className="terminal-window-control-dot"
+          transition={{ type: 'spring', stiffness: 650, damping: 35 }}
+          variants={dotVariants}
+        >
           <svg
             aria-hidden="true"
             className="terminal-window-control__glyph"
@@ -166,15 +180,22 @@ export function TerminalWindowControls({
           >
             <path d="m3.7 3.7 4.6 4.6m0-4.6L3.7 8.3" />
           </svg>
-        </span>
-      </button>
-      <button
+        </motion.span>
+      </motion.button>
+      <motion.button
+        animate="idle"
         aria-label="Minimize terminal"
         className="terminal-window-control terminal-window-control--minimize"
+        initial={false}
         onClick={onMinimize}
         type="button"
+        whileTap={reducedMotion ? undefined : 'pressed'}
       >
-        <span className="terminal-window-control-dot">
+        <motion.span
+          className="terminal-window-control-dot"
+          transition={{ type: 'spring', stiffness: 650, damping: 35 }}
+          variants={dotVariants}
+        >
           <svg
             aria-hidden="true"
             className="terminal-window-control__glyph"
@@ -182,14 +203,16 @@ export function TerminalWindowControls({
           >
             <path d="M3 6h6" />
           </svg>
-        </span>
-      </button>
-      <button
+        </motion.span>
+      </motion.button>
+      <motion.button
+        animate="idle"
         aria-controls={menuOpen ? menuId : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         aria-label={expanded ? 'Exit full screen' : 'Enter full screen'}
         className="terminal-window-control terminal-window-control--expand"
+        initial={false}
         onClick={() => {
           dismissMenu()
           onToggleExpanded()
@@ -211,8 +234,13 @@ export function TerminalWindowControls({
         onPointerLeave={scheduleClose}
         ref={expandRef}
         type="button"
+        whileTap={reducedMotion ? undefined : 'pressed'}
       >
-        <span className="terminal-window-control-dot">
+        <motion.span
+          className="terminal-window-control-dot"
+          transition={{ type: 'spring', stiffness: 650, damping: 35 }}
+          variants={dotVariants}
+        >
           <svg
             aria-hidden="true"
             className="terminal-window-control__glyph"
@@ -227,19 +255,22 @@ export function TerminalWindowControls({
               }
             />
           </svg>
-        </span>
-      </button>
+        </motion.span>
+      </motion.button>
       {menuOpen && (
-        <div
+        <motion.div
+          animate={{ opacity: 1, scale: 1 }}
           aria-label="Window arrangement"
           className="terminal-window-menu"
           id={menuId}
+          initial={reducedMotion ? false : { opacity: 0, scale: 0.97 }}
           onKeyDown={onMenuKeyDown}
           onPointerEnter={clearTimers}
           onPointerLeave={scheduleClose}
           ref={menuRef}
           role="menu"
           tabIndex={-1}
+          transition={{ duration: 0.14, ease: 'easeOut' }}
         >
           <button
             onClick={() => {
@@ -284,7 +315,7 @@ export function TerminalWindowControls({
             />
             Tile Window to Right of Screen
           </button>
-        </div>
+        </motion.div>
       )}
     </div>
   )
