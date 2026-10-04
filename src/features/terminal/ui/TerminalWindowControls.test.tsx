@@ -92,6 +92,77 @@ describe('TerminalWindowControls', () => {
     expect(vi.getTimerCount()).toBe(0)
   })
 
+  it.each(['pending hover', 'hover menu', 'keyboard menu'])(
+    'dismisses the %s when the browser loses focus',
+    (state) => {
+      vi.useFakeTimers()
+      renderControls()
+
+      if (state === 'keyboard menu') openMenu()
+      else {
+        fireEvent.pointerEnter(expandButton())
+        act(() => {
+          vi.advanceTimersByTime(state === 'hover menu' ? 500 : 250)
+        })
+      }
+
+      fireEvent(window, new Event('blur'))
+      act(() => {
+        vi.advanceTimersByTime(600)
+      })
+
+      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+      expect(expandButton()).toHaveAttribute('aria-expanded', 'false')
+      expect(vi.getTimerCount()).toBe(0)
+    }
+  )
+
+  it.each([
+    { pointerType: 'touch', buttons: 0 },
+    { pointerType: 'mouse', buttons: 1 },
+  ])('does not open a hover menu for %j', ({ pointerType, buttons }) => {
+    vi.useFakeTimers()
+    renderControls()
+    const event = new MouseEvent('pointerover', { bubbles: true, buttons })
+    Object.defineProperty(event, 'pointerType', { value: pointerType })
+
+    fireEvent(expandButton(), event)
+    act(() => {
+      vi.advanceTimersByTime(600)
+    })
+
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+  })
+
+  it('cancels the green hover timer while holding a press and resets on outside release', () => {
+    vi.useFakeTimers()
+    const { onToggleExpanded } = renderControls()
+    fireEvent.pointerEnter(expandButton())
+    act(() => {
+      vi.advanceTimersByTime(300)
+    })
+    const down = new MouseEvent('pointerdown', { bubbles: true, button: 0 })
+    Object.defineProperties(down, {
+      pointerId: { value: 1 },
+      isPrimary: { value: true },
+    })
+    fireEvent(expandButton(), down)
+    expect(expandButton()).toHaveAttribute('data-pressed', 'true')
+
+    act(() => {
+      vi.advanceTimersByTime(600)
+    })
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
+    expect(onToggleExpanded).not.toHaveBeenCalled()
+
+    const up = new MouseEvent('pointerup', { bubbles: true })
+    Object.defineProperty(up, 'pointerId', { value: 1 })
+    fireEvent(document.body, up)
+
+    expect(expandButton()).toHaveAttribute('data-pressed', 'false')
+    expect(onToggleExpanded).not.toHaveBeenCalled()
+  })
+
   it('keeps a keyboard-focused menu open when the pointer leaves', () => {
     vi.useFakeTimers()
     renderControls()

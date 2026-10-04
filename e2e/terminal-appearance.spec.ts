@@ -112,6 +112,68 @@ for (const theme of ['light', 'dark'] as const) {
   })
 }
 
+for (const theme of ['light', 'dark'] as const) {
+  test(`${theme} high-contrast controls retain outlines, symbols, and keyboard focus @desktop`, async ({
+    page,
+  }, testInfo) => {
+    await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' })
+    await page.goto('/')
+    if (theme === 'dark') {
+      await page.getByRole('button', { name: 'Switch to dark mode' }).click()
+    }
+    await page.emulateMedia({ forcedColors: 'active', colorScheme: theme })
+    await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+    const dialog = page.getByRole('dialog', { name: 'Terminal' })
+    const input = page.getByRole('textbox', { name: 'Terminal command input' })
+    const controls = page.getByRole('group', { name: 'Terminal window controls' })
+    await expect(input).toBeFocused()
+    await expect(dialog).toHaveAttribute('data-theme', theme)
+
+    // Forced colors removes the normal glass shadows and colored fills. Keep
+    // the circular edge and identifying symbol visible without hover or focus.
+    for (const dot of await controls.locator('.terminal-window-control-dot').all()) {
+      await expect(dot).toHaveCSS('outline-style', 'solid')
+      await expect(dot).toHaveCSS('outline-width', '1px')
+      await expect(dot).toHaveCSS('background-image', 'none')
+      await expect(dot.locator('svg')).toHaveCSS('opacity', '1')
+      const colors = await dot.evaluate((element) => {
+        const style = getComputedStyle(element)
+        return {
+          background: style.backgroundColor,
+          edge: style.outlineColor,
+          symbol: style.color,
+        }
+      })
+      const background = readColor(colors.background).luminance
+      for (const color of [colors.edge, colors.symbol]) {
+        const foreground = readColor(color).luminance
+        const contrast =
+          (Math.max(background, foreground) + 0.05) /
+          (Math.min(background, foreground) + 0.05)
+        expect(contrast).toBeGreaterThanOrEqual(3)
+      }
+    }
+
+    const green = page.getByRole('button', { name: 'Enter full screen' })
+    await input.press('Shift+Tab')
+    await expect(green).toBeFocused()
+    await expect(green).toHaveCSS('outline-style', 'solid')
+    await expect(green).toHaveCSS('outline-width', '2px')
+    const dot = green.locator('.terminal-window-control-dot')
+    await page.keyboard.down('Space')
+    await expect(green).toHaveAttribute('data-pressed', 'true')
+    await expect(dot).toHaveCSS('filter', 'none')
+    const previewPath = testInfo.outputPath(`terminal-${theme}-forced-colors.png`)
+    await dialog.screenshot({ path: previewPath })
+    await testInfo.attach(`terminal-${theme}-forced-colors`, {
+      path: previewPath,
+      contentType: 'image/png',
+    })
+    await page.keyboard.up('Space')
+    await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+  })
+}
+
 test('keyboard menu selection stays visible and full screen removes every window corner @desktop', async ({
   page,
 }) => {

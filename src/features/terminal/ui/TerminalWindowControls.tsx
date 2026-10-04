@@ -1,5 +1,7 @@
 import { motion, useReducedMotion } from 'framer-motion'
-import { useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useId, useLayoutEffect, useRef, useState } from 'react'
+
+import { useTerminalControlPress } from '../model/useTerminalControlPress'
 
 import './TerminalWindowControls.css'
 
@@ -13,11 +15,6 @@ interface TerminalWindowControlsProps {
   onTile: (side: 'left' | 'right') => void
 }
 
-const dotVariants = {
-  idle: { scale: 1 },
-  pressed: { scale: 0.92 },
-}
-
 export function TerminalWindowControls({
   expanded,
   onClose,
@@ -26,6 +23,12 @@ export function TerminalWindowControls({
   onTile,
 }: TerminalWindowControlsProps) {
   const reducedMotion = useReducedMotion()
+  const closePress = useTerminalControlPress(reducedMotion)
+  const minimizePress = useTerminalControlPress(reducedMotion)
+  const expandPress = useTerminalControlPress(reducedMotion)
+  const pressTransition = reducedMotion
+    ? { duration: 0 }
+    : { type: 'spring' as const, stiffness: 650, damping: 35 }
   const [menuOpen, setMenuOpen] = useState(false)
   const menuId = useId()
   const controlsRef = useRef<HTMLDivElement>(null)
@@ -35,15 +38,16 @@ export function TerminalWindowControls({
   const closeTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined)
   const focusMenuOnOpen = useRef(false)
 
-  const clearTimers = () => {
+  const clearTimers = useCallback(() => {
     clearTimeout(openTimer.current)
     clearTimeout(closeTimer.current)
-  }
+  }, [])
 
-  const dismissMenu = () => {
+  const dismissMenu = useCallback(() => {
     clearTimers()
+    focusMenuOnOpen.current = false
     setMenuOpen(false)
-  }
+  }, [clearTimers])
 
   const scheduleOpen = () => {
     clearTimers()
@@ -59,13 +63,13 @@ export function TerminalWindowControls({
     }, 180)
   }
 
-  useEffect(
-    () => () => {
-      clearTimeout(openTimer.current)
-      clearTimeout(closeTimer.current)
-    },
-    []
-  )
+  useEffect(() => {
+    window.addEventListener('blur', dismissMenu)
+    return () => {
+      clearTimers()
+      window.removeEventListener('blur', dismissMenu)
+    }
+  }, [clearTimers, dismissMenu])
 
   useEffect(() => {
     if (!menuOpen) return
@@ -75,7 +79,7 @@ export function TerminalWindowControls({
         event.target instanceof Node &&
         !controlsRef.current?.contains(event.target)
       ) {
-        setMenuOpen(false)
+        dismissMenu()
       }
     }
 
@@ -84,12 +88,10 @@ export function TerminalWindowControls({
 
       event.preventDefault()
       event.stopPropagation()
-      clearTimeout(openTimer.current)
-      clearTimeout(closeTimer.current)
       if (menuRef.current?.contains(document.activeElement)) {
         expandRef.current?.focus()
       }
-      setMenuOpen(false)
+      dismissMenu()
     }
 
     document.addEventListener('pointerdown', closeOnOutsidePointer)
@@ -98,7 +100,7 @@ export function TerminalWindowControls({
       document.removeEventListener('pointerdown', closeOnOutsidePointer)
       document.removeEventListener('keydown', closeOnEscape, true)
     }
-  }, [menuOpen])
+  }, [menuOpen, dismissMenu])
 
   useLayoutEffect(() => {
     if (menuOpen && focusMenuOnOpen.current) {
@@ -154,24 +156,25 @@ export function TerminalWindowControls({
       }}
       onPointerDown={(event) => {
         event.stopPropagation()
+        clearTimers()
       }}
       onPointerLeave={scheduleClose}
       ref={controlsRef}
       role="group"
     >
-      <motion.button
-        animate="idle"
+      <button
+        {...closePress.handlers}
         aria-label="Close terminal"
         className="terminal-window-control terminal-window-control--close"
-        initial={false}
+        data-pressed={closePress.pressed}
         onClick={onClose}
         type="button"
-        whileTap={reducedMotion ? undefined : 'pressed'}
       >
         <motion.span
+          animate={closePress.animation}
           className="terminal-window-control-dot"
-          transition={{ type: 'spring', stiffness: 650, damping: 35 }}
-          variants={dotVariants}
+          initial={false}
+          transition={pressTransition}
         >
           <svg
             aria-hidden="true"
@@ -181,20 +184,20 @@ export function TerminalWindowControls({
             <path d="m3.7 3.7 4.6 4.6m0-4.6L3.7 8.3" />
           </svg>
         </motion.span>
-      </motion.button>
-      <motion.button
-        animate="idle"
+      </button>
+      <button
+        {...minimizePress.handlers}
         aria-label="Minimize terminal"
         className="terminal-window-control terminal-window-control--minimize"
-        initial={false}
+        data-pressed={minimizePress.pressed}
         onClick={onMinimize}
         type="button"
-        whileTap={reducedMotion ? undefined : 'pressed'}
       >
         <motion.span
+          animate={minimizePress.animation}
           className="terminal-window-control-dot"
-          transition={{ type: 'spring', stiffness: 650, damping: 35 }}
-          variants={dotVariants}
+          initial={false}
+          transition={pressTransition}
         >
           <svg
             aria-hidden="true"
@@ -204,20 +207,22 @@ export function TerminalWindowControls({
             <path d="M3 6h6" />
           </svg>
         </motion.span>
-      </motion.button>
-      <motion.button
-        animate="idle"
+      </button>
+      <button
+        {...expandPress.handlers}
         aria-controls={menuOpen ? menuId : undefined}
         aria-expanded={menuOpen}
         aria-haspopup="menu"
         aria-label={expanded ? 'Exit full screen' : 'Enter full screen'}
         className="terminal-window-control terminal-window-control--expand"
-        initial={false}
+        data-pressed={expandPress.pressed}
         onClick={() => {
           dismissMenu()
           onToggleExpanded()
         }}
         onKeyDown={(event) => {
+          expandPress.handlers.onKeyDown(event)
+          if (event.key === ' ' || event.key === 'Enter') clearTimers()
           if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
             event.preventDefault()
             event.stopPropagation()
@@ -230,16 +235,18 @@ export function TerminalWindowControls({
             }
           }
         }}
-        onPointerEnter={scheduleOpen}
+        onPointerEnter={(event) => {
+          if (event.pointerType !== 'touch' && !event.buttons) scheduleOpen()
+        }}
         onPointerLeave={scheduleClose}
         ref={expandRef}
         type="button"
-        whileTap={reducedMotion ? undefined : 'pressed'}
       >
         <motion.span
+          animate={expandPress.animation}
           className="terminal-window-control-dot"
-          transition={{ type: 'spring', stiffness: 650, damping: 35 }}
-          variants={dotVariants}
+          initial={false}
+          transition={pressTransition}
         >
           <svg
             aria-hidden="true"
@@ -256,7 +263,7 @@ export function TerminalWindowControls({
             />
           </svg>
         </motion.span>
-      </motion.button>
+      </button>
       {menuOpen && (
         <motion.div
           animate={{ opacity: 1, scale: 1 }}
