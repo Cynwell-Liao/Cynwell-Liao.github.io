@@ -10,8 +10,10 @@ function pointerDown(overrides: Partial<PointerEvent<HTMLButtonElement>> = {}) {
   button.getBoundingClientRect = () => new DOMRect(100, 50, 24, 24)
   return {
     button: 0,
+    buttons: 0,
     isPrimary: true,
     pointerId: 1,
+    pointerType: 'mouse',
     currentTarget: button,
     ...overrides,
   } as PointerEvent<HTMLButtonElement>
@@ -34,6 +36,112 @@ function keyboardEvent(key: string) {
 }
 
 describe('useTerminalControlPress', () => {
+  it.each(['mouse', 'pen'] as const)(
+    'slightly magnifies on %s hover and settles when the pointer leaves',
+    (pointerType) => {
+      const { result } = renderHook(() => useTerminalControlPress(false))
+
+      act(() => {
+        result.current.handlers.onPointerEnter(pointerDown({ pointerType }))
+      })
+      expect(result.current.hovered).toBe(true)
+      expect(result.current.pressed).toBe(false)
+      expect(result.current.animation).toEqual({ scale: 1.1, x: 0, y: 0 })
+
+      act(() => {
+        result.current.handlers.onPointerLeave()
+      })
+      expect(result.current.hovered).toBe(false)
+      expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
+    }
+  )
+
+  it.each([{ pointerType: 'touch' }, { buttons: 1 }, { buttons: 2 }] as const)(
+    'does not magnify on touch or a held pointer entering: %j',
+    (overrides) => {
+      const { result } = renderHook(() => useTerminalControlPress(false))
+
+      act(() => {
+        result.current.handlers.onPointerEnter(pointerDown(overrides))
+      })
+      expect(result.current.hovered).toBe(false)
+      expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
+    }
+  )
+
+  it('gives pressing precedence over hover and returns to hover on release inside', () => {
+    const { result } = renderHook(() => useTerminalControlPress(false))
+    act(() => {
+      result.current.handlers.onPointerEnter(pointerDown())
+      result.current.handlers.onPointerDown(pointerDown())
+    })
+    expect(result.current.hovered).toBe(true)
+    expect(result.current.pressed).toBe(true)
+    expect(result.current.animation.scale).toBe(1.18)
+
+    act(() => {
+      dispatchPointer('pointerup')
+    })
+    expect(result.current.hovered).toBe(true)
+    expect(result.current.pressed).toBe(false)
+    expect(result.current.animation).toEqual({ scale: 1.1, x: 0, y: 0 })
+  })
+
+  it('keeps a held press when leaving but settles fully after release outside', () => {
+    const { result } = renderHook(() => useTerminalControlPress(false))
+    act(() => {
+      result.current.handlers.onPointerEnter(pointerDown())
+      result.current.handlers.onPointerDown(pointerDown())
+    })
+    act(() => {
+      result.current.handlers.onPointerLeave()
+      dispatchPointer('pointermove', 1, 500, 500)
+    })
+    expect(result.current.hovered).toBe(false)
+    expect(result.current.pressed).toBe(true)
+    expect(result.current.animation).toEqual({ scale: 1.18, x: 1.5, y: 1.5 })
+
+    act(() => {
+      dispatchPointer('pointerup', 1, 500, 500)
+    })
+    expect(result.current.pressed).toBe(false)
+    expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
+  })
+
+  it('clears previous mouse hover when a touch press starts', () => {
+    const { result } = renderHook(() => useTerminalControlPress(false))
+    act(() => {
+      result.current.handlers.onPointerEnter(pointerDown())
+    })
+    act(() => {
+      result.current.handlers.onPointerDown(pointerDown({ pointerType: 'touch' }))
+    })
+    expect(result.current.hovered).toBe(false)
+    expect(result.current.pressed).toBe(true)
+
+    act(() => {
+      dispatchPointer('pointerup')
+    })
+    expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
+  })
+
+  it.each(['window blur', 'button blur'])(
+    'clears an unpressed hover on %s',
+    (reason) => {
+      const { result } = renderHook(() => useTerminalControlPress(false))
+      act(() => {
+        result.current.handlers.onPointerEnter(pointerDown())
+      })
+
+      act(() => {
+        if (reason === 'window blur') window.dispatchEvent(new Event('blur'))
+        else result.current.handlers.onBlur()
+      })
+      expect(result.current.hovered).toBe(false)
+      expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
+    }
+  )
+
   it.each([{ button: 2 }, { isPrimary: false }])(
     'ignores non-primary presses: %j',
     (overrides) => {
@@ -132,10 +240,11 @@ describe('useTerminalControlPress', () => {
   )
 
   it.each(['pointercancel', 'window blur', 'button blur'])(
-    'clears a held press on %s',
+    'clears hover and a held press on %s',
     (reason) => {
       const { result } = renderHook(() => useTerminalControlPress(false))
       act(() => {
+        result.current.handlers.onPointerEnter(pointerDown())
         result.current.handlers.onPointerDown(pointerDown())
       })
       act(() => {
@@ -149,6 +258,7 @@ describe('useTerminalControlPress', () => {
       })
 
       expect(result.current.pressed).toBe(false)
+      expect(result.current.hovered).toBe(false)
       expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
     }
   )
@@ -183,8 +293,14 @@ describe('useTerminalControlPress', () => {
     }
   )
 
-  it('keeps pressed feedback without scaling or displacement when motion is reduced', () => {
+  it('keeps hover and pressed feedback without scaling or displacement when motion is reduced', () => {
     const { result } = renderHook(() => useTerminalControlPress(true))
+    act(() => {
+      result.current.handlers.onPointerEnter(pointerDown())
+    })
+    expect(result.current.hovered).toBe(true)
+    expect(result.current.animation).toEqual({ scale: 1, x: 0, y: 0 })
+
     act(() => {
       result.current.handlers.onPointerDown(pointerDown())
     })

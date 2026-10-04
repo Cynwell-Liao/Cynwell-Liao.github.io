@@ -6,7 +6,7 @@ const controlNames = [
   'Enter full screen',
 ] as const
 
-test('traffic lights reveal hover symbols and expand only the pressed dot without moving their targets @desktop', async ({
+test('traffic lights magnify the hovered dot and expand further on press without moving their targets @desktop', async ({
   page,
 }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
@@ -45,8 +45,10 @@ test('traffic lights reveal hover symbols and expand only the pressed dot withou
   for (const glyph of await controls.locator('svg').all()) {
     await expect(glyph).toHaveCSS('opacity', '1')
   }
-  for (const dot of await dots.all()) {
-    expect((await dot.boundingBox())?.width).toBeCloseTo(12, 1)
+  for (const [index, dot] of (await dots.all()).entries()) {
+    await expect
+      .poll(async () => (await dot.boundingBox())?.width)
+      .toBeCloseTo(index === 2 ? 13.2 : 12, 1)
   }
   await page.keyboard.press('Escape')
 
@@ -54,13 +56,37 @@ test('traffic lights reveal hover symbols and expand only the pressed dot withou
     const button = page.getByRole('button', { name, exact: true })
     const dot = button.locator('.terminal-window-control-dot')
     await button.hover()
-    await page.mouse.down()
-    await expect.poll(async () => (await dot.boundingBox())?.width).toBeGreaterThan(13)
-    expect((await dot.boundingBox())?.width).toBeLessThan(17)
+    await expect.poll(async () => (await dot.boundingBox())?.width).toBeCloseTo(13.2, 1)
     expect(await button.boundingBox()).toEqual(originalTargets[index])
     for (let other = 0; other < controlNames.length; other += 1) {
       if (other !== index) {
-        expect((await dots.nth(other).boundingBox())?.width).toBeCloseTo(12, 1)
+        await expect
+          .poll(async () => (await dots.nth(other).boundingBox())?.width)
+          .toBeCloseTo(12, 1)
+      }
+    }
+    if (index === 0) {
+      const previewPath = testInfo.outputPath('terminal-dark-hover-control.png')
+      await dialog.screenshot({ path: previewPath })
+      await testInfo.attach('terminal-dark-hover-control', {
+        path: previewPath,
+        contentType: 'image/png',
+      })
+    }
+
+    await input.hover()
+    await expect.poll(async () => (await dot.boundingBox())?.width).toBeCloseTo(12, 1)
+    await button.hover()
+    await page.mouse.down()
+    await expect
+      .poll(async () => (await dot.boundingBox())?.width)
+      .toBeCloseTo(14.16, 1)
+    expect(await button.boundingBox()).toEqual(originalTargets[index])
+    for (let other = 0; other < controlNames.length; other += 1) {
+      if (other !== index) {
+        await expect
+          .poll(async () => (await dots.nth(other).boundingBox())?.width)
+          .toBeCloseTo(12, 1)
       }
     }
     await testInfo.attach(`traffic-light-${index}-pressed`, {
@@ -87,13 +113,13 @@ test('traffic lights reveal hover symbols and expand only the pressed dot withou
         const bounds = await dot.boundingBox()
         return bounds ? bounds.x + bounds.width / 2 - center.x : 0
       })
-      .toBeGreaterThan(0.5)
+      .toBeCloseTo(1.5, 3)
     await expect
       .poll(async () => {
         const bounds = await dot.boundingBox()
         return bounds ? bounds.y + bounds.height / 2 - center.y : 0
       })
-      .toBeGreaterThan(0.5)
+      .toBeCloseTo(1.5, 3)
     const heldBounds = await dot.boundingBox()
     if (!heldBounds) throw new Error('Pressed traffic light is unavailable')
     expect(heldBounds.width).toBeGreaterThan(13)
@@ -122,7 +148,7 @@ test('traffic lights reveal hover symbols and expand only the pressed dot withou
   })
 })
 
-test('reduced motion keeps pressed dots still and preserves keyboard activation @desktop', async ({
+test('reduced motion keeps hovered and pressed dots still and preserves keyboard activation @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -137,6 +163,7 @@ test('reduced motion keeps pressed dots still and preserves keyboard activation 
     const dot = button.locator('.terminal-window-control-dot')
     const originalDot = await dot.boundingBox()
     await button.hover()
+    expect(await dot.boundingBox()).toEqual(originalDot)
     await page.mouse.down()
     expect(await dot.boundingBox()).toEqual(originalDot)
     await input.hover()
@@ -163,9 +190,9 @@ test('reduced motion keeps pressed dots still and preserves keyboard activation 
   ).toBeFocused()
 })
 
-test('keyboard presses animate and interrupted pointer presses reset without activating a control @desktop', async ({
+test('keyboard presses animate and interrupted hover or pointer presses reset without activating a control @desktop', async ({
   page,
-}) => {
+}, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   await page.getByRole('button', { name: 'Terminal', exact: true }).click()
@@ -187,12 +214,28 @@ test('keyboard presses animate and interrupted pointer presses reset without act
 
   const close = page.getByRole('button', { name: 'Close terminal' })
   const closeDot = close.locator('.terminal-window-control-dot')
+  await close.hover()
+  await expect
+    .poll(async () => (await closeDot.boundingBox())?.width)
+    .toBeCloseTo(13.2, 1)
+  const previewPath = testInfo.outputPath('terminal-light-hover-control.png')
+  await dialog.screenshot({ path: previewPath })
+  await testInfo.attach('terminal-light-hover-control', {
+    path: previewPath,
+    contentType: 'image/png',
+  })
+  await page.evaluate(() => window.dispatchEvent(new Event('blur')))
+  await expect
+    .poll(async () => (await closeDot.boundingBox())?.width)
+    .toBeCloseTo(12, 1)
+  await input.hover()
+
   for (const interruption of ['pointercancel', 'blur'] as const) {
     await close.hover()
     await page.mouse.down()
     await expect
       .poll(async () => (await closeDot.boundingBox())?.width)
-      .toBeGreaterThan(13)
+      .toBeCloseTo(14.16, 1)
     if (interruption === 'pointercancel') {
       await close.dispatchEvent('pointercancel', {
         pointerId: 1,

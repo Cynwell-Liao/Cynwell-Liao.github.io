@@ -166,6 +166,7 @@ export function TerminalWindowControls({
         {...closePress.handlers}
         aria-label="Close terminal"
         className="terminal-window-control terminal-window-control--close"
+        data-hovered={closePress.hovered}
         data-pressed={closePress.pressed}
         onClick={onClose}
         type="button"
@@ -189,6 +190,7 @@ export function TerminalWindowControls({
         {...minimizePress.handlers}
         aria-label="Minimize terminal"
         className="terminal-window-control terminal-window-control--minimize"
+        data-hovered={minimizePress.hovered}
         data-pressed={minimizePress.pressed}
         onClick={onMinimize}
         type="button"
@@ -215,6 +217,7 @@ export function TerminalWindowControls({
         aria-haspopup="menu"
         aria-label={expanded ? 'Exit full screen' : 'Enter full screen'}
         className="terminal-window-control terminal-window-control--expand"
+        data-hovered={expandPress.hovered}
         data-pressed={expandPress.pressed}
         onClick={() => {
           dismissMenu()
@@ -236,9 +239,13 @@ export function TerminalWindowControls({
           }
         }}
         onPointerEnter={(event) => {
+          expandPress.handlers.onPointerEnter(event)
           if (event.pointerType !== 'touch' && !event.buttons) scheduleOpen()
         }}
-        onPointerLeave={scheduleClose}
+        onPointerLeave={() => {
+          expandPress.handlers.onPointerLeave()
+          scheduleClose()
+        }}
         ref={expandRef}
         type="button"
       >
