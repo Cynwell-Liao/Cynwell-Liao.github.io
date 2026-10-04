@@ -1,8 +1,15 @@
 {
   "name": "Cynwell Liao",
+  "title": "Cynwell Liao | Software Engineer",
   "siteUrl": "https://cynwell-liao.github.io",
-  "description": "Personal portfolio and open source project developed by Cynwell Liao. A Software Engineer showcasing production AI products, cloud-native systems, and scalable platform engineering projects.",
+  "description": "Cynwell Liao is a Software Engineer working across backend engineering, cloud-native systems, and AI-enabled software.",
   "keywords": "Software Engineer, AI Engineer, Cloud Engineer, Software Development, Java, Python, TypeScript, Portfolio",
   "ogImage": "/assets/og-cover.png",
-  "googleSiteVerification": "_Hzq36fyEuHxoKaKQwwIDgxYmauiL-vNXnPkLHa5M6k"
+  "googleSiteVerification": "_Hzq36fyEuHxoKaKQwwIDgxYmauiL-vNXnPkLHa5M6k",
+  "jobTitle": "Software Engineer",
+  "worksFor": "Macquarie Group",
+  "sameAs": [
+    "https://github.com/Cynwell-Liao",
+    "https://www.linkedin.com/in/cynwell-liao"
+  ]
 }

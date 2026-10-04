@@ -14,12 +14,14 @@ import {
 
 const metadata: SiteMetadata = {
   name: 'Ada & <Team>',
+  title: 'Ada & <Team> | Software Engineer',
   description: 'Build "safe" software',
   keywords: 'portfolio, software',
   googleSiteVerification: 'verification-token',
   siteUrl: 'https://example.com',
   canonicalUrl: 'https://example.com/',
   ogImageUrl: 'https://example.com/assets/cover.png',
+  structuredDataJson: '{"@context":"https://schema.org","@type":"Person"}',
 }
 let temporaryDirectory: string | undefined
 
@@ -39,13 +41,15 @@ afterEach(() => {
 describe('build metadata helpers', () => {
   it('escapes values before injecting every supported placeholder', () => {
     const template =
-      '__SITE_NAME__|__SITE_DESCRIPTION__|__SITE_KEYWORDS__|__SITE_URL__|' +
-      '__SITE_CANONICAL_URL__|__SITE_OG_IMAGE__|__SITE_GOOGLE_VERIFICATION__'
+      '__SITE_NAME__|__SITE_TITLE__|__SITE_DESCRIPTION__|__SITE_KEYWORDS__|__SITE_URL__|' +
+      '__SITE_CANONICAL_URL__|__SITE_OG_IMAGE__|__SITE_GOOGLE_VERIFICATION__|' +
+      '__SITE_STRUCTURED_DATA__'
 
     expect(injectSiteMetadata(template, metadata)).toBe(
-      'Ada &amp; &lt;Team&gt;|Build &quot;safe&quot; software|portfolio, software|' +
+      'Ada &amp; &lt;Team&gt;|Ada &amp; &lt;Team&gt; | Software Engineer|Build &quot;safe&quot; software|portfolio, software|' +
         'https://example.com|https://example.com/|' +
-        'https://example.com/assets/cover.png|verification-token'
+        'https://example.com/assets/cover.png|verification-token|' +
+        '{"@context":"https://schema.org","@type":"Person"}'
     )
   })
 
@@ -63,22 +67,32 @@ describe('build metadata helpers', () => {
     const packagePath = writeTemporaryJson('package.json', { version: '1.2.3' })
     const metadataPath = writeTemporaryJson('site-meta.json', {
       name: 'Ada Lovelace',
+      title: 'Ada Lovelace | Software Engineer',
       siteUrl: 'https://example.com/portfolio/?draft=true#preview',
       description: 'A software portfolio',
       keywords: 'portfolio, software',
       ogImage: '/assets/cover.png',
       googleSiteVerification: 'verification-token',
+      jobTitle: 'Software Engineer',
+      worksFor: 'Example Corp',
+      sameAs: ['https://github.com/ada', 'https://www.linkedin.com/in/ada'],
     })
 
     expect(readAppVersion(packagePath)).toBe('v1.2.3')
     expect(readSiteMetadata(metadataPath)).toEqual({
       name: 'Ada Lovelace',
+      title: 'Ada Lovelace | Software Engineer',
       siteUrl: 'https://example.com/portfolio',
       canonicalUrl: 'https://example.com/portfolio/',
       description: 'A software portfolio',
       keywords: 'portfolio, software',
       ogImageUrl: 'https://example.com/assets/cover.png',
       googleSiteVerification: 'verification-token',
+      structuredDataJson:
+        '{"@context":"https://schema.org","@type":"Person","name":"Ada Lovelace",' +
+        '"jobTitle":"Software Engineer","url":"https://example.com/portfolio/",' +
+        '"worksFor":{"@type":"Organization","name":"Example Corp"},' +
+        '"sameAs":["https://github.com/ada","https://www.linkedin.com/in/ada"]}',
     })
   })
 
