@@ -77,8 +77,8 @@ for (const theme of ['light', 'dark'] as const) {
       theme
     )
     await expect(page.locator('.terminal-screen')).toHaveCSS(
-      'background-color',
-      theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
+      'backdrop-filter',
+      'blur(24px)'
     )
     await expect(input).toHaveCSS(
       'color',

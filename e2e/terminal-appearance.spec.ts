@@ -1,5 +1,21 @@
 import { expect, test } from './fixtures'
 
+function readMaterial(element: Element) {
+  const style = getComputedStyle(element)
+  // Normalize rgb() and oklab() through the browser's color conversion so the
+  // actual surfaces can be compared regardless of their CSS color notation.
+  const canvas = document.createElement('canvas')
+  canvas.width = canvas.height = 1
+  const context = canvas.getContext('2d')
+  if (!context) throw new Error('Canvas color conversion is unavailable')
+  context.fillStyle = style.backgroundColor
+  context.fillRect(0, 0, 1, 1)
+  return {
+    background: Array.from(context.getImageData(0, 0, 1, 1).data),
+    blur: style.backdropFilter,
+  }
+}
+
 function readColor(value: string) {
   const components = value.match(/[\d.]+/gu)?.map(Number)
   if (!components || components.length < 3) {
@@ -25,6 +41,11 @@ for (const theme of ['light', 'dark'] as const) {
     if (theme === 'dark') {
       await page.getByRole('button', { name: 'Switch to dark mode' }).click()
     }
+    await page.evaluate(() => window.scrollTo(0, 200))
+    const navbar = page
+      .locator('header > div')
+      .filter({ has: page.getByTestId('navbar-brand') })
+    await expect(navbar).toHaveCSS('backdrop-filter', 'blur(24px)')
     const opener = page.getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -47,19 +68,36 @@ for (const theme of ['light', 'dark'] as const) {
       )
       .toMatch(/blur\(/u)
 
-    const colors = await screen.evaluate((element) => {
-      const style = getComputedStyle(element)
-      return { background: style.backgroundColor, text: style.color }
-    })
-    const background = readColor(colors.background)
-    const foreground = readColor(colors.text)
-    expect(background.alpha).toBe(1)
-    expect(foreground.alpha).toBe(1)
-    const contrast =
-      (Math.max(background.luminance, foreground.luminance) + 0.05) /
-      (Math.min(background.luminance, foreground.luminance) + 0.05)
-    expect(contrast).toBeGreaterThanOrEqual(7)
-    await expect(input).toHaveCSS('color', colors.text)
+    const navbarMaterial = await navbar.evaluate(readMaterial)
+    expect(navbarMaterial.background[3]).toBe(theme === 'light' ? 204 : 102)
+    await expect.poll(() => screen.evaluate(readMaterial)).toEqual(navbarMaterial)
+    // Only the background is translucent: output and input stay fully opaque.
+    // Readability is also checked by WCAG scans and saved rendered previews;
+    // treating a translucent color as an opaque background gives a false ratio.
+    const textColor = await screen.evaluate(
+      (element) => getComputedStyle(element).color
+    )
+    expect(readColor(textColor).alpha).toBe(1)
+    await expect(screen).toHaveCSS('opacity', '1')
+    await expect(page.getByRole('log', { name: 'Terminal output' })).toHaveCSS(
+      'opacity',
+      '1'
+    )
+    await expect(input).toHaveCSS('color', textColor)
+    await expect(input).toHaveCSS('opacity', '1')
+    await expect(input).toHaveCSS('background-color', 'rgba(0, 0, 0, 0)')
+
+    for (const [name, capture] of [
+      ['page', (path: string) => page.screenshot({ path, fullPage: true })],
+      ['window', (path: string) => dialog.screenshot({ path })],
+    ] as const) {
+      const previewPath = testInfo.outputPath(`terminal-${theme}-glass-${name}.png`)
+      await capture(previewPath)
+      await testInfo.attach(`terminal-${theme}-glass-${name}`, {
+        path: previewPath,
+        contentType: 'image/png',
+      })
+    }
 
     const activeColors = await dots.evaluateAll((elements) =>
       elements.map((element) => getComputedStyle(element).backgroundColor)
@@ -109,6 +147,26 @@ for (const theme of ['light', 'dark'] as const) {
       body: await dialog.screenshot(),
       contentType: 'image/png',
     })
+
+    // Playwright's media helper does not yet expose reduced transparency.
+    const session = await page.context().newCDPSession(page)
+    await session.send('Emulation.setEmulatedMedia', {
+      features: [
+        { name: 'prefers-reduced-motion', value: 'reduce' },
+        { name: 'prefers-reduced-transparency', value: 'reduce' },
+      ],
+    })
+    expect(
+      await page.evaluate(
+        () => matchMedia('(prefers-reduced-transparency: reduce)').matches
+      )
+    ).toBe(true)
+    await expect(screen).toHaveCSS('backdrop-filter', 'none')
+    await expect(screen).toHaveCSS(
+      'background-color',
+      theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
+    )
+    await session.detach()
   })
 }
 
@@ -128,6 +186,9 @@ for (const theme of ['light', 'dark'] as const) {
     const controls = page.getByRole('group', { name: 'Terminal window controls' })
     await expect(input).toBeFocused()
     await expect(dialog).toHaveAttribute('data-theme', theme)
+    const screen = page.locator('.terminal-screen')
+    await expect(screen).toHaveCSS('backdrop-filter', 'none')
+    expect((await screen.evaluate(readMaterial)).background[3]).toBe(255)
 
     // Forced colors removes the normal glass shadows and colored fills. Keep
     // the circular edge and identifying symbol visible without hover or focus.
