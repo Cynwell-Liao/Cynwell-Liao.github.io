@@ -249,6 +249,7 @@ export function TerminalWindow({
           }}
           ref={restoreRef}
           title="Restore Terminal"
+          transition={{ duration: reducedMotion ? 0 : 0.24, ease: 'easeOut' }}
           type="button"
         >
           <span aria-hidden className="terminal-dock-icon">
@@ -295,7 +296,7 @@ export function TerminalWindow({
             width: bounds.width,
             height: bounds.height,
           }}
-          transition={{ duration: reducedMotion ? 0 : 0.16 }}
+          transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] }}
         >
           <div
             className="terminal-titlebar"

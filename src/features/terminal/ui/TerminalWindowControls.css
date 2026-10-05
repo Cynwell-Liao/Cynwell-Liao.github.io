@@ -134,14 +134,15 @@
   max-width: calc(100vw - 5rem);
   padding: 5px;
   border: 1px solid var(--terminal-glass-edge);
-  border-radius: 12px;
+  border-radius: 14px;
   background: var(--terminal-glass-solid);
+  background-image: var(--terminal-glass-sheen);
   color: #252525;
   box-shadow:
-    0 8px 28px rgb(0 0 0 / 20%),
-    0 2px 6px rgb(0 0 0 / 10%),
+    0 16px 40px -8px rgb(0 0 0 / 22%),
+    0 4px 12px -3px rgb(0 0 0 / 12%),
     inset 0 1px 0 var(--terminal-glass-highlight),
-    inset 0 0 0 0.5px var(--terminal-glass-highlight);
+    inset 0 -1px 0 var(--terminal-glass-bottom);
   transform-origin: 12px 0;
 }
 
@@ -200,15 +201,15 @@
 [data-theme='dark'] .terminal-window-menu {
   color: #f3f3f3;
   box-shadow:
-    0 8px 28px rgb(0 0 0 / 40%),
-    0 2px 6px rgb(0 0 0 / 20%),
+    0 16px 40px -8px rgb(0 0 0 / 42%),
+    0 4px 12px -3px rgb(0 0 0 / 24%),
     inset 0 1px 0 var(--terminal-glass-highlight),
-    inset 0 0 0 0.5px var(--terminal-glass-highlight);
+    inset 0 -1px 0 var(--terminal-glass-bottom);
 }
 
 @supports (backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px)) {
   .terminal-window-menu {
-    background: var(--terminal-glass-background);
+    background-color: var(--terminal-glass-background);
     -webkit-backdrop-filter: blur(24px) saturate(1.4);
     backdrop-filter: blur(24px) saturate(1.4);
   }

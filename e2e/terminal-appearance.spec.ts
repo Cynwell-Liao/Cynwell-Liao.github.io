@@ -1,7 +1,9 @@
 import { expect, test } from './fixtures'
 
-function readMaterial(element: Element) {
-  const style = getComputedStyle(element)
+import type { Locator } from '@playwright/test'
+
+function readMaterial(element: Element, pseudo: string | null = null) {
+  const style = getComputedStyle(element, pseudo)
   // Normalize rgb() and oklab() through the browser's color conversion so the
   // actual surfaces can be compared regardless of their CSS color notation.
   const canvas = document.createElement('canvas')
@@ -14,6 +16,41 @@ function readMaterial(element: Element) {
     background: Array.from(context.getImageData(0, 0, 1, 1).data),
     blur: style.backdropFilter,
   }
+}
+
+async function expectGlassChrome(surface: Locator, pseudo: string | null = null) {
+  const material = await surface.evaluate(readMaterial, pseudo)
+  expect(material.background[3]).toBeGreaterThan(0)
+  expect(material.background[3]).toBeLessThan(255)
+  expect(material.blur).toMatch(/blur\(/u)
+  const details = await surface.evaluate((element, selector) => {
+    const style = getComputedStyle(element, selector)
+    return {
+      image: style.backgroundImage,
+      radius: parseFloat(style.borderTopLeftRadius),
+    }
+  }, pseudo)
+  expect(details.image).toMatch(/gradient\(/u)
+  expect(details.radius).toBeGreaterThan(0)
+  expect(details.radius).toBeLessThanOrEqual(24)
+  await expect(surface).toHaveCSS('opacity', '1')
+  expect(
+    readColor(await surface.evaluate((element) => getComputedStyle(element).color))
+      .alpha
+  ).toBe(1)
+  return material
+}
+
+async function expectSolidChrome(surface: Locator, pseudo: string | null = null) {
+  const material = await surface.evaluate(readMaterial, pseudo)
+  expect(material.background[3]).toBe(255)
+  expect(material.blur).toBe('none')
+  expect(
+    await surface.evaluate(
+      (element, selector) => getComputedStyle(element, selector).backgroundImage,
+      pseudo
+    )
+  ).toBe('none')
 }
 
 function readColor(value: string) {
@@ -57,6 +94,13 @@ for (const theme of ['light', 'dark'] as const) {
     await expect(dialog).toHaveAttribute('data-theme', theme)
     await expect(input).toBeFocused()
     await expect(dialog).toHaveAttribute('data-active', 'true')
+    await expect(dialog).toHaveCSS('backdrop-filter', 'none')
+    await expect(dialog).toHaveCSS('filter', 'none')
+    const frameRadius = parseFloat(
+      await dialog.evaluate((element) => getComputedStyle(element).borderTopLeftRadius)
+    )
+    expect(frameRadius).toBeGreaterThan(0)
+    expect(frameRadius).toBeLessThanOrEqual(24)
     // Keep the titlebar out of the menu's backdrop chain so its glass can blur
     // the terminal content underneath independently of the titlebar material.
     await expect(titlebar).toHaveCSS('backdrop-filter', 'none')
@@ -67,6 +111,7 @@ for (const theme of ['light', 'dark'] as const) {
         )
       )
       .toMatch(/blur\(/u)
+    const titlebarMaterial = await expectGlassChrome(titlebar, '::before')
 
     const navbarMaterial = await navbar.evaluate(readMaterial)
     expect(navbarMaterial.background[3]).toBe(theme === 'light' ? 204 : 102)
@@ -137,16 +182,50 @@ for (const theme of ['light', 'dark'] as const) {
     await page.getByRole('button', { name: 'Enter full screen' }).hover()
     const menu = page.getByRole('menu', { name: 'Window arrangement' })
     await expect(menu).toBeVisible()
-    await expect(menu).toHaveCSS('backdrop-filter', /blur\(/u)
+    expect(await expectGlassChrome(menu)).toEqual(titlebarMaterial)
+    const filteredAncestors = await menu.evaluate((element) => {
+      const filtered: string[] = []
+      for (
+        let ancestor = element.parentElement;
+        ancestor;
+        ancestor = ancestor.parentElement
+      ) {
+        const style = getComputedStyle(ancestor)
+        if (style.backdropFilter !== 'none' || style.filter !== 'none') {
+          filtered.push(ancestor.className)
+        }
+      }
+      return filtered
+    })
+    expect(filteredAncestors).toEqual([])
+    for (const item of await menu.getByRole('menuitem').all()) {
+      await expect(item).toBeInViewport({ ratio: 1 })
+      await expect(item).toHaveCSS('opacity', '1')
+      expect(
+        readColor(await item.evaluate((element) => getComputedStyle(element).color))
+          .alpha
+      ).toBe(1)
+    }
     await expect(input).toBeFocused()
+    const menuPreview = testInfo.outputPath(`terminal-${theme}-hover-menu.png`)
+    await dialog.screenshot({ path: menuPreview })
     await testInfo.attach(`terminal-${theme}-hover-menu`, {
-      body: await page.screenshot(),
+      path: menuPreview,
       contentType: 'image/png',
     })
-    await testInfo.attach(`terminal-${theme}-window`, {
-      body: await dialog.screenshot(),
+
+    await page.getByRole('button', { name: 'Minimize terminal' }).click()
+    const dock = page.getByRole('button', { name: 'Restore terminal' })
+    await expect(dock).toBeFocused()
+    expect(await expectGlassChrome(dock)).toEqual(titlebarMaterial)
+    const dockPreview = testInfo.outputPath(`terminal-${theme}-glass-dock.png`)
+    await dock.screenshot({ path: dockPreview })
+    await testInfo.attach(`terminal-${theme}-glass-dock`, {
+      path: dockPreview,
       contentType: 'image/png',
     })
+    await dock.click()
+    await expect(input).toBeFocused()
 
     // Playwright's media helper does not yet expose reduced transparency.
     const session = await page.context().newCDPSession(page)
@@ -166,6 +245,13 @@ for (const theme of ['light', 'dark'] as const) {
       'background-color',
       theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
     )
+    await expectSolidChrome(titlebar, '::before')
+    await page.getByRole('button', { name: 'Enter full screen' }).press('ArrowDown')
+    await expect(menu).toBeVisible()
+    await expectSolidChrome(menu)
+    await page.getByRole('button', { name: 'Minimize terminal' }).click()
+    await expect(dock).toBeVisible()
+    await expectSolidChrome(dock)
     await session.detach()
   })
 }
@@ -189,6 +275,7 @@ for (const theme of ['light', 'dark'] as const) {
     const screen = page.locator('.terminal-screen')
     await expect(screen).toHaveCSS('backdrop-filter', 'none')
     expect((await screen.evaluate(readMaterial)).background[3]).toBe(255)
+    await expectSolidChrome(page.getByTestId('terminal-titlebar'), '::before')
 
     // Forced colors removes the normal glass shadows and colored fills. Keep
     // the circular edge and identifying symbol visible without hover or focus.
@@ -232,6 +319,14 @@ for (const theme of ['light', 'dark'] as const) {
     })
     await page.keyboard.up('Space')
     await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+    await page.getByRole('button', { name: 'Exit full screen' }).press('ArrowDown')
+    const menu = page.getByRole('menu', { name: 'Window arrangement' })
+    await expect(menu).toBeVisible()
+    await expectSolidChrome(menu)
+    await page.getByRole('button', { name: 'Minimize terminal' }).click()
+    const dock = page.getByRole('button', { name: 'Restore terminal' })
+    await expect(dock).toBeFocused()
+    await expectSolidChrome(dock)
   })
 }
 
