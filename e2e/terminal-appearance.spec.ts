@@ -15,6 +15,7 @@ function readMaterial(element: Element, pseudo: string | null = null) {
   return {
     background: Array.from(context.getImageData(0, 0, 1, 1).data),
     blur: style.backdropFilter,
+    sheen: style.backgroundImage,
   }
 }
 
@@ -26,11 +27,10 @@ async function expectGlassChrome(surface: Locator, pseudo: string | null = null)
   const details = await surface.evaluate((element, selector) => {
     const style = getComputedStyle(element, selector)
     return {
-      image: style.backgroundImage,
       radius: parseFloat(style.borderTopLeftRadius),
     }
   }, pseudo)
-  expect(details.image).toMatch(/gradient\(/u)
+  expect(material.sheen).toMatch(/gradient\(/u)
   expect(details.radius).toBeGreaterThan(0)
   expect(details.radius).toBeLessThanOrEqual(24)
   await expect(surface).toHaveCSS('opacity', '1')
@@ -79,10 +79,6 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: 'Switch to dark mode' }).click()
     }
     await page.evaluate(() => window.scrollTo(0, 200))
-    const navbar = page
-      .locator('header > div')
-      .filter({ has: page.getByTestId('navbar-brand') })
-    await expect(navbar).toHaveCSS('backdrop-filter', 'blur(24px)')
     const opener = page.getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -112,10 +108,14 @@ for (const theme of ['light', 'dark'] as const) {
       )
       .toMatch(/blur\(/u)
     const titlebarMaterial = await expectGlassChrome(titlebar, '::before')
-
-    const navbarMaterial = await navbar.evaluate(readMaterial)
-    expect(navbarMaterial.background[3]).toBe(theme === 'light' ? 204 : 102)
-    await expect.poll(() => screen.evaluate(readMaterial)).toEqual(navbarMaterial)
+    // A shared strength keeps light and dark glass equally translucent. Allow
+    // one channel of rounding when converting CSS colors to 8-bit canvas data.
+    expect(Math.abs(titlebarMaterial.background[3]! - 255 * 0.65)).toBeLessThanOrEqual(
+      1
+    )
+    await expect(screen).toHaveCSS('backdrop-filter', 'blur(24px)')
+    const screenMaterial = await screen.evaluate(readMaterial)
+    expect(Math.abs(screenMaterial.background[3]! - 255 * 0.7)).toBeLessThanOrEqual(1)
     // Only the background is translucent: output and input stay fully opaque.
     // Readability is also checked by WCAG scans and saved rendered previews;
     // treating a translucent color as an opaque background gives a false ratio.
@@ -226,6 +226,34 @@ for (const theme of ['light', 'dark'] as const) {
     })
     await dock.click()
     await expect(input).toBeFocused()
+
+    // Changing the theme while the window is open changes its tint, without
+    // changing how strongly the page shows through the body or glass sheen.
+    await input.fill('theme toggle')
+    await input.press('Enter')
+    await expect(dialog).toHaveAttribute(
+      'data-theme',
+      theme === 'light' ? 'dark' : 'light'
+    )
+    for (const [surface, pseudo, original] of [
+      [screen, null, screenMaterial],
+      [titlebar, '::before', titlebarMaterial],
+    ] as const) {
+      await expect
+        .poll(async () =>
+          (await surface.evaluate(readMaterial, pseudo)).background.slice(0, 3)
+        )
+        .not.toEqual(original.background.slice(0, 3))
+      const switched = await surface.evaluate(readMaterial, pseudo)
+      expect(
+        Math.abs(switched.background[3]! - original.background[3]!)
+      ).toBeLessThanOrEqual(1)
+      expect(switched.blur).toBe(original.blur)
+      expect(switched.sheen).toBe(original.sheen)
+    }
+    await input.fill(`theme ${theme}`)
+    await input.press('Enter')
+    await expect(dialog).toHaveAttribute('data-theme', theme)
 
     // Playwright's media helper does not yet expose reduced transparency.
     const session = await page.context().newCDPSession(page)

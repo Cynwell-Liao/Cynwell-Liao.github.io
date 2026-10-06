@@ -43,7 +43,7 @@ for (const theme of ['light', 'dark'] as const) {
       contentType: 'image/png',
     })
 
-    const channelRanges = await page.evaluate(async (bytes) => {
+    const channelContrasts = await page.evaluate(async (bytes) => {
       const bitmap = await createImageBitmap(
         new Blob([new Uint8Array(bytes)], { type: 'image/png' })
       )
@@ -56,27 +56,35 @@ for (const theme of ['light', 'dark'] as const) {
       bitmap.close()
       const pixels = context.getImageData(0, 0, canvas.width, 1).data
       return [0, 1, 2].map((channel) => {
-        let minimum = 255
-        let maximum = 0
-        for (let offset = channel; offset < pixels.length; offset += 4) {
-          minimum = Math.min(minimum, pixels[offset])
-          maximum = Math.max(maximum, pixels[offset])
+        let maximumContrast = 0
+        // Four pixels span opposite stripe colors, while the glass sheen changes
+        // gradually across the window. Measure the detail the blur must remove.
+        const stripeWidthBytes = 4 * 4
+        for (
+          let offset = channel + stripeWidthBytes;
+          offset < pixels.length;
+          offset += 4
+        ) {
+          maximumContrast = Math.max(
+            maximumContrast,
+            Math.abs(pixels[offset] - pixels[offset - stripeWidthBytes])
+          )
         }
-        return maximum - minimum
+        return maximumContrast
       })
     }, Array.from(divider))
-    await testInfo.attach(`${theme}-divider-channel-ranges`, {
-      body: JSON.stringify(channelRanges),
+    await testInfo.attach(`${theme}-divider-stripe-contrasts`, {
+      body: JSON.stringify(channelContrasts),
       contentType: 'application/json',
     })
     await dialog.screenshot({
       path: testInfo.outputPath(`${theme}-terminal-seam.png`),
     })
 
-    // Blurred 4px stripes should be nearly uniform, not alternate black and white.
-    for (const range of channelRanges) {
+    // Opposite stripe colors should blend even where the glass has a broad sheen.
+    for (const contrast of channelContrasts) {
       expect(
-        range,
+        contrast,
         'The titlebar divider must not expose unfiltered page detail'
       ).toBeLessThan(20)
     }
