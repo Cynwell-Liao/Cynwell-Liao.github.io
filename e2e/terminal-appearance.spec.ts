@@ -79,7 +79,9 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: 'Switch to dark mode' }).click()
     }
     await page.evaluate(() => window.scrollTo(0, 200))
-    const opener = page.getByRole('button', { name: 'Terminal', exact: true })
+    const opener = page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
     const input = page.getByRole('textbox', { name: 'Terminal command input' })
@@ -216,10 +218,17 @@ for (const theme of ['light', 'dark'] as const) {
 
     await page.getByRole('button', { name: 'Minimize terminal' }).click()
     const dock = page.getByRole('button', { name: 'Restore terminal' })
+    const dockGlass = page.locator('.desktop-dock__glass')
     await expect(dock).toBeFocused()
-    expect(await expectGlassChrome(dock)).toEqual(titlebarMaterial)
+    await expect(dialog).toHaveCount(0)
+    const dockMaterial = await dockGlass.evaluate(readMaterial)
+    expect(dockMaterial.background[3]).toBeGreaterThan(0)
+    expect(dockMaterial.background[3]).toBeLessThan(255)
+    expect(dockMaterial.blur).toMatch(/blur\(/u)
     const dockPreview = testInfo.outputPath(`terminal-${theme}-glass-dock.png`)
-    await dock.screenshot({ path: dockPreview })
+    await page
+      .getByRole('navigation', { name: 'Application Dock' })
+      .screenshot({ path: dockPreview })
     await testInfo.attach(`terminal-${theme}-glass-dock`, {
       path: dockPreview,
       contentType: 'image/png',
@@ -279,7 +288,7 @@ for (const theme of ['light', 'dark'] as const) {
     await expectSolidChrome(menu)
     await page.getByRole('button', { name: 'Minimize terminal' }).click()
     await expect(dock).toBeVisible()
-    await expectSolidChrome(dock)
+    await expectSolidChrome(dockGlass)
     await session.detach()
   })
 }
@@ -294,7 +303,10 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: 'Switch to dark mode' }).click()
     }
     await page.emulateMedia({ forcedColors: 'active', colorScheme: theme })
-    await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+    await page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Terminal', exact: true })
+      .click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
     const input = page.getByRole('textbox', { name: 'Terminal command input' })
     const controls = page.getByRole('group', { name: 'Terminal window controls' })
@@ -354,7 +366,7 @@ for (const theme of ['light', 'dark'] as const) {
     await page.getByRole('button', { name: 'Minimize terminal' }).click()
     const dock = page.getByRole('button', { name: 'Restore terminal' })
     await expect(dock).toBeFocused()
-    await expectSolidChrome(dock)
+    await expectSolidChrome(page.locator('.desktop-dock__glass'))
   })
 }
 
@@ -363,7 +375,10 @@ test('keyboard menu selection stays visible and full screen removes every window
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
   const green = page.getByRole('button', { name: 'Enter full screen' })
@@ -419,7 +434,10 @@ test('the glass arrangement menu fits a narrow mobile viewport without clipping 
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   await expect(
     page.getByRole('textbox', { name: 'Terminal command input' })
   ).toBeFocused()

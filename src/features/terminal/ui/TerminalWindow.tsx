@@ -1,4 +1,4 @@
-import { motion, useReducedMotion } from 'framer-motion'
+import { AnimatePresence, motion, useReducedMotion } from 'framer-motion'
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { FiFolder, FiTerminal } from 'react-icons/fi'
 
@@ -26,6 +26,9 @@ export function TerminalWindow({
   theme,
   onClose,
   onToggleTheme,
+  activationRequest = 0,
+  onMinimizedChange,
+  onFullscreenChange,
 }: TerminalWindowProps) {
   const reducedMotion = useReducedMotion()
   const {
@@ -45,6 +48,8 @@ export function TerminalWindow({
   const characterRef = useRef<HTMLSpanElement>(null)
   const restoreRef = useRef<HTMLButtonElement>(null)
   const [minimized, setMinimized] = useState(false)
+  const [hasMinimized, setHasMinimized] = useState(false)
+  const [handledActivation, setHandledActivation] = useState(activationRequest)
   const [active, setActive] = useState(true)
   const [inputFocused, setInputFocused] = useState(true)
   const [dimensions, setDimensions] = useState({ columns: 80, rows: 24 })
@@ -64,6 +69,13 @@ export function TerminalWindow({
     outputScroll: number
   } | null>(null)
 
+  // Clicking the app in the Dock un-minimizes the window and brings it forward.
+  if (activationRequest !== handledActivation) {
+    setHandledActivation(activationRequest)
+    setMinimized(false)
+    setActive(true)
+  }
+
   useLayoutEffect(() => {
     if (minimized) {
       restoreRef.current?.focus()
@@ -80,8 +92,13 @@ export function TerminalWindow({
       )
       input.scrollLeft = savedView.inputScroll
       if (screenRef.current) screenRef.current.scrollTop = savedView.outputScroll
+      minimizedView.current = null
     }
-  }, [minimized])
+  }, [minimized, handledActivation])
+
+  useEffect(() => {
+    onFullscreenChange?.(mode === 'fullscreen' && !minimized)
+  }, [mode, minimized, onFullscreenChange])
 
   useEffect(() => {
     const terminalScreen = screenRef.current
@@ -233,11 +250,22 @@ export function TerminalWindow({
       }
     }
     setMinimized(true)
+    setHasMinimized(true)
+    onMinimizedChange?.(true)
+  }
+
+  // macOS "Scale effect": the window shrinks toward its minimized Dock tile,
+  // which sits just right of the Dock's centre, and grows back out of it.
+  const dockTransform = {
+    opacity: 0,
+    scale: 0.08,
+    x: window.innerWidth / 2 + 72 - (bounds.x + bounds.width / 2),
+    y: window.innerHeight - 48 - (bounds.y + bounds.height / 2),
   }
 
   return (
     <div className="terminal-desktop" data-theme={theme}>
-      {minimized ? (
+      {minimized && !onMinimizedChange && (
         <motion.button
           animate={{ opacity: 1, y: 0 }}
           aria-label="Restore terminal"
@@ -258,210 +286,225 @@ export function TerminalWindow({
           <span>Terminal</span>
           <span aria-hidden className="terminal-dock-indicator" />
         </motion.button>
-      ) : (
-        <motion.div
-          animate={{ opacity: 1, scale: 1 }}
-          aria-label="Terminal"
-          className={cn(
-            'terminal-window',
-            mode === 'fullscreen' && 'terminal-window--fullscreen'
-          )}
-          data-active={active}
-          data-theme={theme}
-          data-window-mode={mode}
-          initial={reducedMotion ? false : { opacity: 0, scale: 0.97 }}
-          onBlurCapture={(event) => {
-            if (!event.currentTarget.contains(event.relatedTarget)) setActive(false)
-          }}
-          onFocusCapture={() => {
-            setActive(true)
-          }}
-          onKeyDown={(event) => {
-            if (event.key === 'Escape' && mode !== 'windowed') {
-              event.preventDefault()
-              event.stopPropagation()
-              if (mode === 'fullscreen') toggleExpanded()
-              else restoreWindowed()
-              inputRef.current?.focus()
-            } else if (event.metaKey && event.key.toLowerCase() === 'm') {
-              event.preventDefault()
-              minimize()
+      )}
+      <AnimatePresence>
+        {!minimized && (
+          <motion.div
+            animate={{ opacity: 1, scale: 1, x: 0, y: 0 }}
+            aria-label="Terminal"
+            className={cn(
+              'terminal-window',
+              mode === 'fullscreen' && 'terminal-window--fullscreen'
+            )}
+            data-active={active}
+            data-theme={theme}
+            data-window-mode={mode}
+            exit={reducedMotion ? { opacity: 0 } : dockTransform}
+            initial={
+              reducedMotion
+                ? false
+                : hasMinimized
+                  ? dockTransform
+                  : { opacity: 0, scale: 0.97 }
             }
-          }}
-          ref={dialogRef}
-          role="dialog"
-          style={{
-            left: bounds.x,
-            top: bounds.y,
-            width: bounds.width,
-            height: bounds.height,
-          }}
-          transition={{ duration: reducedMotion ? 0 : 0.22, ease: [0.16, 1, 0.3, 1] }}
-        >
-          <div
-            className="terminal-titlebar"
-            data-testid="terminal-titlebar"
-            onDoubleClick={() => {
-              toggleZoom()
-              inputRef.current?.focus()
+            key="terminal-window"
+            onBlurCapture={(event) => {
+              if (!event.currentTarget.contains(event.relatedTarget)) setActive(false)
             }}
-            onPointerDown={startDrag}
-          >
-            <div className="terminal-controls-position">
-              <TerminalWindowControls
-                expanded={mode === 'fullscreen'}
-                onClose={onClose}
-                onMinimize={minimize}
-                onTile={(side) => {
-                  tile(side)
-                  inputRef.current?.focus()
-                }}
-                onToggleExpanded={expand}
-              />
-            </div>
-            <span className="terminal-title">
-              <FiFolder aria-hidden className="terminal-proxy-icon" />
-              {profile.githubUsername} — -zsh — {dimensions.columns}×{dimensions.rows}
-            </span>
-          </div>
-          <div
-            className="terminal-screen"
-            onPointerUp={(event) => {
-              if (
-                event.target !== inputRef.current &&
-                !window.getSelection()?.toString()
-              ) {
+            onFocusCapture={() => {
+              setActive(true)
+            }}
+            onKeyDown={(event) => {
+              if (event.key === 'Escape' && mode !== 'windowed') {
+                event.preventDefault()
+                event.stopPropagation()
+                if (mode === 'fullscreen') toggleExpanded()
+                else restoreWindowed()
                 inputRef.current?.focus()
+              } else if (event.metaKey && event.key.toLowerCase() === 'm') {
+                event.preventDefault()
+                minimize()
               }
             }}
-            ref={screenRef}
+            ref={dialogRef}
+            role="dialog"
+            style={{
+              left: bounds.x,
+              top: bounds.y,
+              width: bounds.width,
+              height: bounds.height,
+              transformOrigin: 'center',
+            }}
+            transition={{
+              duration: reducedMotion ? 0 : hasMinimized ? 0.38 : 0.22,
+              ease: [0.16, 1, 0.3, 1],
+            }}
           >
-            <span aria-hidden className="terminal-cell-measure" ref={characterRef}>
-              M
-            </span>
-            <div aria-label="Terminal output" role="log">
-              {terminalLines.map((line, index) => (
-                <div
-                  className={cn(
-                    'terminal-line',
-                    getTerminalToneClass(line.tone ?? 'default', theme)
-                  )}
-                  key={`${line.text}-${String(index)}`}
-                >
-                  {line.text || '\u00a0'}
-                </div>
-              ))}
-            </div>
-            <form className="terminal-command" onSubmit={onTerminalSubmit}>
-              <label className="sr-only" htmlFor="floating-terminal-input">
-                Terminal command input
-              </label>
-              <span className="terminal-prompt">
-                {profile.heroTerminalPath} %&nbsp;
-              </span>
-              <span className="terminal-input-wrap">
-                <input
-                  aria-label="Terminal command input"
-                  autoCapitalize="off"
-                  autoComplete="off"
-                  autoCorrect="off"
-                  className="terminal-input"
-                  id="floating-terminal-input"
-                  onBlur={() => {
-                    setInputFocused(false)
+            <div
+              className="terminal-titlebar"
+              data-testid="terminal-titlebar"
+              onDoubleClick={() => {
+                toggleZoom()
+                inputRef.current?.focus()
+              }}
+              onPointerDown={startDrag}
+            >
+              <div className="terminal-controls-position">
+                <TerminalWindowControls
+                  expanded={mode === 'fullscreen'}
+                  onClose={onClose}
+                  onMinimize={minimize}
+                  onTile={(side) => {
+                    tile(side)
+                    inputRef.current?.focus()
                   }}
-                  onChange={(event) => {
-                    setTerminalInput(event.target.value)
-                    historyIndex.current = null
-                    setCaret({
-                      position:
-                        event.target.selectionStart ?? event.target.value.length,
-                      scroll: event.target.scrollLeft,
-                      selected: false,
-                    })
-                  }}
-                  onFocus={() => {
-                    setInputFocused(true)
-                  }}
-                  onKeyDown={onInputKeyDown}
-                  onScroll={(event) => {
-                    const scroll = event.currentTarget.scrollLeft
-                    setCaret((previous) => ({ ...previous, scroll }))
-                  }}
-                  onSelect={(event) => {
-                    const input = event.currentTarget
-                    setCaret({
-                      position: input.selectionStart ?? 0,
-                      scroll: input.scrollLeft,
-                      selected: input.selectionStart !== input.selectionEnd,
-                    })
-                  }}
-                  ref={inputRef}
-                  spellCheck={false}
-                  type="text"
-                  value={terminalInput}
+                  onToggleExpanded={expand}
                 />
-                {!caret.selected && (
-                  <span
-                    aria-hidden
-                    className="terminal-caret-track"
-                    style={{ left: -caret.scroll }}
-                  >
-                    <span className="terminal-caret-prefix">
-                      {terminalInput.slice(0, caret.position)}
-                    </span>
-                    <span
-                      className={cn(
-                        'terminal-cursor',
-                        (!inputFocused || !active) && 'terminal-cursor--inactive'
-                      )}
-                    />
-                  </span>
-                )}
+              </div>
+              <span className="terminal-title">
+                <FiFolder aria-hidden className="terminal-proxy-icon" />
+                {profile.githubUsername} — -zsh — {dimensions.columns}×{dimensions.rows}
               </span>
-              <button
-                aria-label="Run terminal command"
-                className="sr-only"
-                tabIndex={-1}
-                type="submit"
-              >
-                Run command
-              </button>
-            </form>
-          </div>
-          {mode === 'windowed' && (
-            <button
-              aria-label="Resize terminal"
-              className="terminal-resize-handle"
-              onKeyDown={(event) => {
-                const delta = event.shiftKey ? 48 : 16
+            </div>
+            <div
+              className="terminal-screen"
+              onPointerUp={(event) => {
                 if (
-                  ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
-                    event.key
-                  )
+                  event.target !== inputRef.current &&
+                  !window.getSelection()?.toString()
                 ) {
-                  event.preventDefault()
-                  resizeBy(
-                    event.key === 'ArrowRight'
-                      ? delta
-                      : event.key === 'ArrowLeft'
-                        ? -delta
-                        : 0,
-                    event.key === 'ArrowDown'
-                      ? delta
-                      : event.key === 'ArrowUp'
-                        ? -delta
-                        : 0
-                  )
+                  inputRef.current?.focus()
                 }
               }}
-              onPointerDown={startResize}
-              title="Resize terminal"
-              type="button"
-            />
-          )}
-        </motion.div>
-      )}
+              ref={screenRef}
+            >
+              <span aria-hidden className="terminal-cell-measure" ref={characterRef}>
+                M
+              </span>
+              <div aria-label="Terminal output" role="log">
+                {terminalLines.map((line, index) => (
+                  <div
+                    className={cn(
+                      'terminal-line',
+                      getTerminalToneClass(line.tone ?? 'default', theme)
+                    )}
+                    key={`${line.text}-${String(index)}`}
+                  >
+                    {line.text || '\u00a0'}
+                  </div>
+                ))}
+              </div>
+              <form className="terminal-command" onSubmit={onTerminalSubmit}>
+                <label className="sr-only" htmlFor="floating-terminal-input">
+                  Terminal command input
+                </label>
+                <span className="terminal-prompt">
+                  {profile.heroTerminalPath} %&nbsp;
+                </span>
+                <span className="terminal-input-wrap">
+                  <input
+                    aria-label="Terminal command input"
+                    autoCapitalize="off"
+                    autoComplete="off"
+                    autoCorrect="off"
+                    className="terminal-input"
+                    id="floating-terminal-input"
+                    onBlur={() => {
+                      setInputFocused(false)
+                    }}
+                    onChange={(event) => {
+                      setTerminalInput(event.target.value)
+                      historyIndex.current = null
+                      setCaret({
+                        position:
+                          event.target.selectionStart ?? event.target.value.length,
+                        scroll: event.target.scrollLeft,
+                        selected: false,
+                      })
+                    }}
+                    onFocus={() => {
+                      setInputFocused(true)
+                    }}
+                    onKeyDown={onInputKeyDown}
+                    onScroll={(event) => {
+                      const scroll = event.currentTarget.scrollLeft
+                      setCaret((previous) => ({ ...previous, scroll }))
+                    }}
+                    onSelect={(event) => {
+                      const input = event.currentTarget
+                      setCaret({
+                        position: input.selectionStart ?? 0,
+                        scroll: input.scrollLeft,
+                        selected: input.selectionStart !== input.selectionEnd,
+                      })
+                    }}
+                    ref={inputRef}
+                    spellCheck={false}
+                    type="text"
+                    value={terminalInput}
+                  />
+                  {!caret.selected && (
+                    <span
+                      aria-hidden
+                      className="terminal-caret-track"
+                      style={{ left: -caret.scroll }}
+                    >
+                      <span className="terminal-caret-prefix">
+                        {terminalInput.slice(0, caret.position)}
+                      </span>
+                      <span
+                        className={cn(
+                          'terminal-cursor',
+                          (!inputFocused || !active) && 'terminal-cursor--inactive'
+                        )}
+                      />
+                    </span>
+                  )}
+                </span>
+                <button
+                  aria-label="Run terminal command"
+                  className="sr-only"
+                  tabIndex={-1}
+                  type="submit"
+                >
+                  Run command
+                </button>
+              </form>
+            </div>
+            {mode === 'windowed' && (
+              <button
+                aria-label="Resize terminal"
+                className="terminal-resize-handle"
+                onKeyDown={(event) => {
+                  const delta = event.shiftKey ? 48 : 16
+                  if (
+                    ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'].includes(
+                      event.key
+                    )
+                  ) {
+                    event.preventDefault()
+                    resizeBy(
+                      event.key === 'ArrowRight'
+                        ? delta
+                        : event.key === 'ArrowLeft'
+                          ? -delta
+                          : 0,
+                      event.key === 'ArrowDown'
+                        ? delta
+                        : event.key === 'ArrowUp'
+                          ? -delta
+                          : 0
+                    )
+                  }
+                }}
+                onPointerDown={startResize}
+                title="Resize terminal"
+                type="button"
+              />
+            )}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

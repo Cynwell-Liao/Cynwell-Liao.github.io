@@ -12,7 +12,10 @@ test('traffic lights magnify the hovered dot and expand further on press without
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   await page.getByRole('button', { name: 'Switch to dark mode' }).click()
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const controls = page.getByRole('group', { name: 'Terminal window controls' })
   const dots = page.locator('.terminal-window-control-dot')
@@ -153,7 +156,10 @@ test('reduced motion keeps hovered and pressed dots still and preserves keyboard
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   await expect(input).toBeFocused()
@@ -186,7 +192,7 @@ test('reduced motion keeps hovered and pressed dots still and preserves keyboard
   await page.keyboard.press('Enter')
   await expect(dialog).toHaveCount(0)
   await expect(
-    page.getByRole('button', { name: 'Terminal', exact: true })
+    page.getByRole('banner').getByRole('button', { name: 'Terminal', exact: true })
   ).toBeFocused()
 })
 
@@ -195,7 +201,10 @@ test('keyboard presses animate and interrupted hover or pointer presses reset wi
 }, testInfo) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   await expect(input).toBeFocused()
@@ -262,7 +271,10 @@ test('touching a traffic light does not leave hover symbols or open a delayed ar
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).tap()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .tap()
   await expect(
     page.getByRole('textbox', { name: 'Terminal command input' })
   ).toBeFocused()

@@ -77,7 +77,9 @@ test('terminal opens, submits a command, closes, and restores focus @desktop', a
 }) => {
   await page.goto('/')
 
-  const opener = page.getByRole('button', { name: 'Terminal', exact: true })
+  const opener = page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
   await opener.click()
 
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -131,10 +133,9 @@ test('outbound links expose specific accessible names @desktop', async ({ page }
     'target',
     '_blank'
   )
-  await expect(page.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute(
-    'target',
-    '_blank'
-  )
+  await expect(
+    page.locator('#home').getByRole('link', { name: 'GitHub', exact: true })
+  ).toHaveAttribute('target', '_blank')
   await expect(page.getByRole('link', { name: 'View Live: Cheapguide' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'View Live: ParkPie' })).toBeVisible()
   await expect(
@@ -181,7 +182,9 @@ test('mobile navbar intentionally exposes only brand and theme controls @mobile'
     page.getByRole('navigation', { name: 'Primary navigation', includeHidden: true })
   ).toBeHidden()
   await expect(
-    page.getByRole('button', { name: 'Terminal', exact: true, includeHidden: true })
+    page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Terminal', exact: true, includeHidden: true })
   ).toBeHidden()
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveCount(0)
 })

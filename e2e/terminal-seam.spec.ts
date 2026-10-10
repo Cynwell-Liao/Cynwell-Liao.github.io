@@ -9,7 +9,10 @@ for (const theme of ['light', 'dark'] as const) {
     if (theme === 'dark') {
       await page.getByRole('button', { name: 'Switch to dark mode' }).click()
     }
-    await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+    await page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Terminal', exact: true })
+      .click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
     await expect(dialog).toHaveAttribute('data-theme', theme)
     await expect(dialog).toHaveCSS('transform', 'none')

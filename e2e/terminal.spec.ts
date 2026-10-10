@@ -14,7 +14,9 @@ test('terminal can be dismissed while downloading without reopening later @deskt
     await route.continue()
   })
   await page.goto('/')
-  const opener = page.getByRole('button', { name: 'Terminal', exact: true })
+  const opener = page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
   await opener.click()
   await expect(page.getByRole('status')).toHaveText('Loading terminal…')
   await page.keyboard.press('Escape')
@@ -41,7 +43,9 @@ test.describe('terminal download recovery', () => {
       await route.abort('failed')
     })
     await page.goto('/')
-    const opener = page.getByRole('button', { name: 'Terminal', exact: true })
+    const opener = page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     await expect(page.getByRole('alert')).toContainText('could not load')
     expect(failures).toBe(1)
@@ -73,7 +77,9 @@ test('terminal drag stays within the viewport and Escape restores its opener @de
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  const opener = page.getByRole('button', { name: 'Terminal', exact: true })
+  const opener = page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
   await opener.click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   await expect(
@@ -108,7 +114,10 @@ test('all traffic-light symbols appear together on hover and minimize preserves 
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const output = page.getByRole('log', { name: 'Terminal output' })
   await input.fill('pwd')
@@ -142,7 +151,10 @@ test('all traffic-light symbols appear together on hover and minimize preserves 
 test('minimize and restore preserve the editing caret @desktop', async ({ page }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   await input.fill('abcdef')
   await input.press('Home')
@@ -163,7 +175,10 @@ test('minimize and restore preserve the scrollback position @desktop', async ({
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const screen = page.locator('.terminal-screen')
   for (let index = 0; index < 4; index += 1) {
@@ -190,7 +205,10 @@ test('title-bar zoom survives a full-screen round trip and restores the original
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   await expect(input).toBeFocused()
@@ -246,7 +264,10 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
   if (!mobileViewport) throw new Error('Mobile viewport is unavailable')
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   await expect(input).toBeFocused()
@@ -280,7 +301,10 @@ test('the delayed green-button menu tiles the window and keeps the prompt usable
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const viewport = page.viewportSize()
@@ -336,7 +360,10 @@ test('the block caret follows Unicode and horizontally scrolled drafts @desktop'
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const prefix = page.locator('.terminal-caret-prefix')
 
@@ -376,7 +403,10 @@ test('the dark terminal retains readable prompt, input, and title colors @deskto
 }) => {
   await page.goto('/')
   await page.getByRole('button', { name: 'Switch to dark mode' }).click()
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
     'data-theme',
     'dark'
@@ -396,7 +426,10 @@ test('Escape dismisses the hover-opened green menu while preserving input focus 
   page,
 }) => {
   await page.goto('/')
-  await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+  await page
+    .getByRole('banner')
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   const menu = page.getByRole('menu', { name: 'Window arrangement' })
   await page.getByRole('button', { name: 'Enter full screen' }).hover()

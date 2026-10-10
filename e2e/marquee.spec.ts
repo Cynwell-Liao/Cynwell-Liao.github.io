@@ -19,7 +19,7 @@ function marqueeElements(page: Page) {
     badges: page.locator(
       '.hero-cert-marquee__set:not([data-clone="true"]) .hero-cert-marquee__badge-link'
     ),
-    github: page.getByRole('link', { name: 'GitHub', exact: true }),
+    github: page.locator('#home').getByRole('link', { name: 'GitHub', exact: true }),
   }
 }
 

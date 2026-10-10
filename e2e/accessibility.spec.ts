@@ -63,7 +63,10 @@ for (const theme of ['light', 'dark'] as const) {
     page,
   }, testInfo) => {
     await prepareAccessiblePage(page, theme)
-    await page.getByRole('button', { name: 'Terminal', exact: true }).click()
+    await page
+      .getByRole('banner')
+      .getByRole('button', { name: 'Terminal', exact: true })
+      .click()
     const input = page.getByRole('textbox', { name: 'Terminal command input' })
     await expect(input).toBeFocused()
     await input.fill('theme invalid')

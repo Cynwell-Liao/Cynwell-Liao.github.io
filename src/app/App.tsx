@@ -3,6 +3,7 @@ import { useCallback, useState } from 'react'
 
 import { education, navLinks, profile, projects, skillCategories } from '@content'
 import { AboutSection } from '@features/about'
+import { DesktopDock } from '@features/dock'
 import { EducationSection } from '@features/education'
 import { Footer } from '@features/footer'
 import { HeroSection } from '@features/hero'
@@ -16,8 +17,25 @@ import { TerminalHost } from './TerminalHost'
 function App() {
   const { theme, toggleTheme } = useTheme()
   const [terminalOpener, setTerminalOpener] = useState<HTMLElement | null>(null)
+  const [terminalMinimized, setTerminalMinimized] = useState(false)
+  const [terminalFullscreen, setTerminalFullscreen] = useState(false)
+  const [terminalActivation, setTerminalActivation] = useState(0)
+  const activateTerminal = useCallback(() => {
+    setTerminalMinimized(false)
+    setTerminalActivation((current) => current + 1)
+  }, [])
+  const openTerminal = useCallback(
+    (opener: HTMLButtonElement) => {
+      // A running Terminal keeps the launcher that opened it for focus return.
+      setTerminalOpener((current) => current ?? opener)
+      activateTerminal()
+    },
+    [activateTerminal]
+  )
   const closeTerminal = useCallback(() => {
     setTerminalOpener(null)
+    setTerminalMinimized(false)
+    setTerminalFullscreen(false)
   }, [])
 
   return (
@@ -40,7 +58,7 @@ function App() {
           <Navbar
             brandName={profile.brandName}
             links={navLinks}
-            onOpenTerminal={setTerminalOpener}
+            onOpenTerminal={openTerminal}
             onToggleTheme={toggleTheme}
             theme={theme}
           />
@@ -81,10 +99,22 @@ function App() {
             name={profile.name}
             repositoryUrl={profile.repositoryUrl}
           />
+          <DesktopDock
+            fullscreen={terminalFullscreen}
+            githubUrl={profile.githubUrl}
+            linkedinUrl={profile.linkedinUrl}
+            terminalMinimized={terminalMinimized}
+            terminalOpen={terminalOpener !== null}
+            onOpenTerminal={openTerminal}
+            onRestoreTerminal={activateTerminal}
+          />
           {terminalOpener ? (
             <TerminalHost
+              activationRequest={terminalActivation}
               opener={terminalOpener}
               onClose={closeTerminal}
+              onMinimizedChange={setTerminalMinimized}
+              onFullscreenChange={setTerminalFullscreen}
               onToggleTheme={toggleTheme}
               profile={profile}
               projects={projects}
