@@ -77,15 +77,33 @@ beforeEach(() => {
 })
 
 describe('TerminalHost', () => {
-  it('announces loading, dismisses with Escape, and ignores late success', async () => {
+  it('opens directly into the terminal without a loading dialog or focus change', async () => {
     const pending = deferred<typeof LoadedTerminal>()
     vi.mocked(loadTerminal).mockReturnValue(pending.promise)
     const user = userEvent.setup()
     render(<HostHarness />)
     const opener = screen.getByRole('button', { name: 'Open terminal' })
     await user.click(opener)
-    expect(screen.getByRole('status')).toHaveTextContent('Loading terminal')
-    expect(screen.getByRole('button', { name: 'Close terminal' })).toHaveFocus()
+    expect(loadTerminal).toHaveBeenCalledTimes(1)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
+    await act(async () => {
+      pending.resolve(LoadedTerminal)
+      await pending.promise
+    })
+    expect(screen.getByRole('dialog', { name: 'Loaded terminal' })).toBeInTheDocument()
+  })
+
+  it('cancels loading with Escape and ignores late success', async () => {
+    const pending = deferred<typeof LoadedTerminal>()
+    vi.mocked(loadTerminal).mockReturnValue(pending.promise)
+    const user = userEvent.setup()
+    render(<HostHarness />)
+    const opener = screen.getByRole('button', { name: 'Open terminal' })
+    await user.click(opener)
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
     await user.keyboard('{Escape}')
     expect(opener).toHaveFocus()
     await act(async () => {
@@ -97,9 +115,10 @@ describe('TerminalHost', () => {
   })
 
   it('contains rejected downloads and supports a successful retry', async () => {
+    const retry = deferred<typeof LoadedTerminal>()
     vi.mocked(loadTerminal)
       .mockRejectedValueOnce(new Error('Offline'))
-      .mockResolvedValueOnce(LoadedTerminal)
+      .mockReturnValueOnce(retry.promise)
     const user = userEvent.setup()
     render(<HostHarness />)
     const opener = screen.getByRole('button', { name: 'Open terminal' })
@@ -107,7 +126,15 @@ describe('TerminalHost', () => {
     expect(await screen.findByRole('alert')).toHaveTextContent('could not load')
     expect(screen.getByRole('heading')).toBeInTheDocument()
     expect(screen.getByRole('dialog')).not.toHaveAttribute('aria-modal')
+    expect(screen.getByRole('button', { name: 'Close terminal' })).toHaveFocus()
     await user.click(screen.getByRole('button', { name: 'Retry' }))
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.queryByRole('status')).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
+    await act(async () => {
+      retry.resolve(LoadedTerminal)
+      await retry.promise
+    })
     expect(
       await screen.findByRole('dialog', { name: 'Loaded terminal' })
     ).toHaveAttribute('data-theme', 'light')
@@ -142,7 +169,7 @@ describe('TerminalHost', () => {
     render(<HostHarness />)
     const opener = screen.getByRole('button', { name: 'Open terminal' })
     await user.click(opener)
-    await user.click(screen.getByRole('button', { name: 'Close terminal' }))
+    await user.keyboard('{Escape}')
     await act(async () => {
       pending.reject(new Error('Offline'))
       await pending.promise.catch(() => undefined)

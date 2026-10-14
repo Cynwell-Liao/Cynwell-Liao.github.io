@@ -15,12 +15,10 @@ interface TerminalHostProps extends TerminalWindowProps {
   opener: HTMLElement
 }
 
-function TerminalLoadNotice({
-  failed,
+function TerminalLoadError({
   onClose,
   onRetry,
 }: {
-  failed: boolean
   onClose: () => void
   onRetry: () => void
 }) {
@@ -28,7 +26,7 @@ function TerminalLoadNotice({
 
   useEffect(() => {
     closeRef.current?.focus()
-  }, [failed])
+  }, [])
 
   const buttonClass =
     'rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-accent-600 dark:border-slate-600 dark:focus-visible:outline-accent-300'
@@ -36,15 +34,11 @@ function TerminalLoadNotice({
   return (
     <div className="pointer-events-none fixed inset-0 z-[70] flex items-start justify-center px-3 py-20 sm:px-6 sm:py-24">
       <div
-        aria-label="Terminal loading"
+        aria-label="Terminal could not load"
         className="pointer-events-auto w-full max-w-lg rounded-xl border border-slate-200 bg-white p-6 text-slate-900 shadow-xl dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100"
         role="dialog"
       >
-        <p role={failed ? 'alert' : 'status'}>
-          {failed
-            ? 'The terminal could not load. Try again or reload this page.'
-            : 'Loading terminal…'}
-        </p>
+        <p role="alert">The terminal could not load. Try again or reload this page.</p>
         <div className="mt-5 flex flex-wrap gap-3">
           <button
             className={buttonClass}
@@ -54,22 +48,18 @@ function TerminalLoadNotice({
           >
             Close terminal
           </button>
-          {failed ? (
-            <>
-              <button className={buttonClass} onClick={onRetry} type="button">
-                Retry
-              </button>
-              <button
-                className={buttonClass}
-                onClick={() => {
-                  window.location.reload()
-                }}
-                type="button"
-              >
-                Reload page
-              </button>
-            </>
-          ) : null}
+          <button className={buttonClass} onClick={onRetry} type="button">
+            Retry
+          </button>
+          <button
+            className={buttonClass}
+            onClick={() => {
+              window.location.reload()
+            }}
+            type="button"
+          >
+            Reload page
+          </button>
         </div>
       </div>
     </div>
@@ -110,11 +100,13 @@ export function TerminalHost({ opener, onClose, ...terminalProps }: TerminalHost
     return <loadState.Component {...terminalProps} onClose={onClose} />
   }
 
+  if (loadState.status === 'loading') return null
+
   return (
-    <TerminalLoadNotice
-      failed={loadState.status === 'error'}
+    <TerminalLoadError
       onClose={onClose}
       onRetry={() => {
+        opener.focus()
         setLoadState({ status: 'loading' })
         setAttempt((current) => current + 1)
       }}

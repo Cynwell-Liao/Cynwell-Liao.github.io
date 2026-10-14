@@ -2,7 +2,7 @@ import { expect, test } from './fixtures'
 
 const terminalAsset = /\/assets\/terminal-[^/]+\.js$/u
 
-test('terminal can be dismissed while downloading without reopening later @desktop', async ({
+test('terminal downloads without a popup and can be dismissed before opening @desktop', async ({
   page,
 }) => {
   let releaseDownload!: () => void
@@ -17,8 +17,12 @@ test('terminal can be dismissed while downloading without reopening later @deskt
   const opener = page
     .getByRole('banner')
     .getByRole('button', { name: 'Terminal', exact: true })
+  const downloadStarted = page.waitForRequest(terminalAsset)
   await opener.click()
-  await expect(page.getByRole('status')).toHaveText('Loading terminal…')
+  await downloadStarted
+  await expect(page.getByRole('dialog')).toHaveCount(0)
+  await expect(page.getByRole('status')).toHaveCount(0)
+  await expect(opener).toBeFocused()
   await page.keyboard.press('Escape')
   await expect(opener).toBeFocused()
   const loaded = page.waitForResponse(terminalAsset)
