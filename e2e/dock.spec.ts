@@ -1,8 +1,12 @@
 import { expect, test } from './fixtures'
 
-test('the Dock has three apps, correct profile links, and loaded original artwork @desktop', async ({
+test('the Dock has three apps, correct profile links, and inline decorative icons @desktop', async ({
   page,
 }) => {
+  const dockAssetRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.url().includes('/assets/dock/')) dockAssetRequests.push(request.url())
+  })
   await page.goto('/')
   const dock = page.getByRole('navigation', { name: 'Application Dock' })
   await expect(dock.getByRole('link')).toHaveCount(2)
@@ -21,29 +25,60 @@ test('the Dock has three apps, correct profile links, and loaded original artwor
     await expect(link).toHaveAttribute('target', '_blank')
     await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   }
-  await expect(dock.locator('img')).toHaveCount(3)
-  await expect
-    .poll(() =>
-      dock
-        .locator('img')
-        .evaluateAll((images) =>
-          images.every(
-            (image) =>
-              image instanceof HTMLImageElement &&
-              image.complete &&
-              image.naturalWidth > 0
-          )
-        )
-    )
-    .toBe(true)
-  await expect(dock.locator('[data-dock-app="github"] img')).toHaveAttribute(
-    'src',
-    '/assets/dock/github.svg'
-  )
-  await expect(dock.locator('[data-dock-app="terminal"] img')).toHaveAttribute(
-    'src',
-    '/assets/dock/terminal.svg'
-  )
+  await expect(dock.locator('img')).toHaveCount(0)
+  for (const app of ['github', 'linkedin', 'terminal']) {
+    const icon = dock.locator(`[data-dock-app="${app}"] svg`)
+    await expect(icon).toHaveCount(1)
+    await expect(icon).toBeVisible()
+    await expect(icon).toHaveAttribute('aria-hidden', 'true')
+    await expect(icon).toHaveAttribute('focusable', 'false')
+  }
+  expect(dockAssetRequests).toEqual([])
+})
+
+test('dock glyphs match the original artwork proportions at rest and magnified @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const dock = page.getByRole('navigation', { name: 'Application Dock' })
+  // Original artwork proportions; Terminal uses stroke centerlines, excluding stroke width.
+  const artworkBounds = [
+    { id: 'github', shape: 'path', x: 0.15, y: 0.15, width: 0.7, height: 0.683 },
+    { id: 'linkedin', shape: 'path', x: 0.176, y: 0.178, width: 0.637, height: 0.633 },
+    { id: 'terminal', shape: 'polyline', x: 0.21, y: 0.22, width: 0.15, height: 0.21 },
+    { id: 'terminal', shape: 'line', x: 0.42, y: 0.5, width: 0.18, height: 0 },
+  ]
+  for (const { id, shape, ...expected } of artworkBounds) {
+    const app = dock.locator(`[data-dock-app="${id}"]`)
+    await page.mouse.move(10, 100)
+    for (const size of [52, 78]) {
+      if (size === 78) await app.hover()
+      await expect
+        .poll(async () => (await app.boundingBox())?.width)
+        .toBeCloseTo(size, 0)
+      const bounds = await app
+        .locator('.desktop-dock__icon')
+        .evaluate((icon, shape) => {
+          const path = icon.querySelector(shape)
+          if (!path) throw new Error('Missing dock glyph')
+          const tile = icon.getBoundingClientRect()
+          const glyph = path.getBoundingClientRect()
+          return {
+            x: (glyph.x - tile.x) / tile.width,
+            y: (glyph.y - tile.y) / tile.height,
+            width: glyph.width / tile.width,
+            height: glyph.height / tile.height,
+          }
+        }, shape)
+      for (const dimension of ['x', 'y', 'width', 'height'] as const) {
+        expect(
+          Math.abs(bounds[dimension] - expected[dimension]),
+          `${id} ${shape} ${dimension} at ${size}px`
+        ).toBeLessThan(0.01)
+      }
+    }
+  }
 })
 
 test('pointer proximity magnifies neighboring apps and resets on leave @desktop', async ({
@@ -123,6 +158,11 @@ test('the minimized preview and running app both restore the same Terminal sessi
     await expect(terminal.locator('.desktop-dock__running')).toBeVisible()
     const preview = dock.getByRole('button', { name: 'Restore terminal' })
     await expect(preview).toBeFocused()
+    const badgeIcon = preview.locator('.desktop-dock__badge svg')
+    await expect(badgeIcon).toBeVisible()
+    await expect(badgeIcon).toHaveAttribute('aria-hidden', 'true')
+    await expect(badgeIcon).toHaveAttribute('focusable', 'false')
+    await expect(preview.locator('img')).toHaveCount(0)
     await (restoreViaPreview ? preview : terminal).click()
     await expect(input).toBeFocused()
     await expect(input).toHaveValue('unfinished command')

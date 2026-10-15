@@ -104,34 +104,65 @@
 }
 
 .desktop-dock__icon {
+  position: relative;
   display: grid;
   width: 100%;
   height: 100%;
   place-items: center;
+  border-radius: 22.5%;
   filter: drop-shadow(0 2px 2px rgb(0 0 0 / 20%));
 }
 
 .desktop-dock__icon--github {
-  border-radius: 22.5%;
   background: #fff;
+  color: #24292e;
 }
 
 .desktop-dock__icon--linkedin {
-  overflow: hidden;
-  border-radius: 22.5%;
+  background: #0a66c2;
+  color: #fff;
 }
 
-.desktop-dock__artwork {
+.desktop-dock__icon--terminal {
+  background: linear-gradient(#1d1d1d, #0e0e0e);
+  box-shadow:
+    inset 0 1px 1px rgb(255 255 255 / 40%),
+    inset 0 -1px 1px rgb(255 255 255 / 15%);
+  color: #ddd;
+}
+
+.desktop-dock__glyph {
   display: block;
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+  width: 70%;
+  height: 70%;
   pointer-events: none;
 }
 
-.desktop-dock__icon--github .desktop-dock__artwork {
-  width: 70%;
-  height: 70%;
+.desktop-dock__icon--linkedin .desktop-dock__glyph {
+  position: absolute;
+  top: 17.5%;
+  left: 17.5%;
+  width: 64%;
+  height: 64%;
+}
+
+.desktop-dock__icon--terminal .desktop-dock__glyph {
+  position: absolute;
+  top: 13%;
+  left: 11%;
+  width: 60%;
+  height: 60%;
+  stroke-width: 1.5;
+  transform: scaleY(0.7);
+  transform-origin: top left;
+  filter: drop-shadow(0 1px 1px rgb(0 0 0 / 50%));
+}
+
+/* Keep the prompt compact and the cursor near the tile's midpoint, as in Terminal. */
+.desktop-dock__icon--terminal .desktop-dock__glyph line {
+  transform: translate(0.3px, 2.15px) scaleX(0.88);
+  transform-origin: 12px 19px;
+  opacity: 0.4;
 }
 
 .desktop-dock__tooltip {
@@ -313,6 +344,10 @@ body:has(.desktop-dock) {
 }
 
 @media (forced-colors: active) {
+  .desktop-dock__icon--terminal .desktop-dock__glyph line {
+    opacity: 1;
+  }
+
   .desktop-dock__glass,
   .desktop-dock__icon,
   .desktop-dock__tooltip {

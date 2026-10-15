@@ -37,6 +37,24 @@ describe('DesktopDock', () => {
     )
   })
 
+  it('renders decorative inline icons for every launcher without image assets', () => {
+    render(<DesktopDock {...props} />)
+    const dock = screen.getByRole('navigation', { name: 'Application Dock' })
+    const launchers = [
+      within(dock).getByRole('link', { name: 'GitHub' }),
+      within(dock).getByRole('link', { name: 'LinkedIn' }),
+      within(dock).getByRole('button', { name: 'Terminal' }),
+    ]
+
+    for (const launcher of launchers) {
+      const icons = launcher.querySelectorAll('svg')
+      expect(icons).toHaveLength(1)
+      expect(icons[0]).toHaveAttribute('aria-hidden', 'true')
+      expect(icons[0]).toHaveAttribute('focusable', 'false')
+    }
+    expect(dock.querySelector('img')).toBeNull()
+  })
+
   it('passes the actual Terminal launcher back for opening and focus restoration', async () => {
     const onOpenTerminal = vi.fn()
     const user = userEvent.setup()
@@ -141,7 +159,10 @@ describe('DesktopDock', () => {
     expect(tile).toHaveFocus()
     expect(container.querySelector('.desktop-dock__separator')).toBeInTheDocument()
     expect(tile.querySelector('.desktop-dock__thumbnail')).toBeInTheDocument()
-    expect(tile.querySelector('.desktop-dock__badge')).toBeInTheDocument()
+    const badgeIcon = tile.querySelector('.desktop-dock__badge svg')
+    expect(badgeIcon).toHaveAttribute('aria-hidden', 'true')
+    expect(badgeIcon).toHaveAttribute('focusable', 'false')
+    expect(tile.querySelector('img')).toBeNull()
 
     await user.keyboard('{ArrowLeft}')
     expect(screen.getByRole('button', { name: 'Terminal' })).toHaveFocus()

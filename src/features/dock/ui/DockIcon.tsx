@@ -1,22 +1,26 @@
-const artwork = {
-  github: 'github.svg',
-  linkedin: 'linkedin.jpg',
-  terminal: 'terminal.svg',
+import { FaGithub, FaLinkedinIn } from 'react-icons/fa'
+import { FiTerminal } from 'react-icons/fi'
+
+const icons = {
+  // Crop the library's built-in padding so tile placement follows the visible mark.
+  github: { component: FaGithub, viewBox: '0 8 496 496' },
+  linkedin: { component: FaLinkedinIn, viewBox: '0 0 448 448' },
+  terminal: { component: FiTerminal, viewBox: '0 0 24 24' },
 } as const
 
-export function DockIcon({ app }: { app: 'github' | 'linkedin' | 'terminal' }) {
+export function DockIcon({ app }: { app: keyof typeof icons }) {
+  const { component: Icon, viewBox } = icons[app]
+
   return (
     <span
       aria-hidden="true"
       className={`desktop-dock__icon desktop-dock__icon--${app}`}
     >
-      <img
-        alt=""
-        className="desktop-dock__artwork"
-        draggable={false}
-        height={400}
-        src={`${import.meta.env.BASE_URL}assets/dock/${artwork[app]}`}
-        width={400}
+      <Icon
+        aria-hidden="true"
+        className="desktop-dock__glyph"
+        focusable="false"
+        viewBox={viewBox}
       />
     </span>
   )
