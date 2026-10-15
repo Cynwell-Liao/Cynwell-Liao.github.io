@@ -17,7 +17,6 @@ const renderNavbar = (overrides: Partial<Parameters<typeof Navbar>[0]> = {}) =>
     <Navbar
       brandName="Example Engineer"
       links={links}
-      onOpenTerminal={() => undefined}
       onToggleTheme={() => undefined}
       theme="light"
       {...overrides}
@@ -56,19 +55,13 @@ describe('Navbar', () => {
     )
   })
 
-  it('calls the theme and terminal handlers from their named controls', async () => {
-    const onOpenTerminal = vi.fn()
+  it('calls the theme handler from its named control', async () => {
     const onToggleTheme = vi.fn()
     const user = userEvent.setup()
-    renderNavbar({ onOpenTerminal, onToggleTheme })
+    renderNavbar({ onToggleTheme })
 
-    await user.click(screen.getByRole('button', { name: 'Terminal' }))
     await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
 
-    expect(onOpenTerminal).toHaveBeenCalledTimes(1)
-    expect(onOpenTerminal).toHaveBeenCalledWith(
-      screen.getByRole('button', { name: 'Terminal' })
-    )
     expect(onToggleTheme).toHaveBeenCalledTimes(1)
   })
 
@@ -83,7 +76,6 @@ describe('Navbar', () => {
       <Navbar
         brandName="Example Engineer"
         links={links}
-        onOpenTerminal={() => undefined}
         onToggleTheme={() => undefined}
         theme="dark"
       />

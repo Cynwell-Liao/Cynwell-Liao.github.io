@@ -312,12 +312,7 @@
   height: 42%;
 }
 
-/* Leave the last links reachable above the floating Dock, including on phones. */
-body:has(.desktop-dock) {
-  padding-bottom: calc(100px + env(safe-area-inset-bottom));
-}
-
-/* Keep the bottom edge reachable while a full-screen window hides the tray. */
+/* Keep the bottom edge reachable while full-screen or bottom scroll hides the tray. */
 .desktop-dock__reveal {
   position: fixed;
   right: 0;

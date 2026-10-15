@@ -15,7 +15,7 @@ test('terminal downloads without a popup and can be dismissed before opening @de
   })
   await page.goto('/')
   const opener = page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
   const downloadStarted = page.waitForRequest(terminalAsset)
   await opener.click()
@@ -48,7 +48,7 @@ test.describe('terminal download recovery', () => {
     })
     await page.goto('/')
     const opener = page
-      .getByRole('banner')
+      .getByRole('navigation', { name: 'Application Dock' })
       .getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     await expect(page.getByRole('alert')).toContainText('could not load')
@@ -82,7 +82,7 @@ test('terminal drag stays within the viewport and Escape restores its opener @de
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   const opener = page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
   await opener.click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -119,7 +119,7 @@ test('all traffic-light symbols appear together on hover and minimize preserves 
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
@@ -156,7 +156,7 @@ test('minimize and restore preserve the editing caret @desktop', async ({ page }
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
@@ -180,7 +180,7 @@ test('minimize and restore preserve the scrollback position @desktop', async ({
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
@@ -210,7 +210,7 @@ test('title-bar zoom survives a full-screen round trip and restores the original
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -269,7 +269,7 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -306,7 +306,7 @@ test('the delayed green-button menu tiles the window and keeps the prompt usable
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -365,7 +365,7 @@ test('the block caret follows Unicode and horizontally scrolled drafts @desktop'
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
@@ -408,7 +408,7 @@ test('the dark terminal retains readable prompt, input, and title colors @deskto
   await page.goto('/')
   await page.getByRole('button', { name: 'Switch to dark mode' }).click()
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
@@ -431,7 +431,7 @@ test('Escape dismisses the hover-opened green menu while preserving input focus 
 }) => {
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })

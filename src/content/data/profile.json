@@ -119,7 +119,6 @@
     "projectSourceLabel": "View Source",
     "educationSectionEyebrow": "Education",
     "educationSectionTitle": "Academic foundations",
-    "educationSectionDescription": "Foundations in technology, business, and project management.",
-    "footerAttribution": "Engineered with React, Tailwind, and Framer Motion."
+    "educationSectionDescription": "Foundations in technology, business, and project management."
   }
 }

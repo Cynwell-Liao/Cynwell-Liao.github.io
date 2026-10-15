@@ -237,6 +237,25 @@ test('full-screen auto-hide reveals the Dock at the bottom edge and on keyboard 
   await expect(dock).toBeInViewport()
 })
 
+test('scrolling to the bottom of the page auto-hides the Dock so the footer sits cleanly at the bottom, and scrolling up restores it @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const dock = page.getByRole('navigation', { name: 'Application Dock' })
+  const position = page.locator('.desktop-dock-position')
+  await expect(dock).toBeInViewport()
+  await expect(position).toHaveAttribute('data-auto-hidden', 'false')
+
+  await page.evaluate(() => window.scrollTo(0, document.documentElement.scrollHeight))
+  await expect(position).toHaveAttribute('data-auto-hidden', 'true')
+  await expect(dock).not.toBeInViewport()
+
+  await page.evaluate(() => window.scrollTo(0, 0))
+  await expect(position).toHaveAttribute('data-auto-hidden', 'false')
+  await expect(dock).toBeInViewport()
+})
+
 test('the Dock fits narrow phones, launches by touch, and restores minimized Terminal @mobile', async ({
   page,
 }) => {

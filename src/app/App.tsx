@@ -58,7 +58,6 @@ function App() {
           <Navbar
             brandName={profile.brandName}
             links={navLinks}
-            onOpenTerminal={openTerminal}
             onToggleTheme={toggleTheme}
             theme={theme}
           />

@@ -1,6 +1,6 @@
 import { m, useScroll } from 'framer-motion'
 import { useEffect, useState } from 'react'
-import { FiMoon, FiSun, FiTerminal } from 'react-icons/fi'
+import { FiMoon, FiSun } from 'react-icons/fi'
 
 import { cn } from '@shared/lib/cn'
 import { SECTION_ID } from '@shared/lib/navigation'
@@ -14,17 +14,10 @@ interface NavbarProps {
   brandName: string
   links: readonly NavLink[]
   theme: ThemeMode
-  onOpenTerminal: (opener: HTMLButtonElement) => void
   onToggleTheme: () => void
 }
 
-export function Navbar({
-  brandName,
-  links,
-  theme,
-  onOpenTerminal,
-  onToggleTheme,
-}: NavbarProps) {
+export function Navbar({ brandName, links, theme, onToggleTheme }: NavbarProps) {
   const { scrollY } = useScroll()
   const [isScrolled, setIsScrolled] = useState(() => scrollY.get() > 50)
   const logoUrl = `${import.meta.env.BASE_URL}favicon.ico`
@@ -71,20 +64,6 @@ export function Navbar({
         <SectionNavigation links={links} theme={theme} />
 
         <div className="flex items-center justify-self-end gap-3 md:col-start-3 md:gap-4">
-          <button
-            className="hidden items-center gap-2 rounded-lg px-1 py-2 text-sm font-medium text-slate-600 transition-colors hover:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 dark:text-slate-300 dark:hover:text-white sm:inline-flex"
-            onClick={(event) => {
-              onOpenTerminal(event.currentTarget)
-            }}
-            type="button"
-          >
-            <FiTerminal aria-hidden="true" className="h-4 w-4" />
-            Terminal
-          </button>
-          <span
-            aria-hidden="true"
-            className="hidden h-4 w-px bg-slate-300 dark:bg-white/20 sm:block"
-          />
           <button
             aria-label={
               theme === 'dark' ? 'Switch to light mode' : 'Switch to dark mode'

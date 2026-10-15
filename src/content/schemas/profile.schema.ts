@@ -62,7 +62,7 @@ const labelsSchema = z
     educationSectionEyebrow: nonBlankTextSchema,
     educationSectionTitle: nonBlankTextSchema,
     educationSectionDescription: nonBlankTextSchema,
-    footerAttribution: nonBlankTextSchema,
+    footerAttribution: nonBlankTextSchema.optional(),
   })
   .strict()
 

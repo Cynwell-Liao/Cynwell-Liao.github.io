@@ -10,7 +10,7 @@ for (const theme of ['light', 'dark'] as const) {
       await page.getByRole('button', { name: 'Switch to dark mode' }).click()
     }
     await page
-      .getByRole('banner')
+      .getByRole('navigation', { name: 'Application Dock' })
       .getByRole('button', { name: 'Terminal', exact: true })
       .click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })

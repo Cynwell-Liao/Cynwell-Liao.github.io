@@ -25,6 +25,20 @@ describe('Footer', () => {
     ).toBeInTheDocument()
   })
 
+  it('renders only the copyright when attribution is omitted', () => {
+    vi.useFakeTimers()
+    vi.setSystemTime(new Date('2030-06-15T00:00:00Z'))
+
+    render(
+      <Footer
+        name="Example Engineer"
+        repositoryUrl="https://github.com/example/portfolio"
+      />
+    )
+
+    expect(screen.getByText('© 2030 Example Engineer.')).toBeInTheDocument()
+  })
+
   it('derives a readable repository label and exposes safe outbound attributes', () => {
     render(
       <Footer

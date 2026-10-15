@@ -187,4 +187,33 @@ describe('DesktopDock', () => {
     fireEvent.pointerMove(toolbar, { clientX: 0, pointerType: 'touch' })
     expect(github).toBeInTheDocument()
   })
+
+  it('auto-hides when scrolled to the bottom of the document', () => {
+    const { container } = render(<DesktopDock {...props} />)
+    const position = container.querySelector('.desktop-dock-position')
+    expect(position).toHaveAttribute('data-auto-hidden', 'false')
+
+    Object.defineProperty(document.documentElement, 'scrollHeight', {
+      configurable: true,
+      value: 1000,
+    })
+    Object.defineProperty(window, 'innerHeight', {
+      configurable: true,
+      value: 600,
+    })
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 380,
+    })
+
+    fireEvent.scroll(window)
+    expect(position).toHaveAttribute('data-auto-hidden', 'true')
+
+    Object.defineProperty(window, 'scrollY', {
+      configurable: true,
+      value: 100,
+    })
+    fireEvent.scroll(window)
+    expect(position).toHaveAttribute('data-auto-hidden', 'false')
+  })
 })

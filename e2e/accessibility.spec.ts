@@ -64,7 +64,7 @@ for (const theme of ['light', 'dark'] as const) {
   }, testInfo) => {
     await prepareAccessiblePage(page, theme)
     await page
-      .getByRole('banner')
+      .getByRole('navigation', { name: 'Application Dock' })
       .getByRole('button', { name: 'Terminal', exact: true })
       .click()
     const input = page.getByRole('textbox', { name: 'Terminal command input' })

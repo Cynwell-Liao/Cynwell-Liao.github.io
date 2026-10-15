@@ -80,7 +80,7 @@ for (const theme of ['light', 'dark'] as const) {
     }
     await page.evaluate(() => window.scrollTo(0, 200))
     const opener = page
-      .getByRole('banner')
+      .getByRole('navigation', { name: 'Application Dock' })
       .getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -304,7 +304,7 @@ for (const theme of ['light', 'dark'] as const) {
     }
     await page.emulateMedia({ forcedColors: 'active', colorScheme: theme })
     await page
-      .getByRole('banner')
+      .getByRole('navigation', { name: 'Application Dock' })
       .getByRole('button', { name: 'Terminal', exact: true })
       .click()
     const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -376,7 +376,7 @@ test('keyboard menu selection stays visible and full screen removes every window
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -435,7 +435,7 @@ test('the glass arrangement menu fits a narrow mobile viewport without clipping 
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   await expect(

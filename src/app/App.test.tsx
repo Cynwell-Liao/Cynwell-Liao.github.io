@@ -6,9 +6,8 @@ import { navLinks, profile } from '@content'
 
 import App from './App'
 
-const navbarTerminal = () =>
-  within(screen.getByRole('banner')).getByRole('button', { name: 'Terminal' })
 const dock = () => within(screen.getByRole('navigation', { name: 'Application Dock' }))
+const dockTerminal = () => dock().getByRole('button', { name: 'Terminal' })
 
 describe('App', () => {
   it('renders all primary portfolio sections', async () => {
@@ -66,11 +65,11 @@ describe('App', () => {
     })
   })
 
-  it('opens the floating terminal from the navbar', async () => {
+  it('opens the floating terminal from the Dock', async () => {
     render(<App />)
 
     const user = userEvent.setup()
-    await user.click(navbarTerminal())
+    await user.click(dockTerminal())
 
     expect(await screen.findByRole('dialog', { name: 'Terminal' })).toBeInTheDocument()
     expect(
@@ -78,14 +77,14 @@ describe('App', () => {
     ).toHaveFocus()
     await user.keyboard('{Escape}')
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(navbarTerminal()).toHaveFocus()
+    expect(dockTerminal()).toHaveFocus()
   })
 
   it('keeps the floating terminal profile in sync with the site theme', async () => {
     render(<App />)
 
     const user = userEvent.setup()
-    await user.click(navbarTerminal())
+    await user.click(dockTerminal())
 
     expect(await screen.findByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
       'data-theme',
@@ -106,7 +105,7 @@ describe('App', () => {
     render(<App />)
 
     const user = userEvent.setup()
-    const opener = navbarTerminal()
+    const opener = dockTerminal()
     await user.click(opener)
     const dialog = await screen.findByRole('dialog', { name: 'Terminal' })
     await user.click(screen.getByRole('button', { name: 'Enter full screen' }))
@@ -124,7 +123,7 @@ describe('App', () => {
     render(<App />)
 
     const user = userEvent.setup()
-    const launcher = dock().getByRole('button', { name: 'Terminal' })
+    const launcher = dockTerminal()
     expect(dock().queryByRole('button', { name: 'Restore terminal' })).toBeNull()
     await user.click(launcher)
     await screen.findByRole('dialog', { name: 'Terminal' })
@@ -156,20 +155,5 @@ describe('App', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
     expect(launcher).toHaveAttribute('data-running', 'false')
     expect(launcher).toHaveFocus()
-  })
-
-  it('keeps the original launcher for focus return when another launcher activates Terminal', async () => {
-    render(<App />)
-
-    const user = userEvent.setup()
-    const opener = navbarTerminal()
-    await user.click(opener)
-    await screen.findByRole('dialog', { name: 'Terminal' })
-    await user.click(dock().getByRole('button', { name: 'Terminal' }))
-    expect(screen.getByLabelText('Terminal command input')).toHaveFocus()
-
-    await user.keyboard('{Escape}')
-    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
-    expect(opener).toHaveFocus()
   })
 })

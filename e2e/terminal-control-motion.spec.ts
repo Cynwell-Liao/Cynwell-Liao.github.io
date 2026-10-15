@@ -13,7 +13,7 @@ test('traffic lights magnify the hovered dot and expand further on press without
   await page.goto('/')
   await page.getByRole('button', { name: 'Switch to dark mode' }).click()
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -157,7 +157,7 @@ test('reduced motion keeps hovered and pressed dots still and preserves keyboard
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
@@ -192,7 +192,9 @@ test('reduced motion keeps hovered and pressed dots still and preserves keyboard
   await page.keyboard.press('Enter')
   await expect(dialog).toHaveCount(0)
   await expect(
-    page.getByRole('banner').getByRole('button', { name: 'Terminal', exact: true })
+    page
+      .getByRole('navigation', { name: 'Application Dock' })
+      .getByRole('button', { name: 'Terminal', exact: true })
   ).toBeFocused()
 })
 
@@ -202,7 +204,7 @@ test('keyboard presses animate and interrupted hover or pointer presses reset wi
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
@@ -272,7 +274,7 @@ test('touching a traffic light does not leave hover symbols or open a delayed ar
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
   await page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .tap()
   await expect(

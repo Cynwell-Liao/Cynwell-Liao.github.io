@@ -43,9 +43,30 @@ export function DesktopDock({
   const [focused, setFocused] = useState<number | null>(null)
   const [revealed, setRevealed] = useState(false)
   const [launch, setLaunch] = useState({ index: -1, count: 0 })
+  const [atBottom, setAtBottom] = useState(false)
   const minimizedRef = useRef<HTMLButtonElement>(null)
   const activeLabel = hovered ?? focused
   const showMinimized = terminalOpen && terminalMinimized
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollHeight = document.documentElement.scrollHeight
+      const clientHeight = window.innerHeight
+      if (scrollHeight - clientHeight > 80) {
+        setAtBottom(window.scrollY + clientHeight >= scrollHeight - 40)
+      } else {
+        setAtBottom(false)
+      }
+    }
+
+    handleScroll()
+    window.addEventListener('scroll', handleScroll, { passive: true })
+    window.addEventListener('resize', handleScroll)
+    return () => {
+      window.removeEventListener('scroll', handleScroll)
+      window.removeEventListener('resize', handleScroll)
+    }
+  }, [])
 
   // Like macOS, the minimized window lands in the Dock; keep keyboard focus
   // with it so the window can be restored without hunting for it.
@@ -156,10 +177,12 @@ export function DesktopDock({
     </m.div>
   )
 
+  const isHidden = (fullscreen || atBottom) && !revealed
+
   return (
     <div
       className="desktop-dock-position"
-      data-auto-hidden={fullscreen && !revealed}
+      data-auto-hidden={isHidden}
       onFocusCapture={() => {
         setRevealed(true)
       }}
@@ -170,7 +193,7 @@ export function DesktopDock({
         if (!event.currentTarget.contains(document.activeElement)) setRevealed(false)
       }}
     >
-      {fullscreen && (
+      {(fullscreen || atBottom) && (
         <div
           aria-hidden="true"
           className="desktop-dock__reveal"
@@ -181,7 +204,7 @@ export function DesktopDock({
       )}
       <m.nav
         aria-label="Application Dock"
-        animate={{ y: fullscreen && !revealed ? 'calc(100% + 24px)' : 0 }}
+        animate={{ y: isHidden ? 'calc(100% + 24px)' : 0 }}
         initial={false}
         transition={{ duration: reducedMotion ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
       >

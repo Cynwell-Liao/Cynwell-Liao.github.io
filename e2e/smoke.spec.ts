@@ -78,7 +78,7 @@ test('terminal opens, submits a command, closes, and restores focus @desktop', a
   await page.goto('/')
 
   const opener = page
-    .getByRole('banner')
+    .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
   await opener.click()
 
@@ -185,6 +185,6 @@ test('mobile navbar intentionally exposes only brand and theme controls @mobile'
     page
       .getByRole('banner')
       .getByRole('button', { name: 'Terminal', exact: true, includeHidden: true })
-  ).toBeHidden()
+  ).toHaveCount(0)
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveCount(0)
 })
