@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, within } from '@testing-library/react'
+import { act, fireEvent, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
@@ -188,7 +188,7 @@ describe('DesktopDock', () => {
     expect(github).toBeInTheDocument()
   })
 
-  it('auto-hides when scrolled to the bottom of the document', () => {
+  it('stays visible when scrolled to the bottom of the document', () => {
     const { container } = render(<DesktopDock {...props} />)
     const position = container.querySelector('.desktop-dock-position')
     expect(position).toHaveAttribute('data-auto-hidden', 'false')
@@ -207,7 +207,7 @@ describe('DesktopDock', () => {
     })
 
     fireEvent.scroll(window)
-    expect(position).toHaveAttribute('data-auto-hidden', 'true')
+    expect(position).toHaveAttribute('data-auto-hidden', 'false')
 
     Object.defineProperty(window, 'scrollY', {
       configurable: true,
@@ -215,5 +215,125 @@ describe('DesktopDock', () => {
     })
     fireEvent.scroll(window)
     expect(position).toHaveAttribute('data-auto-hidden', 'false')
+  })
+
+  it('opens, activates, and quits Terminal through its shortcut menu', async () => {
+    const user = userEvent.setup()
+    const onOpenTerminal = vi.fn()
+    const onQuitTerminal = vi.fn()
+    const { rerender } = render(
+      <DesktopDock
+        {...props}
+        onOpenTerminal={onOpenTerminal}
+        onQuitTerminal={onQuitTerminal}
+      />
+    )
+    const terminal = screen.getByRole('button', { name: 'Terminal' })
+    fireEvent.contextMenu(terminal)
+    await user.click(screen.getByRole('menuitem', { name: 'Open' }))
+    expect(onOpenTerminal).toHaveBeenCalledExactlyOnceWith(terminal)
+    rerender(
+      <DesktopDock
+        {...props}
+        terminalOpen
+        onOpenTerminal={onOpenTerminal}
+        onQuitTerminal={onQuitTerminal}
+      />
+    )
+    fireEvent.contextMenu(terminal)
+    await user.click(screen.getByRole('menuitem', { name: 'Show' }))
+    expect(onOpenTerminal).toHaveBeenCalledTimes(2)
+    act(() => {
+      terminal.focus()
+    })
+    await user.keyboard('{Shift>}{F10}{/Shift}')
+    await user.click(screen.getByRole('menuitem', { name: 'Quit' }))
+    expect(onQuitTerminal).toHaveBeenCalledOnce()
+    expect(terminal).toHaveFocus()
+    expect(screen.queryByRole('menu')).toBeNull()
+  })
+
+  it('opens link and minimized-window menus with keyboard focus return', async () => {
+    const user = userEvent.setup()
+    const onRestoreTerminal = vi.fn()
+    render(
+      <DesktopDock
+        {...props}
+        terminalOpen
+        terminalMinimized
+        onRestoreTerminal={onRestoreTerminal}
+      />
+    )
+    const github = screen.getByRole('link', { name: 'GitHub' })
+    fireEvent.contextMenu(github)
+    expect(screen.getByRole('menu', { name: 'GitHub actions' })).toBeInTheDocument()
+    expect(screen.queryByRole('menuitem', { name: 'Quit' })).toBeNull()
+    await user.keyboard('{Escape}')
+    expect(github).toHaveFocus()
+    const restore = screen.getByRole('button', { name: 'Restore terminal' })
+    fireEvent.contextMenu(restore)
+    await user.click(screen.getByRole('menuitem', { name: 'Open' }))
+    expect(onRestoreTerminal).toHaveBeenCalledOnce()
+  })
+
+  it('supports ArrowUp, Control-click, press darkening, and long-press menu invocation', async () => {
+    vi.useFakeTimers({ shouldAdvanceTime: true })
+    const user = userEvent.setup({ advanceTimers: vi.advanceTimersByTime })
+    const onOpenTerminal = vi.fn()
+    try {
+      render(<DesktopDock {...props} onOpenTerminal={onOpenTerminal} />)
+      const github = screen.getByRole('link', { name: 'GitHub' })
+      const terminal = screen.getByRole('button', { name: 'Terminal' })
+
+      await user.tab()
+      expect(github).toHaveFocus()
+      await user.keyboard('{ArrowUp}')
+      expect(screen.getByRole('menu', { name: 'GitHub actions' })).toBeInTheDocument()
+      await user.keyboard('{Escape}')
+      expect(github).toHaveFocus()
+
+      fireEvent.pointerDown(terminal, { button: 2 })
+      expect(terminal).not.toHaveAttribute('data-pressed')
+
+      fireEvent.pointerDown(terminal, { button: 0 })
+      expect(terminal).toHaveAttribute('data-pressed', 'true')
+      fireEvent.pointerCancel(terminal)
+      expect(terminal).not.toHaveAttribute('data-pressed')
+
+      fireEvent.pointerDown(terminal, { button: 0, ctrlKey: true })
+      fireEvent.click(terminal, { button: 0, ctrlKey: true })
+      expect(onOpenTerminal).not.toHaveBeenCalled()
+      expect(screen.getByRole('menu', { name: 'Terminal actions' })).toBeInTheDocument()
+      await user.keyboard('{Escape}')
+
+      fireEvent.pointerDown(terminal, { button: 0 })
+      expect(terminal).toHaveAttribute('data-pressed', 'true')
+      act(() => {
+        vi.advanceTimersByTime(500)
+      })
+      expect(terminal).not.toHaveAttribute('data-pressed')
+      expect(screen.getByRole('menu', { name: 'Terminal actions' })).toBeInTheDocument()
+      fireEvent.pointerUp(terminal, { button: 0 })
+      fireEvent.click(terminal, { button: 0 })
+      expect(onOpenTerminal).not.toHaveBeenCalled()
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
+  it('reveals in full screen for keyboard focus and hides again when focus leaves', async () => {
+    const user = userEvent.setup()
+    const { container } = render(
+      <>
+        <DesktopDock {...props} fullscreen />
+        <button type="button">Outside</button>
+      </>
+    )
+    const position = container.querySelector('.desktop-dock-position')
+    expect(position).toHaveAttribute('data-auto-hidden', 'true')
+    await user.tab()
+    expect(position).toHaveAttribute('data-auto-hidden', 'false')
+    await user.click(screen.getByRole('button', { name: 'Outside' }))
+    expect(position).toHaveAttribute('data-auto-hidden', 'true')
   })
 })

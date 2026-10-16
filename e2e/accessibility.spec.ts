@@ -89,4 +89,38 @@ for (const theme of ['light', 'dark'] as const) {
     )
     expect(await scanForViolations(page, testInfo)).toEqual([])
   })
+
+  test(`${theme} Dock action menus have no automated WCAG A/AA violations @desktop`, async ({
+    page,
+  }, testInfo) => {
+    await prepareAccessiblePage(page, theme)
+    const dock = page.getByRole('navigation', { name: 'Application Dock' })
+    const github = dock.getByRole('link', { name: 'GitHub', exact: true })
+    await github.focus()
+    await github.press('Shift+F10')
+    const profileMenu = page.getByRole('menu', { name: 'GitHub actions' })
+    await expect(
+      profileMenu.getByRole('menuitem', { name: 'Open', exact: true })
+    ).toBeFocused()
+    expect(await scanForViolations(page, testInfo)).toEqual([])
+    await page.keyboard.press('Escape')
+    await expect(github).toBeFocused()
+
+    const terminal = dock.getByRole('button', { name: 'Terminal', exact: true })
+    await terminal.click()
+    await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeVisible()
+    await terminal.focus()
+    await terminal.press('Shift+F10')
+    const terminalMenu = page.getByRole('menu', {
+      name: 'Terminal actions',
+      exact: true,
+    })
+    await expect(
+      terminalMenu.getByRole('menuitem', { name: 'Show', exact: true })
+    ).toBeFocused()
+    expect(await scanForViolations(page, testInfo)).toEqual([])
+    await page.keyboard.press('Escape')
+    await expect(terminal).toBeFocused()
+    await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeVisible()
+  })
 }

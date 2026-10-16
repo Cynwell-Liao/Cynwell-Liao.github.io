@@ -1,12 +1,13 @@
 import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
-import { DOCK_ICON_SIZE, getDockIconSize } from '../model/magnification'
+import { DOCK_GAP, DOCK_ICON_SIZE, getDockSizes } from '../model/magnification'
 
 import { DockIcon } from './DockIcon'
+import { DockMenu } from './DockMenu'
 import { DockMinimizedWindow } from './DockMinimizedWindow'
 
-import type { KeyboardEvent, PointerEvent, ReactNode } from 'react'
+import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
 
 import './DesktopDock.css'
 
@@ -18,6 +19,7 @@ interface DesktopDockProps {
   terminalMinimized?: boolean
   onOpenTerminal: (opener: HTMLButtonElement) => void
   onRestoreTerminal?: () => void
+  onQuitTerminal?: () => void
 }
 
 const apps = [
@@ -36,37 +38,38 @@ export function DesktopDock({
   terminalMinimized = false,
   onOpenTerminal,
   onRestoreTerminal,
+  onQuitTerminal,
 }: DesktopDockProps) {
   const reducedMotion = useReducedMotion()
   const [sizes, setSizes] = useState<number[]>([])
   const [hovered, setHovered] = useState<number | null>(null)
   const [focused, setFocused] = useState<number | null>(null)
+  const [pressed, setPressed] = useState<{
+    index: number
+    opener: HTMLElement
+  } | null>(null)
+  const [longPressed, setLongPressed] = useState(false)
   const [revealed, setRevealed] = useState(false)
+  const [focusWithin, setFocusWithin] = useState(false)
+  const [menu, setMenu] = useState<{ index: number; opener: HTMLElement } | null>(null)
   const [launch, setLaunch] = useState({ index: -1, count: 0 })
-  const [atBottom, setAtBottom] = useState(false)
   const minimizedRef = useRef<HTMLButtonElement>(null)
-  const activeLabel = hovered ?? focused
+  const activeLabel = menu === null ? (hovered ?? focused) : null
   const showMinimized = terminalOpen && terminalMinimized
 
   useEffect(() => {
-    const handleScroll = () => {
-      const scrollHeight = document.documentElement.scrollHeight
-      const clientHeight = window.innerHeight
-      if (scrollHeight - clientHeight > 80) {
-        setAtBottom(window.scrollY + clientHeight >= scrollHeight - 40)
-      } else {
-        setAtBottom(false)
-      }
-    }
-
-    handleScroll()
-    window.addEventListener('scroll', handleScroll, { passive: true })
-    window.addEventListener('resize', handleScroll)
+    if (!pressed) return
+    const timer = setTimeout(() => {
+      setPressed(null)
+      setLongPressed(true)
+      setMenu(pressed)
+      setHovered(null)
+      setSizes([])
+    }, 500)
     return () => {
-      window.removeEventListener('scroll', handleScroll)
-      window.removeEventListener('resize', handleScroll)
+      clearTimeout(timer)
     }
-  }, [])
+  }, [pressed])
 
   // Like macOS, the minimized window lands in the Dock; keep keyboard focus
   // with it so the window can be restored without hunting for it.
@@ -83,14 +86,29 @@ export function DesktopDock({
   }
 
   const magnify = (event: PointerEvent<HTMLElement>) => {
-    if (event.pointerType === 'touch' || reducedMotion) return
-    const items = event.currentTarget.querySelectorAll<HTMLElement>('[data-dock-app]')
+    if (event.pointerType === 'touch' || reducedMotion || menu !== null) return
+    const bounds = event.currentTarget.getBoundingClientRect()
     setSizes(
-      Array.from(items, (item) => {
-        const bounds = item.getBoundingClientRect()
-        return getDockIconSize(event.clientX - bounds.left - bounds.width / 2)
-      })
+      getDockSizes(
+        event.clientX - bounds.left - bounds.width / 2,
+        showMinimized,
+        window.innerWidth - 48
+      )
     )
+  }
+
+  const openMenu = (index: number, opener: HTMLElement) => {
+    setPressed(null)
+    setLongPressed(false)
+    setMenu({ index, opener })
+    resetMagnification()
+  }
+
+  const dismissMenu = (restoreFocus: boolean) => {
+    setMenu(null)
+    setFocusWithin(restoreFocus)
+    setFocused(null)
+    if (restoreFocus) menu?.opener.focus({ preventScroll: true })
   }
 
   const moveFocus = (event: KeyboardEvent<HTMLElement>) => {
@@ -99,6 +117,16 @@ export function DesktopDock({
     )
     const current = items.indexOf(document.activeElement as HTMLElement)
     if (current < 0) return
+    if (
+      event.key === 'ArrowUp' ||
+      event.key === 'ContextMenu' ||
+      (event.shiftKey && event.key === 'F10')
+    ) {
+      event.preventDefault()
+      event.stopPropagation()
+      openMenu(current, items[current])
+      return
+    }
     let next: number
     switch (event.key) {
       case 'ArrowRight':
@@ -120,6 +148,7 @@ export function DesktopDock({
         }
         setHovered(null)
         setFocused(null)
+        setSizes([])
         return
       default:
         return
@@ -128,20 +157,57 @@ export function DesktopDock({
     items[next]?.focus()
   }
 
+  const clearPressedAt = (index: number) => {
+    setPressed((current) => (current?.index === index ? null : current))
+  }
+
   const interactionFor = (index: number, label: string, id: string) => ({
     className: 'desktop-dock__app',
     'data-dock-app': id,
+    'data-pressed': pressed?.index === index ? ('true' as const) : undefined,
     'aria-label': label,
+    onContextMenu: (event: MouseEvent<HTMLElement>) => {
+      event.preventDefault()
+      event.stopPropagation()
+      openMenu(index, event.currentTarget)
+    },
+    onPointerDown: (event: PointerEvent<HTMLElement>) => {
+      setLongPressed(false)
+      if (event.button !== 0 || event.ctrlKey) return
+      setPressed({ index, opener: event.currentTarget })
+    },
+    onPointerUp: () => {
+      clearPressedAt(index)
+    },
+    onPointerCancel: () => {
+      clearPressedAt(index)
+    },
+    onClickCapture: (event: MouseEvent<HTMLElement>) => {
+      setPressed(null)
+      if (longPressed) {
+        setLongPressed(false)
+        event.preventDefault()
+        event.stopPropagation()
+        return
+      }
+      if (event.ctrlKey && event.button === 0) {
+        event.preventDefault()
+        event.stopPropagation()
+        openMenu(index, event.currentTarget)
+      }
+    },
     onPointerEnter: (event: PointerEvent<HTMLElement>) => {
       if (event.pointerType !== 'touch') setHovered(index)
     },
     onPointerLeave: () => {
+      clearPressedAt(index)
       setHovered(null)
     },
     onFocus: () => {
       setFocused(index)
     },
     onBlur: () => {
+      clearPressedAt(index)
       setFocused(null)
     },
   })
@@ -174,26 +240,68 @@ export function DesktopDock({
       }
     >
       {children}
+      {appMenu(index)}
     </m.div>
   )
 
-  const isHidden = (fullscreen || atBottom) && !revealed
+  const isHidden = fullscreen && !revealed && !focusWithin && menu === null
+
+  const appMenu = (index: number) => {
+    if (menu?.index !== index) return null
+    const app = index === MINIMIZED_INDEX ? null : apps[index]
+    const isTerminal = app?.id === 'terminal'
+    const activate = () => {
+      if (index === MINIMIZED_INDEX) onRestoreTerminal?.()
+      else menu.opener.click()
+    }
+    const actions = [
+      { label: isTerminal && terminalOpen ? 'Show' : 'Open', onSelect: activate },
+    ]
+    if (isTerminal && terminalOpen && onQuitTerminal) {
+      return (
+        <DockMenu
+          label={app.label}
+          opener={menu.opener}
+          actions={[
+            ...actions,
+            {
+              label: 'Quit',
+              separatorBefore: true,
+              onSelect: () => {
+                onQuitTerminal()
+                menu.opener.focus({ preventScroll: true })
+              },
+            },
+          ]}
+          onDismiss={dismissMenu}
+        />
+      )
+    }
+    return (
+      <DockMenu
+        label={app?.label ?? 'Terminal'}
+        opener={menu.opener}
+        actions={actions}
+        onDismiss={dismissMenu}
+      />
+    )
+  }
 
   return (
     <div
       className="desktop-dock-position"
       data-auto-hidden={isHidden}
       onFocusCapture={() => {
-        setRevealed(true)
+        setFocusWithin(true)
       }}
       onBlurCapture={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) setRevealed(false)
+        if (!event.currentTarget.contains(event.relatedTarget)) setFocusWithin(false)
       }}
-      onPointerLeave={(event) => {
-        if (!event.currentTarget.contains(document.activeElement)) setRevealed(false)
+      onPointerLeave={() => {
+        setRevealed(false)
       }}
     >
-      {(fullscreen || atBottom) && (
+      {fullscreen && (
         <div
           aria-hidden="true"
           className="desktop-dock__reveal"
@@ -214,6 +322,9 @@ export function DesktopDock({
           role="toolbar"
           onKeyDown={moveFocus}
           onPointerMove={magnify}
+          onPointerEnter={() => {
+            setRevealed(true)
+          }}
           onPointerLeave={resetMagnification}
           onPointerCancel={resetMagnification}
         >
@@ -259,7 +370,7 @@ export function DesktopDock({
               index,
               app.id,
               app.id === 'terminal' ? (
-                <m.button
+                <button
                   {...interaction}
                   aria-haspopup="dialog"
                   data-running={running}
@@ -268,21 +379,19 @@ export function DesktopDock({
                     onOpenTerminal(event.currentTarget)
                   }}
                   type="button"
-                  whileTap={{ filter: 'brightness(0.78)' }}
                 >
                   {content}
-                </m.button>
+                </button>
               ) : (
-                <m.a
+                <a
                   {...interaction}
                   href={app.id === 'github' ? githubUrl : linkedinUrl}
                   onClick={launchApp}
                   rel="noopener noreferrer"
                   target="_blank"
-                  whileTap={{ filter: 'brightness(0.78)' }}
                 >
                   {content}
-                </m.a>
+                </a>
               )
             )
           })}
@@ -292,8 +401,8 @@ export function DesktopDock({
                 animate={{ opacity: 1, width: 1, marginInline: 0 }}
                 aria-hidden="true"
                 className="desktop-dock__separator"
-                exit={{ opacity: 0, width: 0, marginInline: -6 }}
-                initial={{ opacity: 0, width: 0, marginInline: -6 }}
+                exit={{ opacity: 0, width: 0, marginInline: -DOCK_GAP / 2 }}
+                initial={{ opacity: 0, width: 0, marginInline: -DOCK_GAP / 2 }}
                 key="separator"
                 transition={{ duration: reducedMotion ? 0 : 0.25 }}
               />
@@ -303,13 +412,13 @@ export function DesktopDock({
                 animate={{
                   opacity: 1,
                   width: sizeAt(MINIMIZED_INDEX),
+                  height: sizeAt(MINIMIZED_INDEX),
                   marginInline: 0,
                 }}
                 className="desktop-dock__slot"
-                exit={{ opacity: 0, width: 0, marginInline: -6 }}
-                initial={{ opacity: 0, width: 0, marginInline: -6 }}
+                exit={{ opacity: 0, width: 0, marginInline: -DOCK_GAP / 2 }}
+                initial={{ opacity: 0, width: 0, marginInline: -DOCK_GAP / 2 }}
                 key="minimized-terminal"
-                style={{ height: sizeAt(MINIMIZED_INDEX) }}
                 transition={
                   reducedMotion
                     ? { duration: 0 }
@@ -333,6 +442,7 @@ export function DesktopDock({
                   <DockMinimizedWindow />
                   {tooltip(MINIMIZED_INDEX, 'Terminal')}
                 </button>
+                {appMenu(MINIMIZED_INDEX)}
               </m.div>
             )}
           </AnimatePresence>

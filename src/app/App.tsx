@@ -41,7 +41,7 @@ function App() {
   return (
     <LazyMotion features={domAnimation}>
       <MotionConfig reducedMotion="user">
-        <div className="relative overflow-x-clip">
+        <div className="relative overflow-x-clip pb-20">
           <a
             className="fixed top-3 left-3 z-[100] -translate-y-20 rounded-lg bg-slate-950 px-4 py-3 text-sm font-semibold text-white shadow-lg transition-transform focus:translate-y-0 focus:outline-none focus:ring-2 focus:ring-accent-400 focus:ring-offset-2 dark:bg-white dark:text-slate-950"
             href="#main-content"
@@ -106,6 +106,7 @@ function App() {
             terminalOpen={terminalOpener !== null}
             onOpenTerminal={openTerminal}
             onRestoreTerminal={activateTerminal}
+            onQuitTerminal={closeTerminal}
           />
           {terminalOpener ? (
             <TerminalHost

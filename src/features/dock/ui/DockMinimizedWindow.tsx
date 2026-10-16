@@ -14,6 +14,7 @@ export function DockMinimizedWindow() {
           <span />
           <span />
           <span />
+          <span className="desktop-dock__thumbnail-prompt" />
         </span>
       </span>
       <span className="desktop-dock__badge">
