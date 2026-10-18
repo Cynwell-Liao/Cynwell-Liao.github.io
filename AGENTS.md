@@ -150,7 +150,7 @@ Key conventions that cannot be inferred from tool configs alone:
 ## Deployment & Release
 
 - **CI** (`ci.yml`): Triggers on push to `main` and all PRs. Runs `quality` (lint + typecheck + coverage) then `e2e-smoke`.
-- **CD** (`cd.yml`): Triggers after successful CI on `main`. Runs full `npm run check`, builds `dist/`, and deploys to GitHub Pages.
+- **CD** (`cd.yml`): Triggers after successful CI on `main`. Builds `dist/` and deploys to GitHub Pages.
 - **Branch protection:** `main` requires passing `quality` and `e2e-smoke` checks.
 - **Base URL:** `'/'` in `vite.config.ts` (user site at `<username>.github.io`).
 - **Release-only deploys:** Do not push a normal deploy commit to `main`. Every commit that lands on `main` must be a release commit, must bump `package.json`/`package-lock.json`, must be tagged, and must have a matching GitHub Release.
