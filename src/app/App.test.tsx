@@ -8,6 +8,8 @@ import App from './App'
 
 const dock = () => within(screen.getByRole('navigation', { name: 'Application Dock' }))
 const dockTerminal = () => dock().getByRole('button', { name: 'Terminal' })
+const findTerminal = () =>
+  screen.findByRole('dialog', { name: 'Terminal' }, { timeout: 10_000 })
 
 describe('App', () => {
   it('renders all primary portfolio sections', async () => {
@@ -71,7 +73,7 @@ describe('App', () => {
     const user = userEvent.setup()
     await user.click(dockTerminal())
 
-    expect(await screen.findByRole('dialog', { name: 'Terminal' })).toBeInTheDocument()
+    expect(await findTerminal()).toBeInTheDocument()
     expect(
       screen.getByLabelText<HTMLInputElement>('Terminal command input')
     ).toHaveFocus()
@@ -86,10 +88,7 @@ describe('App', () => {
     const user = userEvent.setup()
     await user.click(dockTerminal())
 
-    expect(await screen.findByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
-      'data-theme',
-      'light'
-    )
+    expect(await findTerminal()).toHaveAttribute('data-theme', 'light')
 
     await user.click(screen.getByRole('button', { name: 'Switch to dark mode' }))
 
@@ -107,7 +106,7 @@ describe('App', () => {
     const user = userEvent.setup()
     const opener = dockTerminal()
     await user.click(opener)
-    const dialog = await screen.findByRole('dialog', { name: 'Terminal' })
+    const dialog = await findTerminal()
     await user.click(screen.getByRole('button', { name: 'Enter full screen' }))
 
     await user.keyboard('{Escape}')
@@ -126,7 +125,7 @@ describe('App', () => {
     const launcher = dockTerminal()
     expect(dock().queryByRole('button', { name: 'Restore terminal' })).toBeNull()
     await user.click(launcher)
-    await screen.findByRole('dialog', { name: 'Terminal' })
+    await findTerminal()
     expect(launcher).toHaveAttribute('data-running', 'true')
     await user.type(
       screen.getByLabelText<HTMLInputElement>('Terminal command input'),

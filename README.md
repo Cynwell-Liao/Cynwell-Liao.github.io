@@ -54,8 +54,10 @@ policy.
 
 Edit `src/content/data/profile.json`:
 
-- **`name` / `title`** — displayed identity. `tagline` is retained in the content
+- **`name` / `brandName` / `title`** — displayed identity and branding. `tagline` is retained in the content
   model but is not currently rendered; the social cover text is edited separately.
+- **`githubUsername` / `githubUrl` / `repositoryUrl` / `linkedinUrl` / `linkedinConnectionCount`** — social
+  profiles, repository links, and network stats displayed across the hero, dock, navbar, and footer.
 - **`about`** — biography paragraphs.
 - **`hero`** — terminal prompt and directories.
 - **`certifications`** — certification badge URLs.
@@ -79,7 +81,7 @@ logo is omitted when no URL is provided or the image fails to load.
 
 ### Step 4 — SEO Metadata _(required)_
 
-Edit `site-meta.json` (project root) — name, site URL, description, keywords, Google verification. These values are injected into `index.html` at build time.
+Edit `site-meta.json` (project root) — name, title, site URL, description, keywords, job title, company (`worksFor`), profile links (`sameAs`), and Google verification. These values are injected into `index.html` at build time for metadata and JSON-LD structured schemas.
 
 ### Step 5 — Branding _(optional)_
 
@@ -187,7 +189,7 @@ configuration retains the existing assertions and does not skip these tests.
 `src` is organized by app shell, feature modules, shared utilities, and content:
 
 - `src/app`: app entry and composition
-- `src/features`: feature modules (`about`, `hero`, `projects`, `education`, etc.)
+- `src/features`: feature modules (`about`, `dock`, `education`, `footer`, `hero`, `navbar`, `projects`, `tech-stack`, `terminal`)
 - `src/shared`: shared UI and reusable logic
 - `src/content`: static content and validated loaders
 

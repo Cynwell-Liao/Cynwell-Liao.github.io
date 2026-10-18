@@ -48,12 +48,12 @@ content  →  shared
 
 **Layer structure:**
 
-| Layer      | Path                   | Purpose                                                                        |
-| ---------- | ---------------------- | ------------------------------------------------------------------------------ |
-| `app`      | `src/app/`             | Entry point, top-level composition (`App.tsx`, `main.tsx`)                     |
-| `features` | `src/features/<name>/` | Feature modules (hero, about, projects, education, tech-stack, navbar, footer) |
-| `content`  | `src/content/`         | Unified static content module with pure JSON data, schemas, and loaders        |
-| `shared`   | `src/shared/`          | Reusable UI components (`ui/`), utilities (`lib/`), types (`types/`)           |
+| Layer      | Path                   | Purpose                                                                                                          |
+| ---------- | ---------------------- | ---------------------------------------------------------------------------------------------------------------- |
+| `app`      | `src/app/`             | Entry point, top-level composition (`App.tsx`, `main.tsx`)                                                       |
+| `features` | `src/features/<name>/` | Feature modules (`about`, `dock`, `education`, `footer`, `hero`, `navbar`, `projects`, `tech-stack`, `terminal`) |
+| `content`  | `src/content/`         | Unified static content module with pure JSON data, schemas, and loaders                                          |
+| `shared`   | `src/shared/`          | Reusable UI components (`ui/`), utilities (`lib/`), types (`types/`)                                             |
 
 **Feature module convention:**
 
@@ -77,14 +77,15 @@ for TypeScript in `tsconfig.app.json`):
 
 All personal data is centralized in the following static content JSON files:
 
-| File                                               | Purpose                                                      | Format |
-| -------------------------------------------------- | ------------------------------------------------------------ | ------ |
-| `src/content/data/profile.json`                    | Identity, about, hero config, certifications, section labels | JSON   |
-| `src/content/data/projects.json`                   | Project cards                                                | JSON   |
-| `src/content/data/skills.json`                     | Tech stack categories and items                              | JSON   |
-| `src/content/data/education.json`                  | Education history and achievements                           | JSON   |
-| `site-meta.json`                                   | SEO metadata (injected into `index.html` at build time)      | JSON   |
-| `public/favicon.ico`, `public/assets/og-cover.png` | Branding assets                                              | Images |
+| File                                                            | Purpose                                                        | Format |
+| --------------------------------------------------------------- | -------------------------------------------------------------- | ------ |
+| `src/content/data/profile.json`                                 | Identity, about, hero config, certifications, section labels   | JSON   |
+| `src/content/data/projects.json`                                | Project cards                                                  | JSON   |
+| `src/content/data/skills.json`                                  | Tech stack categories and items                                | JSON   |
+| `src/content/data/education.json`                               | Education history and achievements                             | JSON   |
+| `site-meta.json`                                                | SEO metadata (injected into `index.html` at build time)        | JSON   |
+| `public/favicon.ico`, `public/assets/og-cover.png`              | Branding assets                                                | Images |
+| `public/assets/og-cover.svg`, `public/assets/profile-photo.png` | OG image generation source templates (avatar and vector cover) | Assets |
 
 **Icon registry:** Skills reference icons by string keys (e.g., `"java"`, `"python"`).
 To add an icon, add its content key to `src/shared/lib/icons/iconKeys.ts`, then import
@@ -127,10 +128,10 @@ Key conventions that cannot be inferred from tool configs alone:
 
 ### End-to-End Tests (Playwright)
 
-- Test files live in `e2e/`.
+- Test files live in `e2e/`. Test suites use `*.spec.ts`; `e2e/fixtures.ts` is the shared fixture utility providing route mocking and console error assertions.
 - Tests run against a Vite preview server — `npm run build` must succeed first.
 - Use `@desktop` and `@mobile` tags to scope tests by viewport (Chromium + Pixel 7 projects).
-- Playwright config: `playwright.config.ts`.
+- Playwright configs: `playwright.config.ts` (default Chromium/Pixel 7 suite) and `playwright.webkit.config.ts` (optional WebKit/Safari suite via `npm run test:e2e:webkit`).
 - Browser tests are strictly type-checked by the referenced `tsconfig.e2e.json` project.
 
 ### Adding Tests

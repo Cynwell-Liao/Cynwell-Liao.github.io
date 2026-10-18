@@ -7,16 +7,14 @@ Bug fixes and small improvements are welcome.
 
 ## Workflow
 
-1. Fork the repository.
-2. Create a feature branch from `main`.
-3. Make focused changes with tests where relevant.
-4. Run local checks:
-   - `npm run lint`
-   - `npm run typecheck`
-   - `npm run test:coverage`
-   - `npm run build`
-   - `npm run test:e2e`
-5. Open a pull request with a clear description of what changed and why.
+1. Fork the repository and clone it locally.
+2. Install dependencies: `npm ci` and `npx playwright install chromium`.
+3. Create a feature branch from `main`.
+4. Make focused changes with tests where relevant.
+5. Run local checks:
+   - Full authoritative quality gate: `npm run check` (runs format check, linting, typecheck, coverage, build with bundle budget, and e2e smoke tests).
+   - Or run individual commands during development: `npm run lint`, `npm run typecheck`, `npm run test:coverage`, `npm run build`, `npm run test:e2e`.
+6. Open a pull request with a clear description of what changed and why.
 
 ## Scope and Style
 

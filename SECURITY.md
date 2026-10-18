@@ -7,7 +7,13 @@ Security fixes are applied to the latest codebase only.
 
 ## Reporting a Vulnerability
 
-If you discover a security issue, please report it in GitHub Discussions:
+If you discover a security vulnerability, please do not disclose it publicly.
+
+Please report it privately via GitHub Security Advisories:
+
+https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/security/advisories/new
+
+Alternatively, if private advisory reporting is unavailable, you may reach out via GitHub Discussions:
 
 https://github.com/Cynwell-Liao/Cynwell-Liao.github.io/discussions
 
