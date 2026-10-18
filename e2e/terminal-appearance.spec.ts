@@ -448,6 +448,14 @@ test('the glass arrangement menu fits a narrow mobile viewport without clipping 
   await green.press('ArrowDown')
   const menu = page.getByRole('menu', { name: 'Window arrangement' })
   await expect(menu).toBeVisible()
+  // WebKit can deliver the native resize event after setViewportSize resolves.
+  // Wait for the window to respond before inspecting its menu's final bounds.
+  await expect
+    .poll(async () => {
+      const menuBounds = await menu.boundingBox()
+      return menuBounds ? menuBounds.x + menuBounds.width : Number.POSITIVE_INFINITY
+    })
+    .toBeLessThanOrEqual(viewport.width)
   const bounds = await menu.boundingBox()
   if (!bounds) throw new Error('Window arrangement menu bounds are unavailable')
   expect(bounds.x).toBeGreaterThanOrEqual(0)

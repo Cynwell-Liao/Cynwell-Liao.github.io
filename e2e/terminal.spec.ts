@@ -18,7 +18,9 @@ test('terminal downloads without a popup and can be dismissed before opening @de
     .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
   const downloadStarted = page.waitForRequest(terminalAsset)
-  await opener.click()
+  // Start from keyboard focus: Safari does not focus buttons on pointer clicks.
+  await opener.focus()
+  await opener.press('Enter')
   await downloadStarted
   await expect(page.getByRole('dialog')).toHaveCount(0)
   await expect(page.getByRole('status')).toHaveCount(0)

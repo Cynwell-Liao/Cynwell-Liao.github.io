@@ -24,7 +24,7 @@ export function AboutSection({
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 left-0 h-72 w-72 rounded-full bg-secondary-500/10 mix-blend-screen blur-[120px]"
+        className="ambient-glow ambient-glow--diffuse absolute top-1/2 left-0 h-72 w-72 text-secondary-500/10"
       />
 
       <div className="relative z-10">
@@ -40,7 +40,7 @@ export function AboutSection({
           <div className="glass-panel group p-8">
             <div
               aria-hidden="true"
-              className="absolute top-0 right-0 h-64 w-64 rounded-full bg-secondary-500/10 opacity-0 blur-[80px] transition-opacity duration-500 group-hover:opacity-100"
+              className="ambient-glow absolute top-0 right-0 h-64 w-64 text-secondary-500/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
             />
 
             <div className="relative z-10 space-y-8">

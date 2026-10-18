@@ -16,16 +16,17 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
   return (
     <section
       aria-labelledby="home-heading"
-      className="relative flex min-h-dvh scroll-mt-24 items-center justify-center overflow-hidden pt-32 pb-12 sm:pt-32 lg:pt-36"
+      // Keep the hero stable while mobile browser controls show or hide.
+      className="relative flex min-h-svh scroll-mt-24 items-center justify-center overflow-hidden pt-32 pb-12 sm:pt-32 lg:pt-36"
       id={SECTION_ID.home}
     >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 z-0 overflow-hidden"
       >
-        <div className="absolute top-1/4 left-1/4 h-96 w-96 animate-blob rounded-full bg-accent-500/15 mix-blend-screen blur-[100px]" />
-        <div className="hero-orb-delay-2000 absolute top-1/3 right-1/4 h-96 w-96 animate-blob rounded-full bg-purple-500/15 mix-blend-screen blur-[100px]" />
-        <div className="hero-orb-delay-4000 absolute bottom-1/4 left-1/2 h-96 w-96 animate-blob rounded-full bg-secondary-500/15 mix-blend-screen blur-[100px]" />
+        <div className="ambient-glow hero-orb absolute top-1/4 left-1/4 h-96 w-96 animate-blob text-accent-500/15" />
+        <div className="ambient-glow hero-orb hero-orb-delay-2000 absolute top-1/3 right-1/4 h-96 w-96 animate-blob text-purple-500/15" />
+        <div className="ambient-glow hero-orb hero-orb-delay-4000 absolute bottom-1/4 left-1/2 h-96 w-96 animate-blob text-secondary-500/15" />
       </div>
 
       <div className="section-wrap relative z-10 flex w-full flex-col gap-8">

@@ -52,8 +52,8 @@ function App() {
             aria-hidden="true"
             className="pointer-events-none absolute inset-x-0 top-[-8rem] -z-10 flex justify-between px-6"
           >
-            <div className="h-72 w-72 rounded-full bg-accent-500/20 blur-3xl" />
-            <div className="h-72 w-72 rounded-full bg-secondary-500/10 blur-3xl" />
+            <div className="ambient-glow relative h-72 w-72 text-accent-500/20" />
+            <div className="ambient-glow relative h-72 w-72 text-secondary-500/10" />
           </div>
           <Navbar
             brandName={profile.brandName}

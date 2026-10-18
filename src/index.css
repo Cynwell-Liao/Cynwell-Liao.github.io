@@ -66,6 +66,26 @@
   @apply text-base leading-relaxed font-normal;
 }
 
+/* Paint soft ornaments directly instead of rasterizing oversized blur filters. */
+@utility ambient-glow {
+  pointer-events: none;
+
+  &::before {
+    position: absolute;
+    inset: -50%;
+    background: radial-gradient(ellipse at center, currentColor, transparent 70%);
+    opacity: 0.8;
+    content: '';
+  }
+}
+
+@utility ambient-glow--diffuse {
+  &::before {
+    inset: -75%;
+    opacity: 0.6;
+  }
+}
+
 @utility glass-panel {
   @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
@@ -207,6 +227,13 @@
 
   .hero-cert-marquee__viewport {
     mask-image: none;
+  }
+}
+
+/* Touch screens retain the same ambient colour without perpetual compositing. */
+@media (hover: none) and (pointer: coarse) {
+  .hero-orb {
+    animation: none;
   }
 }
 

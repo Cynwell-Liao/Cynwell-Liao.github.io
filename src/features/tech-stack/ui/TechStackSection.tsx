@@ -30,7 +30,7 @@ export function TechStackSection({
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-1/2 right-0 h-96 w-96 rounded-full bg-accent-500/10 mix-blend-screen blur-[150px]"
+        className="ambient-glow ambient-glow--diffuse absolute top-1/2 right-0 h-96 w-96 text-accent-500/10"
       />
 
       <SectionHeading

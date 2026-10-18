@@ -155,6 +155,33 @@ npm run build
 npm run test:e2e
 ```
 
+For Safari compatibility checks, run the same browser tests in desktop and mobile
+WebKit. This is an opt-in suite; `npm run check` and CI continue to use Chromium.
+
+```bash
+npx playwright install webkit
+npm run build
+npm run test:e2e:webkit
+
+# Focus on rendering, responsive layout, and accessibility
+npm run test:e2e:webkit -- e2e/rendering.spec.ts e2e/layout.spec.ts e2e/accessibility.spec.ts
+
+# Select one viewport or inspect a visible browser
+npm run test:e2e:webkit -- --project=desktop-webkit
+npm run test:e2e:webkit -- --project=mobile-webkit --headed
+```
+
+The WebKit report is written to `playwright-report/webkit`. Playwright uses a
+patched WebKit build, rather than the installed Safari browser. Run it on macOS
+for the closest Safari coverage, and verify rendering on actual Safari and iOS
+devices when investigating platform-specific glitches. See
+[Playwright's WebKit documentation](https://playwright.dev/docs/browsers#webkit).
+
+The full suite also includes Chromium-specific CDP emulation and assumptions about
+native keyboard focus and forced colours. These can fail under Windows WebKit;
+investigate those failures separately from rendering regressions. The WebKit
+configuration retains the existing assertions and does not skip these tests.
+
 ## Architecture Overview
 
 `src` is organized by app shell, feature modules, shared utilities, and content:
