@@ -86,7 +86,7 @@ Edit `site-meta.json` (project root) — name, site URL, description, keywords, 
 - Replace `public/favicon.ico`.
 - **Social Cover (OG Image):** We provide an automated pipeline to generate a pixel-perfect social cover image.
   1. Add your own profile picture to `public/assets/profile-photo.png`.
-  2. Open `public/assets/og-cover.svg` in an editor and update the text elements (Name, Role, Tagline, GitHub URL) to match your profile.
+  2. Open `public/assets/og-cover.svg` in an editor and update the text elements (Name, Role, GitHub URL) to match your profile.
   3. Run `npm run update:og-avatar` — this crops `profile-photo.png` into a circle
      and embeds it in the SVG template. Use `-- --help` to see temporary input and
      output path options.

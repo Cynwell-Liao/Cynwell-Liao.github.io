@@ -21,7 +21,6 @@ export type HeroProfile = Readonly<
     ProfileData,
     | keyof HeroStatsProfile
     | 'title'
-    | 'heroStatusLabel'
     | 'heroCertificationsHeading'
     | 'heroCertifications'
   >

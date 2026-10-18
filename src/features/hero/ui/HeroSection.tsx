@@ -41,13 +41,8 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
               <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-emerald-400 opacity-75" />
               <span className="relative inline-flex h-2 w-2 rounded-full bg-emerald-500" />
             </span>
-            <span className="flex items-center gap-2 whitespace-nowrap">
-              <span className="font-semibold tracking-[0.24em] text-emerald-800 dark:text-emerald-300">
-                {profile.heroStatusLabel}
-              </span>
-              <span className="text-xs font-medium tracking-[0.28em] text-slate-600 dark:text-slate-400">
-                {deployVersion}
-              </span>
+            <span className="font-semibold tracking-[0.24em] whitespace-nowrap text-emerald-800 dark:text-emerald-300">
+              {deployVersion}
             </span>
           </div>
 

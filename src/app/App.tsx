@@ -93,11 +93,7 @@ function App() {
               headingTitle={profile.educationSectionTitle}
             />
           </main>
-          <Footer
-            attribution={profile.footerAttribution}
-            name={profile.name}
-            repositoryUrl={profile.repositoryUrl}
-          />
+          <Footer name={profile.name} repositoryUrl={profile.repositoryUrl} />
           <DesktopDock
             fullscreen={terminalFullscreen}
             githubUrl={profile.githubUrl}

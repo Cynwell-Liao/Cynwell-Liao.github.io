@@ -90,6 +90,5 @@ export const createValidRawProfile = () => ({
     educationSectionEyebrow: 'Learning',
     educationSectionTitle: 'Education',
     educationSectionDescription: 'A history of continuous learning.',
-    footerAttribution: 'Built for deterministic tests.',
   },
 })

@@ -56,7 +56,6 @@ describe('profile content', () => {
         educationSectionEyebrow: 'Learning',
         educationSectionTitle: 'Education',
         educationSectionDescription: 'A history of continuous learning.',
-        footerAttribution: 'Built for deterministic tests.',
       },
       navLinks: [
         { label: 'About', href: '#about' },

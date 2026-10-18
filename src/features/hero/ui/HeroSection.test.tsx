@@ -33,8 +33,12 @@ describe('HeroSection', () => {
       'id',
       'home'
     )
-    expect(screen.getByText(profile.heroStatusLabel)).toBeInTheDocument()
-    expect(screen.getByText('v9.9.9')).toBeInTheDocument()
+    expect(screen.queryByText('SYSTEMS ONLINE')).not.toBeInTheDocument()
+    expect(screen.getByText('v9.9.9')).toHaveClass(
+      'font-semibold',
+      'text-emerald-800',
+      'dark:text-emerald-300'
+    )
     expect(screen.getByRole('link', { name: profile.linkedinLabel })).toHaveAttribute(
       'href',
       profile.linkedinUrl

@@ -21,6 +21,12 @@ const supportedImageTypes = new Map([
   ['.webp', 'image/webp'],
 ])
 
+// Logo fills the right side of the glass panel (x 80–1120, y 90–540) with a 40px inset.
+const logoSize = 370
+const logoRadius = logoSize / 2
+const logoX = 1120 - 40 - logoSize
+const logoY = 90 + (450 - logoSize) / 2
+
 const printUsage = () => {
   console.log(`Usage: node scripts/embed-og-avatar.js [options]
 
@@ -118,7 +124,7 @@ const run = () => {
   }
 
   const logoContainerPattern =
-    /(<!-- Decorative Logo Container -->\s*<g transform="translate\(850, 220\)">)([\s\S]*?)(<\/g>)/
+    /(<!-- Decorative Logo Container -->\s*)<g transform="translate\([^)]*\)">[\s\S]*?<\/g>/
   const matches = [...svgContent.matchAll(new RegExp(logoContainerPattern, 'g'))]
   if (matches.length !== 1) {
     throw new Error(
@@ -126,21 +132,25 @@ const run = () => {
     )
   }
 
-  const newLogoContent = `
-    <circle cx="100" cy="100" r="120" fill="#ffffff" fill-opacity="0.3" filter="blur(20px)" />
-    <image x="0" y="0" width="200" height="200" preserveAspectRatio="xMidYMid slice" href="${base64DataUri}" clip-path="url(#avatarClip)" />
-    <circle cx="100" cy="100" r="100" fill="none" stroke="#ffffff" stroke-width="4" />
-  `
-  svgContent = svgContent.replace(logoContainerPattern, `$1${newLogoContent}$3`)
+  const newLogoContainer = `<g transform="translate(${logoX}, ${logoY})">
+    <circle cx="${logoRadius}" cy="${logoRadius}" r="${logoRadius + 12}" fill="#ffffff" fill-opacity="0.3" filter="blur(20px)" />
+    <image x="0" y="0" width="${logoSize}" height="${logoSize}" preserveAspectRatio="xMidYMid slice" href="${base64DataUri}" clip-path="url(#avatarClip)" />
+    <circle cx="${logoRadius}" cy="${logoRadius}" r="${logoRadius}" fill="none" stroke="#ffffff" stroke-width="6" />
+  </g>`
+  svgContent = svgContent.replace(
+    logoContainerPattern,
+    (_, prefix) => `${prefix}${newLogoContainer}`
+  )
 
-  if (!svgContent.includes('<clipPath id="avatarClip">')) {
+  const avatarClip = `<clipPath id="avatarClip">\n      <circle cx="${logoRadius}" cy="${logoRadius}" r="${logoRadius}" />\n    </clipPath>`
+  const avatarClipPattern = /<clipPath id="avatarClip">[\s\S]*?<\/clipPath>/
+  if (avatarClipPattern.test(svgContent)) {
+    svgContent = svgContent.replace(avatarClipPattern, avatarClip)
+  } else {
     if (!svgContent.includes('</defs>')) {
       throw new Error('OG source has no <defs> block for the avatar clip path')
     }
-    svgContent = svgContent.replace(
-      '</defs>',
-      `  <clipPath id="avatarClip">\n      <circle cx="100" cy="100" r="100" />\n    </clipPath>\n  </defs>`
-    )
+    svgContent = svgContent.replace('</defs>', `  ${avatarClip}\n  </defs>`)
   }
 
   mkdirSync(path.dirname(outputPath), { recursive: true })

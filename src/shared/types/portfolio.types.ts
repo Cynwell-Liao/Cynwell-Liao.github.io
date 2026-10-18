@@ -45,7 +45,6 @@ export interface ProfileData {
   readonly educationSectionEyebrow: string
   readonly educationSectionTitle: string
   readonly educationSectionDescription: string
-  readonly footerAttribution?: string
 }
 
 export interface NavLink {

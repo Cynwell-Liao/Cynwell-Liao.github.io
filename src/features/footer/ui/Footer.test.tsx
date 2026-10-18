@@ -8,24 +8,7 @@ describe('Footer', () => {
     vi.useRealTimers()
   })
 
-  it('renders the current year and supplied attribution', () => {
-    vi.useFakeTimers()
-    vi.setSystemTime(new Date('2030-06-15T00:00:00Z'))
-
-    render(
-      <Footer
-        attribution="Built for deterministic tests."
-        name="Example Engineer"
-        repositoryUrl="https://github.com/example/portfolio"
-      />
-    )
-
-    expect(
-      screen.getByText('© 2030 Example Engineer. Built for deterministic tests.')
-    ).toBeInTheDocument()
-  })
-
-  it('renders only the copyright when attribution is omitted', () => {
+  it('renders the copyright with the current year', () => {
     vi.useFakeTimers()
     vi.setSystemTime(new Date('2030-06-15T00:00:00Z'))
 
@@ -36,13 +19,12 @@ describe('Footer', () => {
       />
     )
 
-    expect(screen.getByText('© 2030 Example Engineer.')).toBeInTheDocument()
+    expect(screen.getByText('© 2030 Example Engineer')).toBeInTheDocument()
   })
 
   it('derives a readable repository label and exposes safe outbound attributes', () => {
     render(
       <Footer
-        attribution="Built for deterministic tests."
         name="Example Engineer"
         repositoryUrl="https://github.com/example/portfolio/"
       />

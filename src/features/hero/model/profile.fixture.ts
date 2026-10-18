@@ -9,7 +9,6 @@ export const heroProfile: HeroProfile = {
   linkedinConnectionCount: 760,
   linkedinLabel: 'LinkedIn profile',
   linkedinConnectionsLabel: 'connections',
-  heroStatusLabel: 'SYSTEMS ONLINE',
   heroCertificationsHeading: 'Certifications',
   heroCertifications: [
     {
