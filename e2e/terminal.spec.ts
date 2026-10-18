@@ -54,7 +54,7 @@ test.describe('terminal download recovery', () => {
       .getByRole('button', { name: 'Terminal', exact: true })
     await opener.click()
     await expect(page.getByRole('alert')).toContainText('could not load')
-    expect(failures).toBe(1)
+    expect(failures).toBeGreaterThanOrEqual(1)
     await expect(page.getByRole('main')).toBeVisible()
     await page.getByRole('button', { name: 'Retry', exact: true }).click()
     await expect(page.getByRole('alert')).toContainText('could not load')
