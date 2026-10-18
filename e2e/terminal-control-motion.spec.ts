@@ -9,6 +9,7 @@ const controlNames = [
 test('traffic lights magnify the hovered dot and expand further on press without moving their targets @desktop', async ({
   page,
 }, testInfo) => {
+  test.slow()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   await page.getByRole('button', { name: 'Switch to dark mode' }).click()

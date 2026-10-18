@@ -7,7 +7,7 @@ const eslint = new ESLint()
 // timeout on a cold Windows checkout. Keep that startup separate from assertions.
 beforeAll(async () => {
   await eslint.lintText('export {}', { filePath: 'src/app/App.tsx' })
-}, 30_000)
+}, 60_000)
 
 const boundaryMessages = async (filePath: string, source: string) => {
   const [result] = await eslint.lintText(source, { filePath })
