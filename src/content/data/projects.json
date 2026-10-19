@@ -2,11 +2,11 @@
   {
     "id": "cheapguide",
     "title": "Cheapguide",
-    "summary": "Served as Principal Backend Engineer & Solution Architect in a 4-person cross-functional team, architecting and shipping a Spring Boot backend with REST APIs for auth, posts, search, AI moderation, and notifications",
+    "summary": "Led backend systems and architecture in a 4-person cross-functional team, designing and shipping a Spring Boot backend with REST APIs for auth, posts, search, AI moderation, and notifications",
     "highlights": [
-      "Integrated Firebase Auth (JWT) with role-based access control (RBAC), enforcing authorisation across 30+ protected endpoints serving 3 user roles",
+      "Integrated Firebase Auth (JWT) for stateless token verification, enforcing endpoint authorisation and administrative privilege guards across 70+ protected REST endpoints",
       "Researched and proposed replacing a Redis sidecar with Caffeine in-memory caching, eliminating ~$400/year in infrastructure overhead while achieving sub-millisecond data retrieval",
-      "Set up async workflows with Google Pub/Sub (handling 16 concurrent threads) and provisioned GCP infrastructure via Terraform, reducing deployment time with verifiable Infrastructure-as-Code",
+      "Set up async workflows with Google Pub/Sub and tuned thread pools (16 concurrent threads), provisioning GCP infrastructure (Cloud Run, Cloud SQL, Storage) via Terraform",
       "Established CI/CD with GitHub Actions utilising multi-stage Docker builds (reducing image size by ~40%) and ensured production monitoring with OpenTelemetry tracing and structured logging"
     ],
     "stack": ["Java", "Spring Boot", "MySQL", "Pub/Sub", "Terraform", "GCP"],
@@ -15,12 +15,12 @@
   {
     "id": "parkpie",
     "title": "ParkPie",
-    "summary": "Led SDLC as AI & Backend Lead in a 6-person Agile team, architecting a geospatial-first Django backend leveraging AWS EC2, RDS (PostGIS), Cognito auth, and S3 for secure uploads",
+    "summary": "Led AI & backend engineering in a 6-person Agile team, architecting a geospatial-first Django backend leveraging AWS EC2, RDS (PostGIS), Cognito auth, and S3 for secure uploads",
     "highlights": [
       "Designed a domain-driven PostgreSQL schema managing 1.9M+ geospatial records, separating runtime map state from immutable temporal history to ensure auditable data provenance via CQRS-inspired REST APIs",
-      "Pioneered an agentic AI pipeline with LangGraph and LangChain, combining a hybrid Gemini/Ollama inference model with PGVector semantic search for reliable Retrieval-Augmented Generation (RAG)",
-      "Engineered a DevSecOps CI/CD pipeline in GitHub Actions, enforcing Test-driven development across 350+ automated tests, Mypy strict type-checking, Bandit security scanning, and Docker builds to GHCR",
-      "Added comprehensive monitoring and tracing with LangSmith for LLM behaviour and OpenTelemetry + the LGTM stack (Loki, Grafana, Tempo, Mimir) to observe complex agentic workflows"
+      "Architected a multi-step AI interpretation pipeline with LangChain, combining a dual-provider Gemini/Ollama model setup with PGVector semantic search for reliable Retrieval-Augmented Generation (RAG)",
+      "Engineered a DevSecOps CI/CD pipeline in GitHub Actions, enforcing Test-driven development across 600+ automated tests, Mypy strict type-checking, Bandit security scanning, and multi-stage Docker builds",
+      "Added comprehensive monitoring and tracing with LangSmith for LLM behaviour and OpenTelemetry + the Grafana stack (Loki, Tempo, Prometheus, Alloy) to observe complex backend workflows"
     ],
     "stack": ["Python", "Django", "PostgreSQL", "LangChain", "Docker", "AWS"],
     "liveUrl": "https://parkpie-landing.vercel.app"
