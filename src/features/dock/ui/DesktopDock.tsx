@@ -2,11 +2,13 @@ import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
 import { DOCK_GAP, DOCK_ICON_SIZE, getDockSizes } from '../model/magnification'
+import { useDockLaunch } from '../model/useDockLaunch'
 
 import { DockIcon } from './DockIcon'
 import { DockMenu } from './DockMenu'
 import { DockMinimizedWindow } from './DockMinimizedWindow'
 
+import type { Variants } from 'framer-motion'
 import type { KeyboardEvent, MouseEvent, PointerEvent, ReactNode } from 'react'
 
 import './DesktopDock.css'
@@ -30,6 +32,22 @@ const apps = [
 
 const MINIMIZED_INDEX = apps.length
 
+// Native launch bouncing repeats until the app is ready. For web destinations,
+// use three hops before opening the tab; this cadence is a visual approximation.
+// Each rigid rise/fall decelerates toward the apex, then accelerates to the shelf.
+const launchVariants = {
+  idle: { y: 0, transition: { duration: 0 } },
+  launch: {
+    y: [0, -26, 0],
+    transition: {
+      duration: 0.6,
+      repeat: 2,
+      times: [0, 0.5, 1],
+      ease: ['easeOut', 'easeIn'],
+    },
+  },
+} satisfies Variants
+
 export function DesktopDock({
   fullscreen = false,
   githubUrl,
@@ -52,7 +70,7 @@ export function DesktopDock({
   const [revealed, setRevealed] = useState(false)
   const [focusWithin, setFocusWithin] = useState(false)
   const [menu, setMenu] = useState<{ index: number; opener: HTMLElement } | null>(null)
-  const [launch, setLaunch] = useState({ index: -1, count: 0 })
+  const { launching, startLaunch, completeLaunch, cancelLaunch } = useDockLaunch()
   const minimizedRef = useRef<HTMLButtonElement>(null)
   const activeLabel = menu === null ? (hovered ?? focused) : null
   const showMinimized = terminalOpen && terminalMinimized
@@ -331,30 +349,24 @@ export function DesktopDock({
           <div aria-hidden="true" className="desktop-dock__glass" />
           {apps.map((app, index) => {
             const running = app.id === 'terminal' && terminalOpen
-            const launchApp = () => {
-              // Running apps activate in place; only a cold launch bounces.
-              if (!reducedMotion && !running) {
-                setLaunch((previous) => ({ index, count: previous.count + 1 }))
-              }
+            const isLaunching = launching.includes(index)
+            const launchApp = (action: () => void) => {
               setHovered(null)
               setFocused(null)
+              // Running apps activate in place; only a cold launch bounces.
+              startLaunch(index, action, Boolean(reducedMotion) || running)
             }
             const content = (
               <>
                 <m.span
                   aria-hidden="true"
                   className="desktop-dock__launch"
-                  key={launch.index === index ? launch.count : 0}
-                  animate={{
-                    y:
-                      !reducedMotion && launch.index === index
-                        ? [0, -22, 0, -10, 0]
-                        : 0,
-                  }}
-                  transition={{
-                    duration: reducedMotion ? 0 : 0.65,
-                    times: [0, 0.3, 0.5, 0.72, 1],
-                    ease: 'easeOut',
+                  key={isLaunching ? 'launch' : 'idle'}
+                  initial="idle"
+                  animate={isLaunching ? 'launch' : 'idle'}
+                  variants={launchVariants}
+                  onAnimationComplete={(definition) => {
+                    if (definition === 'launch') completeLaunch(index)
                   }}
                 >
                   <DockIcon app={app.id} />
@@ -373,10 +385,13 @@ export function DesktopDock({
                 <button
                   {...interaction}
                   aria-haspopup="dialog"
+                  data-launching={isLaunching}
                   data-running={running}
                   onClick={(event) => {
-                    launchApp()
-                    onOpenTerminal(event.currentTarget)
+                    const opener = event.currentTarget
+                    launchApp(() => {
+                      onOpenTerminal(opener)
+                    })
                   }}
                   type="button"
                 >
@@ -385,8 +400,30 @@ export function DesktopDock({
               ) : (
                 <a
                   {...interaction}
+                  data-launching={isLaunching}
                   href={app.id === 'github' ? githubUrl : linkedinUrl}
-                  onClick={launchApp}
+                  onClick={(event) => {
+                    // Preserve browser shortcuts (new background tab/window, download).
+                    if (
+                      event.defaultPrevented ||
+                      event.button !== 0 ||
+                      event.metaKey ||
+                      event.ctrlKey ||
+                      event.shiftKey ||
+                      event.altKey
+                    )
+                      return
+                    // Reduced motion can use the anchor's native activation directly.
+                    if (reducedMotion) return
+                    event.preventDefault()
+                    // One user activation can open one tab. A newer profile choice
+                    // replaces the pending one instead of losing it to popup blocking.
+                    cancelLaunch(index === 0 ? 1 : 0)
+                    const url = event.currentTarget.href
+                    launchApp(() => {
+                      window.open(url, '_blank', 'noopener,noreferrer')
+                    })
+                  }}
                   rel="noopener noreferrer"
                   target="_blank"
                 >

@@ -8,6 +8,7 @@ import type { ComponentType, ReactNode } from 'react'
 const TRANSIENT_MOTION_PROPS = [
   'initial',
   'animate',
+  'onAnimationComplete',
   'exit',
   'whileInView',
   'whileHover',

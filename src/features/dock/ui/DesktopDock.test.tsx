@@ -64,6 +64,69 @@ describe('DesktopDock', () => {
     expect(onOpenTerminal).toHaveBeenCalledExactlyOnceWith(launcher)
   })
 
+  it('holds a cold Terminal launch until the icon animation finishes', () => {
+    setMockReducedMotion(false)
+    const onOpenTerminal = vi.fn()
+    render(<DesktopDock {...props} onOpenTerminal={onOpenTerminal} />)
+    const launcher = screen.getByRole('button', { name: 'Terminal' })
+
+    fireEvent.click(launcher)
+    fireEvent.click(launcher)
+
+    expect(launcher).toHaveAttribute('data-launching', 'true')
+    expect(onOpenTerminal).not.toHaveBeenCalled()
+  })
+
+  it('prevents immediate link navigation while the profile icon is launching', () => {
+    setMockReducedMotion(false)
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    render(<DesktopDock {...props} />)
+    const github = screen.getByRole('link', { name: 'GitHub' })
+
+    expect(fireEvent.click(github)).toBe(false)
+    expect(fireEvent.click(github)).toBe(false)
+    expect(github).toHaveAttribute('data-launching', 'true')
+    expect(open).not.toHaveBeenCalled()
+  })
+
+  it.each([{ metaKey: true }, { shiftKey: true }, { altKey: true }])(
+    'leaves modified profile clicks to the browser (%j)',
+    (modifiers) => {
+      setMockReducedMotion(false)
+      render(<DesktopDock {...props} />)
+      const github = screen.getByRole('link', { name: 'GitHub' })
+      // Keep jsdom from attempting navigation after checking our handler's decision.
+      let prevented = true
+      const inspect = (event: Event) => {
+        prevented = event.defaultPrevented
+        event.preventDefault()
+      }
+      document.addEventListener('click', inspect, { once: true })
+      fireEvent.click(github, modifiers)
+
+      expect(prevented).toBe(false)
+      expect(github).toHaveAttribute('data-launching', 'false')
+    }
+  )
+
+  it('keeps profile links native when reduced motion is requested', () => {
+    render(<DesktopDock {...props} />)
+    const github = screen.getByRole('link', { name: 'GitHub' })
+    let prevented = true
+    document.addEventListener(
+      'click',
+      (event) => {
+        prevented = event.defaultPrevented
+        event.preventDefault()
+      },
+      { once: true }
+    )
+    fireEvent.click(github)
+
+    expect(prevented).toBe(false)
+    expect(github).toHaveAttribute('data-launching', 'false')
+  })
+
   it('reflects the Terminal session state and still activates an already running app', async () => {
     const onOpenTerminal = vi.fn()
     const user = userEvent.setup()
