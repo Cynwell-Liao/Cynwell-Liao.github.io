@@ -276,7 +276,7 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
-  await expect(input).toBeFocused()
+  await expect(dialog).toBeFocused()
   await page.setViewportSize(mobileViewport)
 
   await expect

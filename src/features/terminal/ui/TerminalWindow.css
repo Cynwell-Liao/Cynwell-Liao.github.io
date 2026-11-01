@@ -409,3 +409,92 @@
     display: none;
   }
 }
+
+/* Touch layout: scroll the transcript without moving the prompt or page. */
+.terminal-desktop[data-mobile='true'] {
+  /* The Dock must not cover the prompt in short landscape viewports. */
+  z-index: 80;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-window {
+  touch-action: manipulation;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-titlebar {
+  flex-basis: 48px;
+  touch-action: manipulation;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-controls-position {
+  left: 4px;
+  height: 44px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-window-controls {
+  width: 132px;
+  height: 44px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-window-control {
+  width: 44px;
+  height: 44px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-title {
+  max-width: calc(100% - 148px);
+  margin-left: 132px;
+  font-size: 11px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-proxy-icon {
+  display: none;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-screen {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  padding: 0;
+  /* A readable input size also avoids iOS's small-input focus zoom. */
+  font-size: 16px;
+  line-height: 22px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-output {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px 10px;
+  overscroll-behavior: none;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-output:focus-visible {
+  outline: 2px solid #007aff;
+  outline-offset: -2px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-command {
+  flex-shrink: 0;
+  align-items: center;
+  min-height: 44px;
+  padding: 0 10px;
+  border-top: 1px solid var(--terminal-divider);
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-line {
+  min-height: 22px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-input {
+  height: 44px;
+  padding-top: 11px;
+  padding-bottom: 11px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-caret-track {
+  top: 11px;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-cursor {
+  height: 22px;
+}

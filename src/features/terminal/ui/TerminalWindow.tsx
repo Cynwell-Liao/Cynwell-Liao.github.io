@@ -10,6 +10,7 @@ import {
   resolveTerminalCommand,
 } from '../model/terminal'
 import { getTerminalToneClass } from '../model/terminalTheme'
+import { useTerminalViewport } from '../model/useTerminalViewport'
 import { useTerminalWindow } from '../model/useTerminalWindow'
 
 import { TerminalWindowControls } from './TerminalWindowControls'
@@ -31,6 +32,8 @@ export function TerminalWindow({
   onFullscreenChange,
 }: TerminalWindowProps) {
   const reducedMotion = useReducedMotion()
+  const mobileViewport = useTerminalViewport()
+  const isMobile = mobileViewport !== null
   const {
     mode,
     bounds,
@@ -45,13 +48,15 @@ export function TerminalWindow({
   const dialogRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
+  const outputRef = useRef<HTMLDivElement>(null)
+  const scrollbackRef = isMobile ? outputRef : screenRef
   const characterRef = useRef<HTMLSpanElement>(null)
   const restoreRef = useRef<HTMLButtonElement>(null)
   const [minimized, setMinimized] = useState(false)
   const [hasMinimized, setHasMinimized] = useState(false)
   const [handledActivation, setHandledActivation] = useState(activationRequest)
   const [active, setActive] = useState(true)
-  const [inputFocused, setInputFocused] = useState(true)
+  const [inputFocused, setInputFocused] = useState(false)
   const [dimensions, setDimensions] = useState({ columns: 80, rows: 24 })
   const [terminalInput, setTerminalInput] = useState('')
   const [caret, setCaret] = useState({ position: 0, scroll: 0, selected: false })
@@ -82,7 +87,9 @@ export function TerminalWindow({
       return
     }
     const input = inputRef.current
-    input?.focus({ preventScroll: true })
+    // Touch users choose when to open the keyboard by tapping the prompt.
+    const focusTarget = isMobile ? dialogRef.current : input
+    focusTarget?.focus({ preventScroll: true })
     const savedView = minimizedView.current
     if (input && savedView) {
       input.setSelectionRange(
@@ -91,10 +98,12 @@ export function TerminalWindow({
         savedView.selectionDirection
       )
       input.scrollLeft = savedView.inputScroll
-      if (screenRef.current) screenRef.current.scrollTop = savedView.outputScroll
+      if (scrollbackRef.current) {
+        scrollbackRef.current.scrollTop = savedView.outputScroll
+      }
       minimizedView.current = null
     }
-  }, [minimized, handledActivation])
+  }, [minimized, handledActivation, isMobile, scrollbackRef])
 
   useEffect(() => {
     onFullscreenChange?.(mode === 'fullscreen' && !minimized)
@@ -122,13 +131,13 @@ export function TerminalWindow({
     return () => {
       observer.disconnect()
     }
-  }, [minimized])
+  }, [minimized, isMobile])
 
   useEffect(() => {
-    if (screenRef.current) {
-      screenRef.current.scrollTop = screenRef.current.scrollHeight
+    if (scrollbackRef.current) {
+      scrollbackRef.current.scrollTop = scrollbackRef.current.scrollHeight
     }
-  }, [terminalLines])
+  }, [terminalLines, scrollbackRef])
 
   useEffect(() => {
     const updateActive = (event: globalThis.PointerEvent) => {
@@ -233,9 +242,14 @@ export function TerminalWindow({
     }
   }
 
+  const focusWindow = () => {
+    const target = isMobile ? dialogRef.current : inputRef.current
+    target?.focus({ preventScroll: true })
+  }
+
   const expand = () => {
     toggleExpanded()
-    inputRef.current?.focus()
+    focusWindow()
   }
 
   const minimize = () => {
@@ -246,7 +260,7 @@ export function TerminalWindow({
         selectionEnd: input.selectionEnd ?? 0,
         selectionDirection: input.selectionDirection ?? 'none',
         inputScroll: input.scrollLeft,
-        outputScroll: screenRef.current?.scrollTop ?? 0,
+        outputScroll: scrollbackRef.current?.scrollTop ?? 0,
       }
     }
     setMinimized(true)
@@ -263,8 +277,25 @@ export function TerminalWindow({
     y: window.innerHeight - 48 - (bounds.y + bounds.height / 2),
   }
 
+  const mobileMargin = mode === 'fullscreen' ? '0' : '12'
+  const insetLeft = `max(${mobileMargin}px, env(safe-area-inset-left))`
+  const insetRight = `max(${mobileMargin}px, env(safe-area-inset-right))`
+  const insetTop = `max(${mobileMargin}px, env(safe-area-inset-top))`
+  const insetBottom = `max(${mobileMargin}px, env(safe-area-inset-bottom))`
+  const mobileHeight = mobileViewport
+    ? `max(1px, calc(${String(mobileViewport.height)}px - ${insetTop} - ${insetBottom}))`
+    : ''
+  const windowStyle = mobileViewport
+    ? {
+        left: `calc(${String(mobileViewport.offsetLeft)}px + ${insetLeft})`,
+        top: `calc(${String(mobileViewport.offsetTop)}px + ${insetTop})`,
+        width: `max(1px, calc(${String(mobileViewport.width)}px - ${insetLeft} - ${insetRight}))`,
+        height: mode === 'fullscreen' ? mobileHeight : `min(560px, ${mobileHeight})`,
+      }
+    : { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }
+
   return (
-    <div className="terminal-desktop" data-theme={theme}>
+    <div className="terminal-desktop" data-mobile={isMobile} data-theme={theme}>
       {minimized && !onMinimizedChange && (
         <motion.button
           animate={{ opacity: 1, y: 0 }}
@@ -299,13 +330,15 @@ export function TerminalWindow({
             data-active={active}
             data-theme={theme}
             data-window-mode={mode}
-            exit={reducedMotion ? { opacity: 0 } : dockTransform}
+            exit={reducedMotion || isMobile ? { opacity: 0 } : dockTransform}
             initial={
               reducedMotion
                 ? false
-                : hasMinimized
-                  ? dockTransform
-                  : { opacity: 0, scale: 0.97 }
+                : isMobile
+                  ? { opacity: 0 }
+                  : hasMinimized
+                    ? dockTransform
+                    : { opacity: 0, scale: 0.97 }
             }
             key="terminal-window"
             onBlurCapture={(event) => {
@@ -320,7 +353,7 @@ export function TerminalWindow({
                 event.stopPropagation()
                 if (mode === 'fullscreen') toggleExpanded()
                 else restoreWindowed()
-                inputRef.current?.focus()
+                focusWindow()
               } else if (event.metaKey && event.key.toLowerCase() === 'm') {
                 event.preventDefault()
                 minimize()
@@ -329,12 +362,10 @@ export function TerminalWindow({
             ref={dialogRef}
             role="dialog"
             style={{
-              left: bounds.x,
-              top: bounds.y,
-              width: bounds.width,
-              height: bounds.height,
+              ...windowStyle,
               transformOrigin: 'center',
             }}
+            tabIndex={-1}
             transition={{
               duration: reducedMotion ? 0 : hasMinimized ? 0.38 : 0.22,
               ease: [0.16, 1, 0.3, 1],
@@ -344,10 +375,11 @@ export function TerminalWindow({
               className="terminal-titlebar"
               data-testid="terminal-titlebar"
               onDoubleClick={() => {
+                if (isMobile) return
                 toggleZoom()
-                inputRef.current?.focus()
+                focusWindow()
               }}
-              onPointerDown={startDrag}
+              onPointerDown={isMobile ? undefined : startDrag}
             >
               <div className="terminal-controls-position">
                 <TerminalWindowControls
@@ -356,7 +388,7 @@ export function TerminalWindow({
                   onMinimize={minimize}
                   onTile={(side) => {
                     tile(side)
-                    inputRef.current?.focus()
+                    focusWindow()
                   }}
                   onToggleExpanded={expand}
                 />
@@ -370,10 +402,11 @@ export function TerminalWindow({
               className="terminal-screen"
               onPointerUp={(event) => {
                 if (
+                  event.pointerType === 'mouse' &&
                   event.target !== inputRef.current &&
                   !window.getSelection()?.toString()
                 ) {
-                  inputRef.current?.focus()
+                  inputRef.current?.focus({ preventScroll: true })
                 }
               }}
               ref={screenRef}
@@ -381,7 +414,12 @@ export function TerminalWindow({
               <span aria-hidden className="terminal-cell-measure" ref={characterRef}>
                 M
               </span>
-              <div aria-label="Terminal output" role="log">
+              <div
+                aria-label="Terminal output"
+                className="terminal-output"
+                ref={outputRef}
+                role="log"
+              >
                 {terminalLines.map((line, index) => (
                   <div
                     className={cn(
@@ -408,6 +446,7 @@ export function TerminalWindow({
                     autoComplete="off"
                     autoCorrect="off"
                     className="terminal-input"
+                    enterKeyHint="enter"
                     id="floating-terminal-input"
                     onBlur={() => {
                       setInputFocused(false)
@@ -471,7 +510,7 @@ export function TerminalWindow({
                 </button>
               </form>
             </div>
-            {mode === 'windowed' && (
+            {mode === 'windowed' && !isMobile && (
               <button
                 aria-label="Resize terminal"
                 className="terminal-resize-handle"

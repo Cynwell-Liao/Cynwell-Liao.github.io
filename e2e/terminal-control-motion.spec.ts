@@ -278,9 +278,7 @@ test('touching a traffic light does not leave hover symbols or open a delayed ar
     .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .tap()
-  await expect(
-    page.getByRole('textbox', { name: 'Terminal command input' })
-  ).toBeFocused()
+  await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeFocused()
   await page.setViewportSize(viewport)
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   await page.getByRole('button', { name: 'Enter full screen' }).tap()

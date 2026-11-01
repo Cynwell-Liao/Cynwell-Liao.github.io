@@ -438,9 +438,7 @@ test('the glass arrangement menu fits a narrow mobile viewport without clipping 
     .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
-  await expect(
-    page.getByRole('textbox', { name: 'Terminal command input' })
-  ).toBeFocused()
+  await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeFocused()
   const viewport = { width: 320, height: 568 }
   await page.setViewportSize(viewport)
   const green = page.getByRole('button', { name: 'Enter full screen' })

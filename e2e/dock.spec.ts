@@ -537,7 +537,9 @@ test('the Dock fits narrow phones, launches by touch, and restores minimized Ter
   await expect(dock).toBeInViewport()
   await terminal.tap()
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
-  await expect(input).toBeFocused()
+  const dialog = page.getByRole('dialog', { name: 'Terminal' })
+  await expect(dialog).toBeFocused()
+  await expect(input).not.toBeFocused()
   await page.getByRole('button', { name: 'Minimize terminal' }).tap()
   const preview = dock.getByRole('button', { name: 'Restore terminal' })
   await expect(preview).toBeInViewport()
@@ -546,7 +548,8 @@ test('the Dock fits narrow phones, launches by touch, and restores minimized Ter
     await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)
   ).toBe(true)
   await preview.tap()
-  await expect(input).toBeFocused()
+  await expect(dialog).toBeFocused()
+  await expect(input).not.toBeFocused()
 })
 
 test('app menus stay inside a narrow viewport at both ends of the Dock @mobile', async ({

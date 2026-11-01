@@ -370,4 +370,86 @@ describe('TerminalWindow', () => {
 
     expect(getTerminalInput()).toHaveFocus()
   })
+
+  it('focuses the prompt without scrolling the page after a mouse click', async () => {
+    const user = userEvent.setup()
+    renderTerminalWindow()
+    screen.getByRole('button', { name: 'Resize terminal' }).focus()
+    const focus = vi.spyOn(getTerminalInput(), 'focus')
+
+    await user.click(screen.getByRole('log'))
+
+    expect(focus).toHaveBeenCalledWith({ preventScroll: true })
+  })
+
+  describe('touch layout', () => {
+    const renderMobileTerminal = () => {
+      const media = window.matchMedia('(pointer: coarse)')
+      vi.spyOn(window, 'matchMedia').mockReturnValue(
+        Object.assign(media, { matches: true })
+      )
+      return renderTerminalWindow()
+    }
+
+    it('opens and expands without forcing the keyboard, but lets users tap to type', async () => {
+      const user = userEvent.setup()
+      renderMobileTerminal()
+      const dialog = screen.getByRole('dialog', { name: 'Terminal' })
+      const input = getTerminalInput()
+
+      expect(dialog).toHaveFocus()
+      expect(input).not.toHaveFocus()
+      expect(input).toHaveAttribute('enterkeyhint', 'enter')
+      expect(screen.queryByRole('button', { name: 'Resize terminal' })).toBeNull()
+
+      await user.pointer({ keys: '[TouchA]', target: input })
+      expect(input).toHaveFocus()
+      await user.click(screen.getByRole('button', { name: 'Enter full screen' }))
+      expect(dialog).toHaveFocus()
+      expect(input).not.toHaveFocus()
+      expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+    })
+
+    it('does not refocus the prompt when touching the transcript', async () => {
+      const user = userEvent.setup()
+      renderMobileTerminal()
+      const input = getTerminalInput()
+      const focus = vi.spyOn(input, 'focus')
+
+      await user.pointer({ keys: '[TouchA]', target: screen.getByRole('log') })
+
+      expect(focus).not.toHaveBeenCalled()
+      expect(input).not.toHaveFocus()
+    })
+
+    it('preserves the mobile transcript position and draft without reopening the keyboard', async () => {
+      const user = userEvent.setup()
+      renderMobileTerminal()
+      submitCommand('help')
+      await user.type(getTerminalInput(), 'unfinished command')
+      const output = screen.getByRole('log')
+      output.scrollTop = 120
+
+      await user.click(screen.getByRole('button', { name: 'Minimize terminal' }))
+      await user.click(screen.getByRole('button', { name: 'Restore terminal' }))
+
+      expect(screen.getByRole('log').scrollTop).toBe(120)
+      expect(getTerminalInput()).toHaveValue('unfinished command')
+      expect(getTerminalInput()).not.toHaveFocus()
+      expect(screen.getByRole('dialog', { name: 'Terminal' })).toHaveFocus()
+    })
+
+    it('keeps the window in place when the mobile title bar is double tapped', async () => {
+      const user = userEvent.setup()
+      renderMobileTerminal()
+      const dialog = screen.getByRole('dialog', { name: 'Terminal' })
+      const initialStyle = dialog.getAttribute('style')
+
+      await user.dblClick(screen.getByTestId('terminal-titlebar'))
+
+      expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
+      expect(dialog).toHaveAttribute('style', initialStyle)
+      expect(getTerminalInput()).not.toHaveFocus()
+    })
+  })
 })
