@@ -426,23 +426,28 @@
 }
 
 .terminal-desktop[data-mobile='true'] .terminal-controls-position {
-  left: 4px;
+  left: 8px;
   height: 44px;
 }
 
 .terminal-desktop[data-mobile='true'] .terminal-window-controls {
-  width: 132px;
+  width: 72px;
   height: 44px;
 }
 
 .terminal-desktop[data-mobile='true'] .terminal-window-control {
-  width: 44px;
+  /* Keep the native horizontal rhythm with a taller touch target. */
+  width: 24px;
   height: 44px;
 }
 
+.terminal-desktop[data-mobile='true'] .terminal-window-menu {
+  top: calc(100% + 4px);
+}
+
 .terminal-desktop[data-mobile='true'] .terminal-title {
-  max-width: calc(100% - 148px);
-  margin-left: 132px;
+  max-width: calc(100% - 104px);
+  margin-left: 80px;
   font-size: 11px;
 }
 

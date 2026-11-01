@@ -33,9 +33,13 @@ test('mobile terminal has readable input and touch controls without opening the 
     const control = page.getByRole('button', { name })
     await expect(control).toBeInViewport()
     const bounds = await control.boundingBox()
-    expect(bounds?.width).toBeGreaterThanOrEqual(44)
+    expect(bounds?.width).toBeGreaterThanOrEqual(24)
     expect(bounds?.height).toBeGreaterThanOrEqual(44)
   }
+  // Keep the traffic lights grouped like desktop chrome, without shrinking
+  // the vertical tap area or spreading them across the mobile title bar.
+  const controls = page.getByRole('group', { name: 'Terminal window controls' })
+  expect((await controls.boundingBox())?.width).toBeLessThanOrEqual(84)
   const viewportMeta = await page
     .locator('meta[name="viewport"]')
     .getAttribute('content')
@@ -247,6 +251,26 @@ test('mobile terminal keeps its prompt and controls usable in narrow portrait an
     await expect(input).toHaveValue('orientation draft')
     await expect(page.getByRole('button', { name: 'Close terminal' })).toBeInViewport()
     await expect(page.getByRole('button', { name: 'Resize terminal' })).toHaveCount(0)
+    await expect
+      .poll(async () =>
+        page.locator('.terminal-title').evaluate((element) => {
+          const title = element.getBoundingClientRect()
+          const controls = element.parentElement
+            ?.querySelector('.terminal-window-controls')
+            ?.getBoundingClientRect()
+          const windowBounds = element
+            .closest('.terminal-window')
+            ?.getBoundingClientRect()
+          return Boolean(
+            controls &&
+            windowBounds &&
+            controls.width <= 84 &&
+            title.left >= controls.right + 4 &&
+            title.right <= windowBounds.right - 8
+          )
+        })
+      )
+      .toBe(true)
     // In landscape the Dock sits behind this row; it must not intercept typing.
     await expect
       .poll(async () =>
