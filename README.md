@@ -56,8 +56,8 @@ Edit `src/content/data/profile.json`:
 
 - **`name` / `brandName` / `title`** — displayed identity and branding. `tagline` is retained in the content
   model but is not currently rendered; the social cover text is edited separately.
-- **`githubUsername` / `githubUrl` / `repositoryUrl` / `linkedinUrl` / `linkedinConnectionCount`** — social
-  profiles, repository links, and network stats displayed across the hero, dock, navbar, and footer.
+- **`githubUsername` / `githubUrl` / `repositoryUrl` / `linkedinUrl`** — social
+  profiles and repository links used across the portfolio.
 - **`about`** — biography paragraphs.
 - **`hero`** — terminal prompt and directories.
 - **`certifications`** — certification badge URLs.

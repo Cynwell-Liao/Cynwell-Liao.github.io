@@ -17,20 +17,13 @@ export interface ProfileData {
   readonly githubUsername: string
   readonly githubUrl: string
   readonly repositoryUrl: string
-  readonly githubLabel: string
   readonly linkedinUrl: string
-  readonly linkedinConnectionCount: number
-  readonly linkedinLabel: string
-  readonly linkedinConnectionsLabel: string
   readonly heroStatusLabel: string
   readonly heroTerminalPath: string
   readonly heroTerminalDirectories: readonly string[]
   readonly heroTerminalPrompt: string
   readonly heroCertificationsHeading: string
   readonly heroCertifications: readonly CertificationItem[]
-  readonly contributionsLoadingLabel: string
-  readonly contributionsUnavailableLabel: string
-  readonly contributionsSuffixLabel: string
   readonly aboutHeadingLead: string
   readonly aboutHeadingAccent: string
   readonly aboutIntro: string

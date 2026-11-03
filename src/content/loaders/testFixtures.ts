@@ -45,7 +45,6 @@ export const createValidRawProfile = () => ({
   githubUrl: 'https://github.com/example-engineer',
   repositoryUrl: 'https://github.com/example-engineer/portfolio',
   linkedinUrl: 'https://www.linkedin.com/in/example-engineer',
-  linkedinConnectionCount: 250,
   about: {
     headingLead: 'Engineering',
     headingAccent: 'with intent.',
@@ -73,12 +72,6 @@ export const createValidRawProfile = () => ({
     { label: 'Projects', href: '#projects' },
   ],
   labels: {
-    githubLabel: 'GitHub',
-    linkedinLabel: 'LinkedIn',
-    linkedinConnectionsLabel: 'connections',
-    contributionsLoadingLabel: 'Loading contributions...',
-    contributionsUnavailableLabel: 'Contributions unavailable',
-    contributionsSuffixLabel: 'contributions this year',
     techStackSectionEyebrow: 'Tools',
     techStackSectionTitle: 'Technology stack',
     techStackSectionDescription: 'Tools used to build reliable systems.',

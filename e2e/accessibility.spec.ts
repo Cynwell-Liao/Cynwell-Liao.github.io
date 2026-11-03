@@ -16,9 +16,6 @@ const prepareAccessiblePage = async (page: Page, colorScheme: 'light' | 'dark') 
   }
 
   await page.locator('#home').scrollIntoViewIfNeeded()
-  await expect(
-    page.locator('[aria-labelledby="professional-activity-heading"]')
-  ).toHaveAttribute('aria-busy', 'false')
 }
 
 const scanForViolations = async (page: Page, testInfo: TestInfo) => {

@@ -1,6 +1,12 @@
+import { readFileSync } from 'node:fs'
+
 import { expect, test } from './fixtures'
 
 import type { Locator } from '@playwright/test'
+
+const profile = JSON.parse(
+  readFileSync(new URL('../src/content/data/profile.json', import.meta.url), 'utf8')
+) as { githubUrl: string; linkedinUrl: string }
 
 const boundsFor = async (locator: Locator) => {
   const bounds = await locator.boundingBox()
@@ -19,17 +25,12 @@ test('the Dock has three apps, correct profile links, and inline decorative icon
   const dock = page.getByRole('navigation', { name: 'Application Dock' })
   await expect(dock.getByRole('link')).toHaveCount(2)
   await expect(dock.getByRole('button')).toHaveCount(1)
-  for (const [label, heroLabel] of [
-    ['GitHub', 'GitHub'],
-    ['LinkedIn', 'LinkedIn Profile'],
+  for (const [label, href] of [
+    ['GitHub', profile.githubUrl],
+    ['LinkedIn', profile.linkedinUrl],
   ]) {
     const link = dock.getByRole('link', { name: label, exact: true })
-    const href = await page
-      .locator('#home')
-      .getByRole('link', { name: heroLabel, exact: true })
-      .getAttribute('href')
-    expect(href).toBeTruthy()
-    await expect(link).toHaveAttribute('href', href!)
+    await expect(link).toHaveAttribute('href', href)
     await expect(link).toHaveAttribute('target', '_blank')
     await expect(link).toHaveAttribute('rel', 'noopener noreferrer')
   }

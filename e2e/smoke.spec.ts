@@ -60,16 +60,22 @@ test('theme choice persists across page reloads @desktop', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveClass(/dark/u)
 })
 
-test('professional activity renders coordinated live statistics @desktop', async ({
-  page,
-}) => {
-  await page.emulateMedia({ reducedMotion: 'reduce' })
+test('hero omits activity statistics and social icons', async ({ page }) => {
+  const dataRequests: string[] = []
+  page.on('request', (request) => {
+    if (request.resourceType() === 'fetch' || request.resourceType() === 'xhr') {
+      dataRequests.push(request.url())
+    }
+  })
   await page.goto('/')
 
-  const activity = page.getByRole('region', { name: 'Professional activity' })
-  await expect(activity).toHaveAttribute('aria-busy', 'false')
-  await expect(activity).toContainText('500+')
-  await expect(activity).toContainText('321')
+  const hero = page.locator('#home')
+  await expect(hero.getByRole('heading', { level: 1 })).toBeVisible()
+  await expect(hero.getByRole('region', { name: 'Certifications' })).toBeVisible()
+  await expect(hero).not.toContainText(/connections|contributions|500\+/i)
+  await expect(hero.getByRole('link', { name: /linkedin|github/i })).toHaveCount(0)
+  await expect(hero.getByRole('status')).toHaveCount(0)
+  expect(dataRequests).toEqual([])
 })
 
 test('terminal opens, submits a command, closes, and restores focus @desktop', async ({
@@ -129,13 +135,14 @@ test('reduced-motion users receive static motion alternatives @desktop', async (
 test('outbound links expose specific accessible names @desktop', async ({ page }) => {
   await page.goto('/')
 
-  await expect(page.getByRole('link', { name: 'LinkedIn Profile' })).toHaveAttribute(
+  const dock = page.getByRole('navigation', { name: 'Application Dock' })
+  await expect(
+    dock.getByRole('link', { name: 'LinkedIn', exact: true })
+  ).toHaveAttribute('target', '_blank')
+  await expect(dock.getByRole('link', { name: 'GitHub', exact: true })).toHaveAttribute(
     'target',
     '_blank'
   )
-  await expect(
-    page.locator('#home').getByRole('link', { name: 'GitHub', exact: true })
-  ).toHaveAttribute('target', '_blank')
   await expect(page.getByRole('link', { name: 'View Live: Cheapguide' })).toBeVisible()
   await expect(page.getByRole('link', { name: 'View Live: ParkPie' })).toBeVisible()
   await expect(

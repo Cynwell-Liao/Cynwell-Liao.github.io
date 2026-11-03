@@ -20,11 +20,7 @@ describe('profile content', () => {
         githubUsername: 'example-engineer',
         githubUrl: 'https://github.com/example-engineer',
         repositoryUrl: 'https://github.com/example-engineer/portfolio',
-        githubLabel: 'GitHub',
         linkedinUrl: 'https://www.linkedin.com/in/example-engineer',
-        linkedinConnectionCount: 250,
-        linkedinLabel: 'LinkedIn',
-        linkedinConnectionsLabel: 'connections',
         heroStatusLabel: 'SYSTEMS ONLINE',
         heroTerminalPath: '~/example',
         heroTerminalDirectories: ['projects', 'skills'],
@@ -39,9 +35,6 @@ describe('profile content', () => {
             imageHeight: 100,
           },
         ],
-        contributionsLoadingLabel: 'Loading contributions...',
-        contributionsUnavailableLabel: 'Contributions unavailable',
-        contributionsSuffixLabel: 'contributions this year',
         aboutHeadingLead: 'Engineering',
         aboutHeadingAccent: 'with intent.',
         aboutIntro: 'I build reliable products.',
@@ -139,7 +132,7 @@ describe('profile content', () => {
 
   it('reports nested and root error paths and preserves the Zod error', () => {
     const nestedInput = createValidRawProfile()
-    nestedInput.labels.contributionsLoadingLabel = '   '
+    nestedInput.labels.techStackSectionTitle = '   '
     let nestedError: Error | undefined
     let rootError: Error | undefined
 
@@ -155,7 +148,7 @@ describe('profile content', () => {
       rootError = error as Error
     }
 
-    expect(nestedError?.message).toContain('labels.contributionsLoadingLabel')
+    expect(nestedError?.message).toContain('labels.techStackSectionTitle')
     expect(nestedError?.cause).toBeInstanceOf(ZodError)
     expect(rootError?.message).toContain('<root>')
     expect(rootError?.cause).toBeInstanceOf(ZodError)

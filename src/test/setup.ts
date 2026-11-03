@@ -163,17 +163,6 @@ beforeEach(() => {
   motionMockState.reducedMotion = true
   motionMockState.scrollY = 0
   scrollListeners.clear()
-
-  vi.stubGlobal(
-    'fetch',
-    vi.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ total: { lastYear: 123 } }),
-        ok: true,
-        status: 200,
-      })
-    )
-  )
 })
 
 afterEach(() => {

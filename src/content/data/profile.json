@@ -7,7 +7,6 @@
   "githubUrl": "https://github.com/Cynwell-Liao",
   "repositoryUrl": "https://github.com/Cynwell-Liao/Cynwell-Liao.github.io",
   "linkedinUrl": "https://www.linkedin.com/in/cynwell-liao",
-  "linkedinConnectionCount": 1000,
   "about": {
     "headingLead": "Engineering mindset,",
     "headingAccent": "product velocity.",
@@ -103,12 +102,6 @@
     }
   ],
   "labels": {
-    "githubLabel": "GitHub",
-    "linkedinLabel": "LinkedIn Profile",
-    "linkedinConnectionsLabel": "connections",
-    "contributionsLoadingLabel": "Loading contributions...",
-    "contributionsUnavailableLabel": "GitHub contributions are currently unavailable.",
-    "contributionsSuffixLabel": "contributions in the last year",
     "techStackSectionEyebrow": "Tech Stack",
     "techStackSectionTitle": "Production-ready toolkit",
     "techStackSectionDescription": "Tools for backend, AI, and cloud systems.",

@@ -22,7 +22,6 @@ const composeProfile = (raw: RawProfileData): ProfileData => ({
   githubUrl: raw.githubUrl,
   repositoryUrl: raw.repositoryUrl,
   linkedinUrl: raw.linkedinUrl,
-  linkedinConnectionCount: raw.linkedinConnectionCount,
   ...raw.labels,
   about: raw.about.paragraphs,
   aboutHeadingLead: raw.about.headingLead,

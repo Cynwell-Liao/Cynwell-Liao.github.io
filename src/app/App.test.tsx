@@ -2,7 +2,7 @@ import { render, screen, waitFor, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { describe, expect, it, vi } from 'vitest'
 
-import { navLinks, profile } from '@content'
+import { navLinks } from '@content'
 
 import App from './App'
 
@@ -12,14 +12,8 @@ const findTerminal = () =>
   screen.findByRole('dialog', { name: 'Terminal' }, { timeout: 10_000 })
 
 describe('App', () => {
-  it('renders all primary portfolio sections', async () => {
-    const fetchMock = vi.fn(() =>
-      Promise.resolve({
-        json: () => Promise.resolve({ total: { lastYear: 321 } }),
-        ok: true,
-        status: 200,
-      })
-    )
+  it('renders all primary portfolio sections without fetching activity statistics', () => {
+    const fetchMock = vi.fn()
     vi.stubGlobal('fetch', fetchMock)
 
     render(<App />)
@@ -38,15 +32,7 @@ describe('App', () => {
       expect(document.querySelectorAll(link.href)).toHaveLength(1)
     }
 
-    await waitFor(() => {
-      expect(fetchMock).toHaveBeenCalledWith(
-        `https://github-contributions-api.jogruber.de/v4/${profile.githubUsername}?y=last`,
-        expect.objectContaining({
-          referrerPolicy: 'no-referrer',
-          signal: expect.any(AbortSignal),
-        })
-      )
-    })
+    expect(fetchMock).not.toHaveBeenCalled()
   })
 
   it('restores dark theme from storage and toggles back to light', async () => {

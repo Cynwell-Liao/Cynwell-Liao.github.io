@@ -3,7 +3,6 @@ import { m } from 'framer-motion'
 import { SECTION_ID } from '@shared/lib/navigation'
 
 import { CertificationMarquee } from './CertificationMarquee'
-import { HeroStats } from './HeroStats'
 
 import type { HeroProfile } from '../model/profile.types'
 
@@ -55,7 +54,6 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
             </span>
           </h1>
 
-          <HeroStats profile={profile} />
           <CertificationMarquee
             certifications={profile.heroCertifications}
             heading={profile.heroCertificationsHeading}

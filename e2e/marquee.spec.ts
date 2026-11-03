@@ -19,7 +19,9 @@ function marqueeElements(page: Page) {
     badges: page.locator(
       '.hero-cert-marquee__set:not([data-clone="true"]) .hero-cert-marquee__badge-link'
     ),
-    github: page.locator('#home').getByRole('link', { name: 'GitHub', exact: true }),
+    themeToggle: page
+      .getByRole('banner')
+      .getByRole('button', { name: /Switch to (light|dark) mode/ }),
   }
 }
 
@@ -65,7 +67,8 @@ for (const size of viewports) {
     await page.emulateMedia({ reducedMotion: 'no-preference' })
     await page.goto('/')
 
-    const { marquee, viewport, track, clones, badges, github } = marqueeElements(page)
+    const { marquee, viewport, track, clones, badges, themeToggle } =
+      marqueeElements(page)
     await expect(marquee).toBeVisible()
     const normalHeight = await marquee.evaluate((element) => element.clientHeight)
     const count = await badges.count()
@@ -94,7 +97,7 @@ for (const size of viewports) {
       )
       .toBe(true)
 
-    await github.focus()
+    await themeToggle.focus()
     for (let index = 0; index < count; index += 1) {
       await page.keyboard.press('Tab')
       await expectFocusedBadgeVisible(badges.nth(index))
@@ -124,7 +127,7 @@ for (const size of viewports) {
       )
     }
     await page.keyboard.press('Shift+Tab')
-    await expect(github).toBeFocused()
+    await expect(themeToggle).toBeFocused()
     await expectScrollReset(viewport)
     await expect(track).toHaveCSS('animation-name', 'hero-cert-marquee-scroll')
     await expect(clones).toBeVisible()
@@ -139,7 +142,7 @@ for (const size of [viewports[1], viewports[3]]) {
     await page.emulateMedia({ reducedMotion: 'reduce' })
     await page.goto('/')
 
-    const { marquee, viewport, track, originals, clones, badges, github } =
+    const { marquee, viewport, track, originals, clones, badges, themeToggle } =
       marqueeElements(page)
     await expect(marquee).toBeVisible()
     await expect(track).toHaveCSS('animation-name', 'none')
@@ -149,7 +152,7 @@ for (const size of [viewports[1], viewports[3]]) {
     const count = await badges.count()
     expect(count).toBeGreaterThan(0)
 
-    await github.focus()
+    await themeToggle.focus()
     for (let index = 0; index < count; index += 1) {
       await page.keyboard.press('Tab')
       await expectFocusedBadgeVisible(badges.nth(index))
@@ -159,7 +162,7 @@ for (const size of [viewports[1], viewports[3]]) {
       await expectFocusedBadgeVisible(badges.nth(index))
     }
     await page.keyboard.press('Shift+Tab')
-    await expect(github).toBeFocused()
+    await expect(themeToggle).toBeFocused()
     await expectScrollReset(viewport)
     await expect(track).toHaveCSS('animation-name', 'none')
     await expect(originals).toHaveCSS('flex-wrap', 'wrap')
