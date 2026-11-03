@@ -45,12 +45,15 @@ export function HeroSection({ deployVersion, profile }: HeroSectionProps) {
             </span>
           </div>
 
+          <p className="mb-3 text-xs font-semibold uppercase tracking-[0.24em] text-accent-800 dark:text-accent-300">
+            {profile.title}
+          </p>
           <h1
             className="text-5xl leading-[1.1] font-bold tracking-tight break-words text-slate-900 sm:text-6xl md:text-7xl lg:text-[5.5rem] dark:text-white"
             id="home-heading"
           >
             <span className="bg-gradient-to-r from-accent-600 via-secondary-700 to-purple-700 bg-clip-text text-transparent dark:from-accent-400 dark:via-secondary-300 dark:to-purple-400">
-              {profile.title}
+              {profile.name}
             </span>
           </h1>
 

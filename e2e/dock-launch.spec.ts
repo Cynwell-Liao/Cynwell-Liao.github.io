@@ -27,6 +27,7 @@ interface LaunchProbe {
 declare global {
   interface Window {
     dockLaunchProbe: LaunchProbe
+    recordDockLaunchProbe?: (probe: LaunchProbe) => void
   }
 }
 
@@ -56,6 +57,19 @@ const observeLaunch = async (launcher: Locator) => {
       probe.finished = true
       return originalOpen(url, target, features)
     }
+    window.addEventListener(
+      'beforeunload',
+      () => {
+        if (!probe.finished) {
+          const frame = readFrame()
+          probe.opens.push(frame)
+          probe.frames.push(frame)
+          probe.finished = true
+        }
+        window.recordDockLaunchProbe?.(probe)
+      },
+      { once: true }
+    )
     element.addEventListener(
       'click',
       (event) => {
@@ -148,12 +162,11 @@ test('Terminal finishes three cold-launch bounces before the window appears', as
   await expect(dialog).toBeVisible()
 })
 
-for (const [label, interaction, viewport] of [
-  ['GitHub', 'double-click', '@desktop'],
-  ['LinkedIn', 'keyboard-menu', '@desktop'],
-  ['GitHub', 'touch', '@mobile'],
+for (const [label, interaction] of [
+  ['GitHub', 'double-click'],
+  ['LinkedIn', 'keyboard-menu'],
 ] as const) {
-  test(`${label} opens one isolated tab only after three launch bounces (${interaction}) ${viewport}`, async ({
+  test(`${label} opens one isolated tab only after three launch bounces (${interaction}) @desktop`, async ({
     page,
     context,
   }) => {
@@ -171,8 +184,6 @@ for (const [label, interaction, viewport] of [
     const popupPromise = context.waitForEvent('page')
     if (interaction === 'double-click') {
       await launcher.dblclick()
-    } else if (interaction === 'touch') {
-      await launcher.tap()
     } else {
       await launcher.focus()
       await launcher.press('Shift+F10')
@@ -192,6 +203,38 @@ for (const [label, interaction, viewport] of [
     expect(await popup.evaluate(() => window.opener)).toBeNull()
     expect(await popup.evaluate(() => document.referrer)).toBe('')
     await popup.close()
+  })
+}
+
+for (const label of ['GitHub', 'LinkedIn'] as const) {
+  test(`${label} redirects the current page after three launch bounces on touch devices @mobile`, async ({
+    page,
+    context,
+  }) => {
+    await page.emulateMedia({ reducedMotion: 'no-preference' })
+    await page.goto('/')
+    const launcher = page
+      .getByRole('navigation', { name: 'Application Dock' })
+      .getByRole('link', { name: label, exact: true })
+    const href = await launcher.getAttribute('href')
+    if (!href) throw new Error('Missing profile URL')
+    let capturedProbe: LaunchProbe | null = null
+    await page.exposeFunction('recordDockLaunchProbe', (probe: LaunchProbe) => {
+      capturedProbe = probe
+    })
+    await page.route(href, async (route) => {
+      await route.fulfill({ contentType: 'text/html', body: '<title>Profile</title>' })
+    })
+    await observeLaunch(launcher)
+    await launcher.tap()
+    await expect(page).toHaveURL(href)
+    if (!capturedProbe) throw new Error('Expected launch probe before navigation')
+    const probe = capturedProbe as LaunchProbe
+    expectThreeCompletedBounces(probe.frames)
+    expect(probe.opens).toHaveLength(1)
+    expect(probe.opens[0].y).toBeCloseTo(0, 1)
+    expect(probe.opens[0].elapsed).toBeGreaterThanOrEqual(1600)
+    expect(context.pages()).toHaveLength(1)
   })
 }
 

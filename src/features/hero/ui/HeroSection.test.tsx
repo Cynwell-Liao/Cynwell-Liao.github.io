@@ -9,14 +9,18 @@ const renderHero = () =>
   render(<HeroSection deployVersion="v9.9.9" profile={profile} />)
 
 describe('HeroSection', () => {
-  it('exposes its heading, deploy version, and certifications', () => {
+  it('exposes the profile name as its heading with the role, version, and certifications', () => {
     renderHero()
 
-    expect(screen.getByRole('region', { name: profile.title })).toHaveAttribute(
+    expect(screen.getByRole('region', { name: profile.name })).toHaveAttribute(
       'id',
       'home'
     )
-    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(profile.title)
+    expect(screen.getByRole('heading', { level: 1 })).toHaveTextContent(profile.name)
+    expect(screen.getByText(profile.title)).toBeInTheDocument()
+    expect(
+      screen.queryByRole('heading', { name: profile.title })
+    ).not.toBeInTheDocument()
     expect(screen.queryByText('SYSTEMS ONLINE')).not.toBeInTheDocument()
     expect(screen.getByText('v9.9.9')).toHaveClass(
       'font-semibold',

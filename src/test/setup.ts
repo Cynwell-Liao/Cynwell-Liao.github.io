@@ -159,10 +159,27 @@ Object.defineProperty(globalThis, 'ResizeObserver', {
   writable: true,
 })
 
+Object.defineProperty(window.navigator, 'userActivation', {
+  configurable: true,
+  writable: true,
+  value: {
+    hasBeenActive: true,
+    isActive: true,
+  },
+})
+
 beforeEach(() => {
   motionMockState.reducedMotion = true
   motionMockState.scrollY = 0
   scrollListeners.clear()
+  Object.defineProperty(window.navigator, 'userActivation', {
+    configurable: true,
+    writable: true,
+    value: {
+      hasBeenActive: true,
+      isActive: true,
+    },
+  })
 })
 
 afterEach(() => {

@@ -60,6 +60,44 @@ test('theme choice persists across page reloads @desktop', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveClass(/dark/u)
 })
 
+test('hero introduces the name below a role label matching the certifications heading', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  const hero = page.locator('#home')
+  const name = hero.getByRole('heading', { level: 1, name: 'Cynwell Liao' })
+  const role = hero.getByText('Software Engineer', { exact: true })
+  const certifications = hero.getByRole('heading', { name: 'Awards & Certifications' })
+  await expect(name).toBeVisible()
+  await expect(role).toBeVisible()
+
+  const [nameBounds, roleBounds, certificationBounds] = await Promise.all(
+    [name, role, certifications].map((locator) => locator.boundingBox())
+  )
+  if (!nameBounds || !roleBounds || !certificationBounds) {
+    throw new Error('Hero introduction and certification heading must be visible')
+  }
+  expect(roleBounds.y + roleBounds.height).toBeLessThan(nameBounds.y)
+  expect(nameBounds.y + nameBounds.height).toBeLessThan(certificationBounds.y)
+
+  const labelStyles = await Promise.all(
+    [role, certifications].map((locator) =>
+      locator.evaluate((element) => {
+        const style = getComputedStyle(element)
+        return {
+          fontSize: style.fontSize,
+          fontWeight: style.fontWeight,
+          letterSpacing: style.letterSpacing,
+          textTransform: style.textTransform,
+          color: style.color,
+        }
+      })
+    )
+  )
+  expect(labelStyles[0]).toEqual(labelStyles[1])
+})
+
 test('hero omits activity statistics and social icons', async ({ page }) => {
   const dataRequests: string[] = []
   page.on('request', (request) => {

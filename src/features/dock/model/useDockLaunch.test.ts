@@ -1,7 +1,55 @@
 import { act, renderHook } from '@testing-library/react'
 import { describe, expect, it, vi } from 'vitest'
 
-import { useDockLaunch } from './useDockLaunch'
+import { openLaunchedProfile, useDockLaunch } from './useDockLaunch'
+
+describe('openLaunchedProfile', () => {
+  const url = 'https://www.linkedin.com/in/example'
+
+  it('opens an isolated tab on desktop when transient user activation is active', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+
+    openLaunchedProfile(url)
+
+    expect(open).toHaveBeenCalledExactlyOnceWith(url, '_blank', 'noopener,noreferrer')
+  })
+
+  it('redirects the current browsing context on touch/mobile browsers', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const assign = vi.fn()
+    vi.spyOn(window, 'matchMedia').mockImplementation(
+      (query: string): MediaQueryList => ({
+        matches: query === '(pointer: coarse), (hover: none)',
+        media: query,
+        onchange: null,
+        addListener: () => undefined,
+        removeListener: () => undefined,
+        addEventListener: () => undefined,
+        removeEventListener: () => undefined,
+        dispatchEvent: () => false,
+      })
+    )
+
+    openLaunchedProfile(url, { assign })
+
+    expect(assign).toHaveBeenCalledExactlyOnceWith(url)
+    expect(open).not.toHaveBeenCalled()
+  })
+
+  it('redirects the current browsing context when user activation expired during the bounce', () => {
+    const open = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const assign = vi.fn()
+    Object.defineProperty(window.navigator, 'userActivation', {
+      configurable: true,
+      value: { isActive: false },
+    })
+
+    openLaunchedProfile(url, { assign })
+
+    expect(assign).toHaveBeenCalledExactlyOnceWith(url)
+    expect(open).not.toHaveBeenCalled()
+  })
+})
 
 describe('useDockLaunch', () => {
   it('waits for the launch animation to finish before opening an app', () => {

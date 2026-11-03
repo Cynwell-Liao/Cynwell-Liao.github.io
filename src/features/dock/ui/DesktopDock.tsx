@@ -2,7 +2,7 @@ import { AnimatePresence, m, useReducedMotion } from 'framer-motion'
 import { useEffect, useRef, useState } from 'react'
 
 import { DOCK_GAP, DOCK_ICON_SIZE, getDockSizes } from '../model/magnification'
-import { useDockLaunch } from '../model/useDockLaunch'
+import { openLaunchedProfile, useDockLaunch } from '../model/useDockLaunch'
 
 import { DockIcon } from './DockIcon'
 import { DockMenu } from './DockMenu'
@@ -421,7 +421,7 @@ export function DesktopDock({
                     cancelLaunch(index === 0 ? 1 : 0)
                     const url = event.currentTarget.href
                     launchApp(() => {
-                      window.open(url, '_blank', 'noopener,noreferrer')
+                      openLaunchedProfile(url)
                     })
                   }}
                   rel="noopener noreferrer"

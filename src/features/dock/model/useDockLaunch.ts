@@ -1,5 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 
+/**
+ * Open a Dock profile destination after the three-bounce launch animation completes.
+ *
+ * Desktop browsers with a fine pointer and active transient user activation open an
+ * isolated tab. Touch/mobile browsers (including Safari and in-app WebViews such as
+ * LinkedIn) and browsers whose transient activation expired during the bounce block
+ * asynchronous `_blank` popups, so redirect the current browsing context instead.
+ */
+export function openLaunchedProfile(
+  url: string,
+  location: Pick<Location, 'assign'> = window.location
+) {
+  const isTouchPrimary = window.matchMedia('(pointer: coarse), (hover: none)').matches
+
+  if (!isTouchPrimary && navigator.userActivation.isActive) {
+    window.open(url, '_blank', 'noopener,noreferrer')
+    return
+  }
+
+  location.assign(url)
+}
+
 /** Keep each launch pending until its icon has landed, without queuing repeat clicks. */
 export function useDockLaunch() {
   const pending = useRef(new Map<number, () => void>())
