@@ -27,10 +27,8 @@ const composeProfile = (raw: RawProfileData): ProfileData => ({
   aboutHeadingLead: raw.about.headingLead,
   aboutHeadingAccent: raw.about.headingAccent,
   aboutIntro: raw.about.intro,
-  heroStatusLabel: raw.hero.statusLabel,
   heroTerminalPath: raw.hero.terminalPath,
   heroTerminalDirectories: raw.hero.terminalDirectories,
-  heroTerminalPrompt: raw.hero.terminalPrompt,
   heroCertificationsHeading: raw.hero.certificationsHeading,
   heroCertifications: raw.certifications,
 })

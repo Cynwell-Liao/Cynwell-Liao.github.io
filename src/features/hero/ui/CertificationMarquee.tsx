@@ -11,17 +11,11 @@ interface CertificationMarqueeProps {
 
 const FOCUS_RING_PADDING_PX = 8
 
-function revealFocusedBadge(event: FocusEvent<HTMLDivElement>) {
-  const badge = event.target
-  if (!(badge instanceof HTMLAnchorElement) || !badge.matches(':focus-visible')) {
-    return
-  }
-
+function revealBadge(badge: HTMLAnchorElement, viewport: HTMLDivElement) {
   // Cancel any smooth scroll started by the previous focused link before deciding
   // whether this badge is already visible.
   window.scrollTo({ top: window.scrollY, left: window.scrollX, behavior: 'instant' })
   badge.scrollIntoView({ block: 'nearest', inline: 'nearest', behavior: 'instant' })
-  const viewport = event.currentTarget
   const viewportBounds = viewport.getBoundingClientRect()
   const badgeBounds = badge.getBoundingClientRect()
   const leftEdge = viewportBounds.left + FOCUS_RING_PADDING_PX
@@ -32,6 +26,21 @@ function revealFocusedBadge(event: FocusEvent<HTMLDivElement>) {
   } else if (badgeBounds.right > rightEdge) {
     viewport.scrollLeft += badgeBounds.right - rightEdge
   }
+}
+
+function revealFocusedBadge(event: FocusEvent<HTMLDivElement>) {
+  const badge = event.target
+  if (!(badge instanceof HTMLAnchorElement) || !badge.matches(':focus-visible')) {
+    return
+  }
+
+  const viewport = event.currentTarget
+  revealBadge(badge, viewport)
+  // Native focus scrolling may resume after the synchronous focus handler.
+  // Correct it once on the next frame, only if this badge still owns focus.
+  requestAnimationFrame(() => {
+    if (document.activeElement === badge) revealBadge(badge, viewport)
+  })
 }
 
 function resetScrollOnBlur(event: FocusEvent<HTMLDivElement>) {
@@ -67,14 +76,14 @@ function CertificationBadge({
           alt={isClone ? '' : certification.imageAlt}
           className="hero-cert-marquee__badge-image"
           decoding="async"
-          height={100}
+          height={certification.imageHeight ?? 100}
           loading="lazy"
           onError={() => {
             setHasImageError(true)
           }}
           referrerPolicy="no-referrer"
           src={certification.imageUrl}
-          width={100}
+          width={certification.imageWidth ?? 100}
         />
       )}
     </a>

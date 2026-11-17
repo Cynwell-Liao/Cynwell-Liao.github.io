@@ -90,6 +90,60 @@ describe('TerminalWindow', () => {
     expect(dialog).toHaveAttribute('data-active', 'true')
   })
 
+  it('restores active chrome after browser focus returns only when focus remains inside', async () => {
+    const user = userEvent.setup()
+    renderTerminalWindow()
+    render(<button type="button">Outside terminal</button>)
+    const dialog = screen.getByRole('dialog', { name: 'Terminal' })
+
+    fireEvent(window, new Event('blur'))
+    expect(dialog).toHaveAttribute('data-active', 'false')
+    fireEvent(window, new Event('focus'))
+    expect(dialog).toHaveAttribute('data-active', 'true')
+    expect(getTerminalInput()).toHaveFocus()
+
+    await user.click(screen.getByRole('button', { name: 'Outside terminal' }))
+    fireEvent(window, new Event('blur'))
+    fireEvent(window, new Event('focus'))
+    expect(dialog).toHaveAttribute('data-active', 'false')
+    expect(screen.getByRole('button', { name: 'Outside terminal' })).toHaveFocus()
+  })
+
+  it.each([
+    { shift: false, step: 16 },
+    { shift: true, step: 48 },
+  ])('resizes with keyboard arrows in $step-pixel steps', async ({ shift, step }) => {
+    vi.stubGlobal('innerWidth', 1200)
+    vi.stubGlobal('innerHeight', 800)
+    const user = userEvent.setup()
+    renderTerminalWindow()
+    const dialog = screen.getByRole('dialog', { name: 'Terminal' })
+    const width = parseFloat(dialog.style.width)
+    const height = parseFloat(dialog.style.height)
+    await user.tab()
+    expect(screen.getByRole('button', { name: 'Resize terminal' })).toHaveFocus()
+
+    const resize = async (key: string) => {
+      await user.keyboard(shift ? `{Shift>}{${key}}{/Shift}` : `{${key}}`)
+    }
+    await resize('ArrowRight')
+    expect(dialog).toHaveStyle({ width: `${String(width + step)}px` })
+    expect(dialog).toHaveStyle({ height: `${String(height)}px` })
+    await resize('ArrowDown')
+    expect(dialog).toHaveStyle({ height: `${String(height + step)}px` })
+    await resize('ArrowLeft')
+    expect(dialog).toHaveStyle({ width: `${String(width)}px` })
+    await resize('ArrowUp')
+    expect(dialog).toHaveStyle({ height: `${String(height)}px` })
+
+    await user.keyboard('{Enter}')
+    expect(dialog).toHaveStyle({
+      width: `${String(width)}px`,
+      height: `${String(height)}px`,
+    })
+    expect(screen.getByRole('button', { name: 'Resize terminal' })).toHaveFocus()
+  })
+
   it('runs commands through form submission and records command history', async () => {
     renderTerminalWindow()
 
@@ -176,6 +230,27 @@ describe('TerminalWindow', () => {
     )
     expect(getTerminalInput()).toHaveValue('unfinished command')
     expect(getTerminalInput()).toHaveFocus()
+  })
+
+  it('minimizes with Command-M and restores the draft and editing position', async () => {
+    const onClose = vi.fn()
+    const user = userEvent.setup()
+    renderTerminalWindow({ onClose })
+    await user.type(getTerminalInput(), 'unfinished command')
+    getTerminalInput().setSelectionRange(3, 3)
+    fireEvent.select(getTerminalInput())
+
+    await user.keyboard('{Meta>}m{/Meta}')
+
+    expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Restore terminal' })).toHaveFocus()
+    expect(onClose).not.toHaveBeenCalled()
+    await user.click(screen.getByRole('button', { name: 'Restore terminal' }))
+
+    expect(getTerminalInput()).toHaveValue('unfinished command')
+    expect(getTerminalInput()).toHaveFocus()
+    expect(getTerminalInput().selectionStart).toBe(3)
+    expect(getTerminalInput().selectionEnd).toBe(3)
   })
 
   it.each([
@@ -357,6 +432,38 @@ describe('TerminalWindow', () => {
     expect(screen.getByRole('log')).toHaveTextContent(
       `${terminalTestProfile.heroTerminalPath} % pwd`
     )
+  })
+
+  it('does not consume shell shortcuts while composing text', () => {
+    renderTerminalWindow()
+    submitCommand('pwd')
+    const input = getTerminalInput()
+    fireEvent.input(input, { target: { value: 'draft' } })
+
+    fireEvent.keyDown(input, { key: 'u', ctrlKey: true, isComposing: true })
+    fireEvent.keyDown(input, { key: 'ArrowUp', isComposing: true })
+
+    expect(input).toHaveValue('draft')
+  })
+
+  it('preserves selected transcript text for Control-C instead of cancelling input', () => {
+    renderTerminalWindow()
+    const input = getTerminalInput()
+    fireEvent.input(input, { target: { value: 'draft' } })
+    const transcript = screen.getByRole('log')
+    const originalText = transcript.textContent
+    fireEvent.blur(input)
+    const range = document.createRange()
+    range.selectNodeContents(transcript)
+    const selection = window.getSelection()
+    selection?.removeAllRanges()
+    selection?.addRange(range)
+
+    fireEvent.keyDown(input, { key: 'c', ctrlKey: true })
+
+    expect(input).toHaveValue('draft')
+    expect(transcript.textContent).toBe(originalText)
+    selection?.removeAllRanges()
   })
 
   it('focuses the prompt when the terminal screen is clicked', async () => {

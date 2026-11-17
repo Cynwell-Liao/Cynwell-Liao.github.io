@@ -91,6 +91,23 @@ describe('CertificationMarquee', () => {
     ).toHaveTextContent(certifications[0].imageAlt)
   })
 
+  it('uses intrinsic image dimensions when supplied and defaults to 100px', () => {
+    render(
+      <CertificationMarquee
+        certifications={[
+          { ...certifications[0], imageWidth: 240, imageHeight: 180 },
+          certifications[1],
+        ]}
+        heading="Credentials"
+      />
+    )
+    const images = screen.getAllByRole('img')
+    expect(images[0]).toHaveAttribute('width', '240')
+    expect(images[0]).toHaveAttribute('height', '180')
+    expect(images[1]).toHaveAttribute('width', '100')
+    expect(images[1]).toHaveAttribute('height', '100')
+  })
+
   it.each([
     ['before the viewport', -20, 80, 72],
     ['after the viewport', 150, 250, 158],
@@ -125,6 +142,26 @@ describe('CertificationMarquee', () => {
 
     expect(viewport.scrollLeft).toBe(25)
     expect(measure).not.toHaveBeenCalled()
+  })
+
+  it('corrects native scrolling on the next frame only while the badge retains focus', () => {
+    const frames: FrameRequestCallback[] = []
+    vi.spyOn(window, 'requestAnimationFrame').mockImplementation((callback) => {
+      frames.push(callback)
+      return frames.length
+    })
+    const { badges } = renderMarquee()
+    vi.spyOn(badges[0], 'matches').mockReturnValue(true)
+    badges[0].focus()
+    expect(scrollIntoView).toHaveBeenCalledTimes(1)
+    frames.shift()?.(0)
+    expect(scrollIntoView).toHaveBeenCalledTimes(2)
+
+    fireEvent.focus(badges[0])
+    expect(scrollIntoView).toHaveBeenCalledTimes(3)
+    badges[0].blur()
+    frames.shift()?.(0)
+    expect(scrollIntoView).toHaveBeenCalledTimes(3)
   })
 
   it('preserves scrolling within the list and resets it when focus leaves', () => {

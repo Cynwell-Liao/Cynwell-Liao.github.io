@@ -81,6 +81,33 @@ describe('useActiveSection', () => {
     expect(result.current.activeHref).toBeNull()
   })
 
+  it('tracks page position independently of menu order', () => {
+    const { result } = renderHook(() => useActiveSection([...links].reverse()))
+    flushFrame()
+    scrollTo(1800)
+    expect(result.current.activeHref).toBe('#tech-stack')
+    scrollTo(2800)
+    expect(result.current.activeHref).toBe('#projects')
+    scrollTo(3600)
+    expect(result.current.activeHref).toBe('#education')
+  })
+
+  it('selects the last page target from a reordered subset of links at the bottom', () => {
+    const { result } = renderHook(() =>
+      useActiveSection([
+        { href: '#projects', label: 'Work' },
+        { href: '#about', label: 'Biography' },
+      ])
+    )
+    flushFrame()
+    scrollTo(800)
+    expect(result.current.activeHref).toBe('#about')
+    scrollTo(2800)
+    expect(result.current.activeHref).toBe('#projects')
+    scrollTo(3600)
+    expect(result.current.activeHref).toBe('#projects')
+  })
+
   it('selects a deep link immediately and holds it until scrolling reaches the target', () => {
     window.history.replaceState(null, '', '#projects')
     const { result } = renderHook(() => useActiveSection(links))

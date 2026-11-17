@@ -1,3 +1,4 @@
+import { profile } from './content'
 import { expect, test } from './fixtures'
 
 import type { Locator } from '@playwright/test'
@@ -15,8 +16,8 @@ const expectNoSelection = async (navigation: Locator) => {
     .toBe(false)
 }
 
-const expectIndicatorToMatch = async (navigation: Locator, label: string) => {
-  const activeLink = navigation.getByRole('link', { name: label, exact: true })
+const expectIndicatorToMatch = async (navigation: Locator, href: string) => {
+  const activeLink = navigation.locator(`a[href="${href}"]`)
   const indicator = navigation.getByTestId('navbar-indicator')
 
   await expect(activeLink).toHaveAttribute('aria-current', 'location')
@@ -49,9 +50,9 @@ test('one pill follows the selected section and clears at home @desktop', async 
 
   await expectNoSelection(navigation)
 
-  for (const label of ['About', 'Education', 'Tech Stack']) {
-    await navigation.getByRole('link', { name: label, exact: true }).click()
-    await expectIndicatorToMatch(navigation, label)
+  for (const { href } of profile.navLinks) {
+    await navigation.locator(`a[href="${href}"]`).click()
+    await expectIndicatorToMatch(navigation, href)
   }
 
   await page.getByRole('link', { name: /home$/u }).click()
@@ -68,8 +69,8 @@ test('returning home resets the next pill position while direct section changes 
   })
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
 
-  await navigation.getByRole('link', { name: 'Education', exact: true }).click()
-  await expectIndicatorToMatch(navigation, 'Education')
+  await navigation.locator('a[href="#education"]').click()
+  await expectIndicatorToMatch(navigation, '#education')
   await page.getByRole('link', { name: /home$/u }).click()
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBe(0)
   await expectNoSelection(navigation)
@@ -112,7 +113,7 @@ test('returning home resets the next pill position while direct section changes 
     expect(frame.leftError).toBeLessThan(2)
     expect(frame.widthError).toBeLessThan(2)
   }
-  await expectIndicatorToMatch(navigation, 'About')
+  await expectIndicatorToMatch(navigation, '#about')
 
   const directSwitch = await sampleTransition('#projects')
   expect(
@@ -120,7 +121,7 @@ test('returning home resets the next pill position while direct section changes 
       ({ leftError }) => leftError > 2 && leftError < directSwitch.initialDistance - 2
     )
   ).toBe(true)
-  await expectIndicatorToMatch(navigation, 'Projects')
+  await expectIndicatorToMatch(navigation, '#projects')
 })
 
 test('the logo clears the pill before returning home and the next tab appears directly @desktop', async ({
@@ -132,8 +133,8 @@ test('the logo clears the pill before returning home and the next tab appears di
     await document.fonts.ready
   })
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
-  await navigation.getByRole('link', { name: 'Education', exact: true }).click()
-  await expectIndicatorToMatch(navigation, 'Education')
+  await navigation.locator('a[href="#education"]').click()
+  await expectIndicatorToMatch(navigation, '#education')
   await expect(page.locator('#education')).toBeInViewport()
 
   const result = await navigation.evaluate(async (element) => {
@@ -171,7 +172,7 @@ test('the logo clears the pill before returning home and the next tab appears di
   expect(result.clearedDuringReturn).toBe(true)
   expect(result.alignmentErrors.length).toBeGreaterThan(0)
   expect(Math.max(...result.alignmentErrors)).toBeLessThan(2)
-  await expectIndicatorToMatch(navigation, 'Tech Stack')
+  await expectIndicatorToMatch(navigation, '#tech-stack')
 })
 
 test('selection follows deep links, history, and scrolling independently of the hash @desktop', async ({
@@ -181,17 +182,17 @@ test('selection follows deep links, history, and scrolling independently of the 
   await page.goto('/#projects')
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
 
-  await expectIndicatorToMatch(navigation, 'Projects')
-  await navigation.getByRole('link', { name: 'About', exact: true }).click()
-  await expectIndicatorToMatch(navigation, 'About')
+  await expectIndicatorToMatch(navigation, '#projects')
+  await navigation.locator('a[href="#about"]').click()
+  await expectIndicatorToMatch(navigation, '#about')
   await page.goBack()
   await expect(page).toHaveURL(/#projects$/u)
-  await expectIndicatorToMatch(navigation, 'Projects')
+  await expectIndicatorToMatch(navigation, '#projects')
 
   await page.locator('#tech-stack').evaluate((section) => {
     section.scrollIntoView({ behavior: 'instant', block: 'start' })
   })
-  await expectIndicatorToMatch(navigation, 'Tech Stack')
+  await expectIndicatorToMatch(navigation, '#tech-stack')
   await expect(page).toHaveURL(/#projects$/u)
 
   await page.locator('#home').evaluate((section) => {
@@ -206,9 +207,11 @@ test('section links keep their keyboard order and activate with Enter @desktop',
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.goto('/')
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
-  await navigation.getByRole('link', { name: 'About', exact: true }).focus()
+  const [first] = profile.navLinks
+  const last = profile.navLinks[profile.navLinks.length - 1]
+  await navigation.getByRole('link', { name: first.label, exact: true }).focus()
 
-  for (const label of ['Tech Stack', 'Projects', 'Education']) {
+  for (const { label } of profile.navLinks.slice(1)) {
     await page.keyboard.press('Tab')
     await expect(
       navigation.getByRole('link', { name: label, exact: true })
@@ -216,9 +219,9 @@ test('section links keep their keyboard order and activate with Enter @desktop',
   }
 
   await page.keyboard.press('Enter')
-  await expect(page).toHaveURL(/#education$/u)
-  await expectIndicatorToMatch(navigation, 'Education')
-  await expect(page.locator('#education')).toBeInViewport()
+  await expect(page).toHaveURL(new RegExp(last.href + '$', 'u'))
+  await expectIndicatorToMatch(navigation, last.href)
+  await expect(page.locator(last.href)).toBeInViewport()
 })
 
 test('reduced motion places the indicator without sliding between sections @desktop', async ({
@@ -230,7 +233,7 @@ test('reduced motion places the indicator without sliding between sections @desk
     await document.fonts.ready
   })
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
-  await expectIndicatorToMatch(navigation, 'About')
+  await expectIndicatorToMatch(navigation, '#about')
 
   const alignmentErrors = await navigation.evaluate(async (element) => {
     const nextLink = element.querySelector<HTMLAnchorElement>('a[href="#education"]')
@@ -255,7 +258,7 @@ test('reduced motion places the indicator without sliding between sections @desk
   })
 
   expect(Math.max(...alignmentErrors)).toBeLessThan(2)
-  await expectIndicatorToMatch(navigation, 'Education')
+  await expectIndicatorToMatch(navigation, '#education')
 })
 
 for (const theme of ['light', 'dark'] as const) {
@@ -295,9 +298,9 @@ for (const theme of ['light', 'dark'] as const) {
       expect(await getSize()).toEqual(initialSize)
     }
 
-    await navigation.getByRole('link', { name: 'Projects', exact: true }).click()
+    await navigation.locator('a[href="#projects"]').click()
     await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(50)
-    await expectIndicatorToMatch(navigation, 'Projects')
+    await expectIndicatorToMatch(navigation, '#projects')
     await expect(navigation).toHaveCSS('background-color', transparentBackground)
     await expect(navigation).toHaveCSS('backdrop-filter', 'none')
     expect(await getSize()).toEqual(initialSize)
@@ -366,7 +369,7 @@ for (const viewport of headerViewports) {
         })
         await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(50)
         if (viewport.tag === '@desktop') {
-          await expectIndicatorToMatch(navigation, 'Projects')
+          await expectIndicatorToMatch(navigation, '#projects')
         }
       }
 

@@ -2,8 +2,10 @@ import tailwindcss from '@tailwindcss/vite'
 import react from '@vitejs/plugin-react'
 import { defineConfig } from 'vite'
 
-import { injectSiteMetadata, readSiteMetadata } from './config/buildMetadata.ts'
+import { readSiteMetadata } from './config/buildMetadata.ts'
 import { sharedViteConfig } from './config/sharedViteConfig.ts'
+import { siteMetadataPlugin } from './config/siteMetadataPlugin.ts'
+
 const siteMetadata = readSiteMetadata()
 
 // https://vite.dev/config/
@@ -20,17 +22,5 @@ export default defineConfig({
       },
     },
   },
-  plugins: [
-    tailwindcss(),
-    react(),
-    {
-      name: 'inject-site-meta',
-      transformIndexHtml: {
-        order: 'pre',
-        handler(html) {
-          return injectSiteMetadata(html, siteMetadata)
-        },
-      },
-    },
-  ],
+  plugins: [tailwindcss(), react(), siteMetadataPlugin(siteMetadata)],
 })

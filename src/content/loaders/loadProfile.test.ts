@@ -10,7 +10,7 @@ describe('profile content', () => {
     expect(navLinks.length).toBeGreaterThan(0)
   })
 
-  it('maps an exact valid raw profile without copying the raw tagline', () => {
+  it('maps a valid raw profile without exposing legacy display fields', () => {
     expect(parseProfile(createValidRawProfile())).toEqual({
       profile: {
         name: 'Example Engineer',
@@ -21,10 +21,8 @@ describe('profile content', () => {
         githubUrl: 'https://github.com/example-engineer',
         repositoryUrl: 'https://github.com/example-engineer/portfolio',
         linkedinUrl: 'https://www.linkedin.com/in/example-engineer',
-        heroStatusLabel: 'SYSTEMS ONLINE',
         heroTerminalPath: '~/example',
         heroTerminalDirectories: ['projects', 'skills'],
-        heroTerminalPrompt: '_',
         heroCertificationsHeading: 'Certifications',
         heroCertifications: [
           {
@@ -56,6 +54,28 @@ describe('profile content', () => {
       ],
     })
   })
+
+  it('accepts profiles without obsolete display settings', () => {
+    const raw = createValidRawProfile()
+    Reflect.deleteProperty(raw, 'tagline')
+    Reflect.deleteProperty(raw.hero, 'statusLabel')
+    Reflect.deleteProperty(raw.hero, 'terminalPrompt')
+
+    expect(parseProfile(raw).profile).toEqual(
+      parseProfile(createValidRawProfile()).profile
+    )
+  })
+
+  it.each(['tagline', 'statusLabel', 'terminalPrompt'] as const)(
+    'validates legacy %s when supplied',
+    (field) => {
+      const raw = createValidRawProfile()
+      if (field === 'tagline') raw.tagline = ' '
+      else raw.hero[field] = ' '
+
+      expect(() => parseProfile(raw)).toThrow(new RegExp(field, 'u'))
+    }
+  )
 
   it.each([
     ['about paragraphs', 'about', 'paragraphs'],

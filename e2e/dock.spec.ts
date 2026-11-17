@@ -1,12 +1,7 @@
-import { readFileSync } from 'node:fs'
-
+import { profile } from './content'
 import { expect, test } from './fixtures'
 
 import type { Locator } from '@playwright/test'
-
-const profile = JSON.parse(
-  readFileSync(new URL('../src/content/data/profile.json', import.meta.url), 'utf8')
-) as { githubUrl: string; linkedinUrl: string }
 
 const boundsFor = async (locator: Locator) => {
   const bounds = await locator.boundingBox()

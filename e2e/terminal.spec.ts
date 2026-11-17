@@ -1,3 +1,4 @@
+import { profile } from './content'
 import { expect, test } from './fixtures'
 
 const terminalAsset = /\/assets\/terminal-[^/]+\.js$/u
@@ -151,7 +152,7 @@ test('all traffic-light symbols appear together on hover and minimize preserves 
   await restore.click()
   await expect(input).toBeFocused()
   await expect(input).toHaveValue('unfinished command')
-  await expect(output).toContainText('~/stack % pwd')
+  await expect(output).toContainText(`${profile.hero.terminalPath} % pwd`)
 })
 
 test('minimize and restore preserve the editing caret @desktop', async ({ page }) => {
@@ -294,7 +295,7 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
   await input.fill('pwd')
   await input.press('Enter')
   await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText(
-    '~/stack % pwd'
+    `${profile.hero.terminalPath} % pwd`
   )
   await expect(input).toBeInViewport()
   await expect(page.getByRole('button', { name: 'Close terminal' })).toBeInViewport()

@@ -34,14 +34,16 @@ function visibleSection(links: readonly NavLink[]): ActiveHref {
     window.scrollY > 0 &&
     window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 2
   let active: ActiveHref = null
+  let activeTop = -Infinity
 
   for (const { href } of links) {
     const section = document.getElementById(href.slice(1))
-    if (
-      section &&
-      (atBottom || section.getBoundingClientRect().top <= activationLine)
-    ) {
+    if (!section) continue
+    const top = section.getBoundingClientRect().top
+    // Menu order is editable; select the furthest visible target in page order.
+    if ((atBottom || top <= activationLine) && top > activeTop) {
       active = href
+      activeTop = top
     }
   }
   return active

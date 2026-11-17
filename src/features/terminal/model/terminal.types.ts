@@ -9,7 +9,6 @@ export type TerminalProfile = Pick<
   | 'githubUsername'
   | 'heroTerminalPath'
   | 'heroTerminalDirectories'
-  | 'heroTerminalPrompt'
 >
 
 export interface TerminalWindowProps {

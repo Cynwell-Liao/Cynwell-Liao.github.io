@@ -6,5 +6,3 @@ export type HeroProfile = Readonly<
     'name' | 'title' | 'heroCertificationsHeading' | 'heroCertifications'
   >
 >
-
-export type { ProfileData }

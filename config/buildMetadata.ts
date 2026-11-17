@@ -30,7 +30,7 @@ const siteMetadataSchema = z.strictObject({
     } catch {
       return false
     }
-  }, 'must be a root-relative path or an HTTPS URL'),
+  }, 'must be a relative path or an HTTPS URL'),
   googleSiteVerification: nonBlankText,
   jobTitle: nonBlankText,
   worksFor: nonBlankText,

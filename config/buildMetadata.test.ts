@@ -96,6 +96,30 @@ describe('build metadata helpers', () => {
     })
   })
 
+  it.each([
+    ['assets/cover.png', 'https://example.com/portfolio/assets/cover.png'],
+    ['/assets/cover.png', 'https://example.com/assets/cover.png'],
+    ['https://cdn.example.com/cover.png', 'https://cdn.example.com/cover.png'],
+  ])(
+    'resolves OG image %s deliberately for a project-site deployment',
+    (ogImage, expected) => {
+      const metadataPath = writeTemporaryJson('site-meta.json', {
+        name: 'Example',
+        title: 'Example portfolio',
+        siteUrl: 'https://example.com/portfolio/',
+        description: 'A software portfolio',
+        keywords: 'portfolio',
+        ogImage,
+        googleSiteVerification: 'verification-token',
+        jobTitle: 'Engineer',
+        worksFor: 'Example',
+        sameAs: [],
+      })
+
+      expect(readSiteMetadata(metadataPath).ogImageUrl).toBe(expected)
+    }
+  )
+
   it('rejects malformed versions, unsafe URLs, and unknown metadata keys', () => {
     const packagePath = writeTemporaryJson('package.json', { version: 'latest' })
     const metadataPath = writeTemporaryJson('site-meta.json', {

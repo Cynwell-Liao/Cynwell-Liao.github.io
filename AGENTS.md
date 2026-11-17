@@ -15,11 +15,11 @@ It is deployed to GitHub Pages. Do not introduce server-side logic, API routes, 
 ## Setup & Commands
 
 ```bash
-npm install                  # Install dependencies
+npm ci                       # Install locked dependencies
 npm run dev                  # Dev server → http://localhost:5173
-npm run build                # TypeScript compile + Vite production build
-npm run lint                 # ESLint (zero warnings enforced)
-npm run typecheck            # TypeScript strict type-check
+npm run build                # TypeScript compile + Vite build + bundle budget
+npm run lint                 # Formatting check + ESLint (zero warnings)
+npm run typecheck            # Strict type-check, including browser tests
 npm run test                 # Vitest unit tests
 npm run test:coverage        # Vitest with coverage (75% thresholds)
 npm run test:e2e             # Playwright e2e (requires build first)
@@ -27,7 +27,9 @@ npm run check                # Full pipeline: lint → typecheck → coverage �
 npm run format               # Prettier auto-format
 ```
 
-Always run `npm run check` before pushing. This mirrors what CI enforces.
+Install Chromium once with `npx playwright install chromium` before browser tests
+or social cover rendering. Always run `npm run check` before pushing. This mirrors
+what CI enforces.
 
 ## Architecture & Module Boundaries
 
@@ -98,6 +100,8 @@ to load.
 
 **SEO injection:** `index.html` uses `__PLACEHOLDER__` tokens replaced at build time by a Vite
 `transformIndexHtml` plugin reading from `site-meta.json`. Do not hardcode personal data in `index.html`.
+The same plugin generates `dist/sitemap.xml` and `dist/robots.txt` from the canonical
+site URL; do not add separate crawler metadata source files.
 
 ## Code Style & Conventions
 
@@ -110,8 +114,13 @@ Key conventions that cannot be inferred from tool configs alone:
 - Functional React components only. No class components.
 - Export public API through barrel `index.ts` files with named exports.
 - Use Zod schemas for all runtime content validation.
-- Use `clsx` + `tailwind-merge` for conditional/merged Tailwind class names.
-- Framer Motion for all animations. It is globally mocked in unit tests (see `src/test/setup.ts`).
+- Use `clsx` + `tailwind-merge` through the `cn` helper for conditional/merged Tailwind class names.
+- Use Framer Motion for interactive, state-driven animation. CSS transitions and
+  keyframes may handle simple feedback and decorative effects. Respect
+  reduced-motion preferences in both cases. Framer Motion is globally mocked in
+  unit tests (see `src/test/setup.ts`).
+- Keep feature-specific CSS beside its components and import it through
+  `src/index.css` so Tailwind processes it in the shared stylesheet context.
 - Import order: builtin → external → internal → parent → sibling → index → object → type (alphabetized, with blank lines between groups).
 - Tailwind design tokens: accent palette (pink, primary brand), secondary palette (cyan). Defined via `@theme` variables in `src/index.css`.
 - Fonts: Sora Variable (sans-serif), JetBrains Mono Variable (monospace). Loaded via `@fontsource-variable`.

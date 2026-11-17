@@ -5,6 +5,7 @@ export interface CertificationItem {
   readonly credentialUrl: string
   readonly imageUrl: string
   readonly imageAlt: string
+  /** Intrinsic image dimensions; the marquee displays a fixed 100px thumbnail. */
   readonly imageWidth?: number
   readonly imageHeight?: number
 }
@@ -18,10 +19,8 @@ export interface ProfileData {
   readonly githubUrl: string
   readonly repositoryUrl: string
   readonly linkedinUrl: string
-  readonly heroStatusLabel: string
   readonly heroTerminalPath: string
   readonly heroTerminalDirectories: readonly string[]
-  readonly heroTerminalPrompt: string
   readonly heroCertificationsHeading: string
   readonly heroCertifications: readonly CertificationItem[]
   readonly aboutHeadingLead: string

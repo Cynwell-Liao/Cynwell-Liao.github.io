@@ -9,7 +9,6 @@ export const terminalTestProfile: TerminalProfile = {
   githubUsername: 'test-engineer',
   heroTerminalPath: '~/portfolio',
   heroTerminalDirectories: ['projects', 'skills'],
-  heroTerminalPrompt: '_',
 }
 
 export const terminalTestProjects: Project[] = [

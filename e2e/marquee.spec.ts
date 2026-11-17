@@ -171,6 +171,44 @@ for (const size of [viewports[1], viewports[3]]) {
   })
 }
 
+test('rapid reverse traversal cancels page scrolling away from the focused badge @desktop', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 768, height: 1024 })
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+  const { badges, themeToggle } = marqueeElements(page)
+  await themeToggle.focus()
+  const count = await badges.count()
+  for (let index = 0; index < count; index += 1) {
+    await page.keyboard.press('Tab')
+    await expectFocusedBadgeVisible(badges.nth(index))
+  }
+
+  // Reverse at different stages of the browser's smooth focus scroll to the
+  // next section, including before its first animation frame.
+  for (const frames of [0, 1, 2, 4, 8]) {
+    await page.keyboard.press('Tab')
+    await expect(badges.last()).not.toBeFocused()
+    await page.evaluate(async (count) => {
+      for (let frame = 0; frame < count; frame += 1) {
+        await new Promise(requestAnimationFrame)
+      }
+    }, frames)
+    await page.keyboard.press('Shift+Tab')
+    await expectFocusedBadgeVisible(badges.last())
+    const remainsVisible = await badges.last().evaluate(async (element) => {
+      for (let frame = 0; frame < 30; frame += 1) {
+        await new Promise(requestAnimationFrame)
+        const bounds = element.getBoundingClientRect()
+        if (bounds.top < 4 || bounds.bottom > window.innerHeight - 4) return false
+      }
+      return true
+    })
+    expect(remainsVisible).toBe(true)
+  }
+})
+
 test('pointer focus preserves the animated certification row @desktop', async ({
   page,
 }) => {

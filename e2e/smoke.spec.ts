@@ -1,11 +1,7 @@
+import { profile, projects } from './content'
 import { expect, test } from './fixtures'
 
-const desktopNavigationTargets = [
-  { label: 'About', fragment: '#about' },
-  { label: 'Tech Stack', fragment: '#tech-stack' },
-  { label: 'Projects', fragment: '#projects' },
-  { label: 'Education', fragment: '#education' },
-] as const
+const desktopNavigationTargets = profile.navLinks
 
 test('desktop navigation reaches every portfolio section @desktop', async ({
   page,
@@ -19,12 +15,12 @@ test('desktop navigation reaches every portfolio section @desktop', async ({
 
   for (const target of desktopNavigationTargets) {
     const link = navigation.getByRole('link', { name: target.label, exact: true })
-    await expect(link).toHaveAttribute('href', target.fragment)
+    await expect(link).toHaveAttribute('href', target.href)
     await link.click()
 
-    await expect(page).toHaveURL(new RegExp(`${target.fragment}$`, 'u'))
-    await expect(page.locator(target.fragment)).toBeVisible()
-    await expect(page.locator(target.fragment)).toBeInViewport()
+    await expect(page).toHaveURL(new RegExp(`${target.href}$`, 'u'))
+    await expect(page.locator(target.href)).toBeVisible()
+    await expect(page.locator(target.href)).toBeInViewport()
   }
 
   const homeLink = page.getByRole('link', { name: /home$/u })
@@ -66,9 +62,11 @@ test('hero introduces the name below a role label matching the certifications he
   await page.goto('/')
 
   const hero = page.locator('#home')
-  const name = hero.getByRole('heading', { level: 1, name: 'Cynwell Liao' })
-  const role = hero.getByText('Software Engineer', { exact: true })
-  const certifications = hero.getByRole('heading', { name: 'Awards & Certifications' })
+  const name = hero.getByRole('heading', { level: 1, name: profile.name })
+  const role = hero.getByText(profile.title, { exact: true })
+  const certifications = hero.getByRole('heading', {
+    name: profile.hero.certificationsHeading,
+  })
   await expect(name).toBeVisible()
   await expect(role).toBeVisible()
 
@@ -136,8 +134,8 @@ test('terminal opens, submits a command, closes, and restores focus @desktop', a
   await input.fill('pwd')
   await input.press('Enter')
 
-  await expect(output).toContainText('~/stack % pwd')
-  await expect(output).toContainText('~/stack')
+  await expect(output).toContainText(`${profile.hero.terminalPath} % pwd`)
+  await expect(output).toContainText(profile.hero.terminalPath)
   await expect(input).toHaveValue('')
 
   await page.getByRole('button', { name: 'Close terminal' }).click()
@@ -181,13 +179,25 @@ test('outbound links expose specific accessible names @desktop', async ({ page }
     'target',
     '_blank'
   )
-  await expect(page.getByRole('link', { name: 'View Live: Cheapguide' })).toBeVisible()
-  await expect(page.getByRole('link', { name: 'View Live: ParkPie' })).toBeVisible()
-  await expect(
-    page.getByRole('link', {
-      name: 'AWS Certified Solutions Architect - Associate badge',
-    })
-  ).toBeVisible()
+  for (const project of projects) {
+    for (const [label, href] of [
+      [profile.labels.projectLiveLabel, project.liveUrl],
+      [profile.labels.projectSourceLabel, project.repoUrl],
+    ]) {
+      if (!href) continue
+      const link = page.getByRole('link', {
+        name: `${label}: ${project.title}`,
+        exact: true,
+      })
+      await expect(link).toBeVisible()
+      await expect(link).toHaveAttribute('href', href)
+    }
+  }
+  for (const certification of profile.certifications) {
+    await expect(
+      page.getByRole('link', { name: certification.imageAlt, exact: true })
+    ).toHaveAttribute('href', certification.credentialUrl)
+  }
 
   const outboundLinks = page.locator('a[target="_blank"]:not([tabindex="-1"])')
   const outboundLinkMetadata = await outboundLinks.evaluateAll((links) =>

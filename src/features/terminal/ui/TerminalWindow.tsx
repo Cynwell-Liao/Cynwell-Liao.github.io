@@ -4,20 +4,16 @@ import { FiFolder, FiTerminal } from 'react-icons/fi'
 
 import { cn } from '@shared/lib/cn'
 
-import {
-  appendTerminalLines,
-  createInitialTerminalLines,
-  resolveTerminalCommand,
-} from '../model/terminal'
 import { getTerminalToneClass } from '../model/terminalTheme'
+import { useTerminalSession } from '../model/useTerminalSession'
 import { useTerminalViewport } from '../model/useTerminalViewport'
 import { useTerminalWindow } from '../model/useTerminalWindow'
 
+import { TerminalPrompt } from './TerminalPrompt'
 import { TerminalWindowControls } from './TerminalWindowControls'
 
-import type { TerminalLine } from '../model/terminal'
+import type { TerminalCaret } from './TerminalPrompt'
 import type { TerminalWindowProps } from '../model/terminal.types'
-import type { KeyboardEvent, SyntheticEvent } from 'react'
 
 import './TerminalWindow.css'
 
@@ -32,6 +28,7 @@ export function TerminalWindow({
   onFullscreenChange,
 }: TerminalWindowProps) {
   const reducedMotion = useReducedMotion()
+  const session = useTerminalSession({ profile, projects, theme, onToggleTheme })
   const mobileViewport = useTerminalViewport()
   const isMobile = mobileViewport !== null
   const {
@@ -56,16 +53,13 @@ export function TerminalWindow({
   const [hasMinimized, setHasMinimized] = useState(false)
   const [handledActivation, setHandledActivation] = useState(activationRequest)
   const [active, setActive] = useState(true)
-  const [inputFocused, setInputFocused] = useState(false)
   const [dimensions, setDimensions] = useState({ columns: 80, rows: 24 })
-  const [terminalInput, setTerminalInput] = useState('')
-  const [caret, setCaret] = useState({ position: 0, scroll: 0, selected: false })
-  const [terminalLines, setTerminalLines] = useState<TerminalLine[]>(() =>
-    appendTerminalLines([], createInitialTerminalLines(profile))
-  )
-  const [commandHistory, setCommandHistory] = useState<string[]>([])
-  const historyIndex = useRef<number | null>(null)
-  const historyDraft = useRef('')
+  // Keep the caret snapshot when minimizing unmounts the prompt.
+  const [caret, setCaret] = useState<TerminalCaret>({
+    position: 0,
+    scroll: 0,
+    selected: false,
+  })
   const minimizedView = useRef<{
     selectionStart: number
     selectionEnd: number
@@ -137,7 +131,7 @@ export function TerminalWindow({
     if (scrollbackRef.current) {
       scrollbackRef.current.scrollTop = scrollbackRef.current.scrollHeight
     }
-  }, [terminalLines, scrollbackRef])
+  }, [session.lines, scrollbackRef])
 
   useEffect(() => {
     const updateActive = (event: globalThis.PointerEvent) => {
@@ -161,86 +155,6 @@ export function TerminalWindow({
       window.removeEventListener('focus', activate)
     }
   }, [])
-
-  const resetInput = () => {
-    setTerminalInput('')
-    setCaret({ position: 0, scroll: 0, selected: false })
-    historyIndex.current = null
-    historyDraft.current = ''
-  }
-
-  const pushTerminalOutput = (input: string, output: TerminalLine[]) => {
-    setTerminalLines((previousLines) =>
-      appendTerminalLines(previousLines, [
-        { text: `${profile.heroTerminalPath} % ${input}`, tone: 'default' },
-        ...output,
-      ])
-    )
-  }
-
-  const runCommand = (rawInput: string) => {
-    const commandResult = resolveTerminalCommand({
-      rawInput,
-      profile,
-      projects,
-      theme,
-      commandHistory,
-    })
-    if (!commandResult) {
-      pushTerminalOutput('', [])
-      return
-    }
-    setCommandHistory(commandResult.nextCommandHistory)
-    if (commandResult.shouldToggleTheme) onToggleTheme()
-    if (commandResult.openUrl) {
-      window.open(commandResult.openUrl, '_blank', 'noopener,noreferrer')
-    }
-    if (commandResult.shouldClear) {
-      setTerminalLines([])
-      return
-    }
-    pushTerminalOutput(commandResult.executedInput, commandResult.output)
-  }
-
-  const onTerminalSubmit = (event: SyntheticEvent<HTMLFormElement>) => {
-    event.preventDefault()
-    runCommand(terminalInput)
-    resetInput()
-  }
-
-  const onInputKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
-    if (event.nativeEvent.isComposing) return
-    const key = event.key.toLowerCase()
-    if ((event.ctrlKey && key === 'l') || (event.metaKey && key === 'k')) {
-      event.preventDefault()
-      setTerminalLines([])
-    } else if (event.ctrlKey && key === 'c' && !window.getSelection()?.toString()) {
-      event.preventDefault()
-      pushTerminalOutput(`${terminalInput}^C`, [])
-      resetInput()
-    } else if (event.ctrlKey && key === 'u') {
-      event.preventDefault()
-      resetInput()
-    } else if (
-      (key === 'arrowup' || key === 'arrowdown') &&
-      commandHistory.length > 0
-    ) {
-      event.preventDefault()
-      const current = historyIndex.current ?? commandHistory.length
-      if (historyIndex.current === null) historyDraft.current = terminalInput
-      const next = Math.max(
-        0,
-        Math.min(commandHistory.length, current + (key === 'arrowup' ? -1 : 1))
-      )
-      historyIndex.current = next === commandHistory.length ? null : next
-      const nextInput = commandHistory[next] ?? historyDraft.current
-      setTerminalInput(nextInput)
-      setCaret({ position: nextInput.length, scroll: 0, selected: false })
-      requestAnimationFrame(() => {
-        inputRef.current?.setSelectionRange(nextInput.length, nextInput.length)
-      })
-    }
-  }
 
   const focusWindow = () => {
     const target = isMobile ? dialogRef.current : inputRef.current
@@ -420,7 +334,7 @@ export function TerminalWindow({
                 ref={outputRef}
                 role="log"
               >
-                {terminalLines.map((line, index) => (
+                {session.lines.map((line, index) => (
                   <div
                     className={cn(
                       'terminal-line',
@@ -432,83 +346,14 @@ export function TerminalWindow({
                   </div>
                 ))}
               </div>
-              <form className="terminal-command" onSubmit={onTerminalSubmit}>
-                <label className="sr-only" htmlFor="floating-terminal-input">
-                  Terminal command input
-                </label>
-                <span className="terminal-prompt">
-                  {profile.heroTerminalPath} %&nbsp;
-                </span>
-                <span className="terminal-input-wrap">
-                  <input
-                    aria-label="Terminal command input"
-                    autoCapitalize="off"
-                    autoComplete="off"
-                    autoCorrect="off"
-                    className="terminal-input"
-                    enterKeyHint="enter"
-                    id="floating-terminal-input"
-                    onBlur={() => {
-                      setInputFocused(false)
-                    }}
-                    onChange={(event) => {
-                      setTerminalInput(event.target.value)
-                      historyIndex.current = null
-                      setCaret({
-                        position:
-                          event.target.selectionStart ?? event.target.value.length,
-                        scroll: event.target.scrollLeft,
-                        selected: false,
-                      })
-                    }}
-                    onFocus={() => {
-                      setInputFocused(true)
-                    }}
-                    onKeyDown={onInputKeyDown}
-                    onScroll={(event) => {
-                      const scroll = event.currentTarget.scrollLeft
-                      setCaret((previous) => ({ ...previous, scroll }))
-                    }}
-                    onSelect={(event) => {
-                      const input = event.currentTarget
-                      setCaret({
-                        position: input.selectionStart ?? 0,
-                        scroll: input.scrollLeft,
-                        selected: input.selectionStart !== input.selectionEnd,
-                      })
-                    }}
-                    ref={inputRef}
-                    spellCheck={false}
-                    type="text"
-                    value={terminalInput}
-                  />
-                  {!caret.selected && (
-                    <span
-                      aria-hidden
-                      className="terminal-caret-track"
-                      style={{ left: -caret.scroll }}
-                    >
-                      <span className="terminal-caret-prefix">
-                        {terminalInput.slice(0, caret.position)}
-                      </span>
-                      <span
-                        className={cn(
-                          'terminal-cursor',
-                          (!inputFocused || !active) && 'terminal-cursor--inactive'
-                        )}
-                      />
-                    </span>
-                  )}
-                </span>
-                <button
-                  aria-label="Run terminal command"
-                  className="sr-only"
-                  tabIndex={-1}
-                  type="submit"
-                >
-                  Run command
-                </button>
-              </form>
+              <TerminalPrompt
+                active={active}
+                caret={caret}
+                inputRef={inputRef}
+                onCaretChange={setCaret}
+                path={profile.heroTerminalPath}
+                session={session}
+              />
             </div>
             {mode === 'windowed' && !isMobile && (
               <button

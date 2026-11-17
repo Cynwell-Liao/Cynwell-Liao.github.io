@@ -37,7 +37,6 @@ use `nvm`, run `nvm use` from the repository root to select 24.20.0 from `.nvmrc
 git clone https://github.com/<your-username>/<your-repo>.git
 cd <your-repo>
 npm ci
-npx playwright install chromium
 npm run dev
 ```
 
@@ -54,16 +53,22 @@ policy.
 
 Edit `src/content/data/profile.json`:
 
-- **`name` / `brandName` / `title`** — displayed identity and branding. `tagline` is retained in the content
-  model but is not currently rendered; the social cover text is edited separately.
+- **`name` / `brandName` / `title`** — displayed identity and branding.
 - **`githubUsername` / `githubUrl` / `repositoryUrl` / `linkedinUrl`** — social
   profiles and repository links used across the portfolio.
 - **`about`** — biography paragraphs.
-- **`hero`** — terminal prompt and directories.
-- **`certifications`** — certification badge URLs.
+- **`hero`** — terminal path and directories, plus the certifications heading.
+- **`certifications`** — credential URLs, badge image URLs, and alt text. Optional
+  `imageWidth` and `imageHeight` describe the source image's intrinsic dimensions;
+  CSS keeps displayed badges at 100 × 100 pixels.
 - **`navLinks`** — top navigation links.
 - **`labels`** — required section headings, button text, terminal copy, and
   accessibility labels.
+
+`tagline`, `hero.statusLabel`, and `hero.terminalPrompt` are optional legacy JSON
+fields. They are validated when present, but omitted from runtime props and do
+not affect the rendered portfolio. The hero status uses the deployed package
+version; social cover text is edited separately in its SVG template.
 
 ### Step 2 — Projects _(required)_
 
@@ -81,21 +86,26 @@ logo is omitted when no URL is provided or the image fails to load.
 
 ### Step 4 — SEO Metadata _(required)_
 
-Edit `site-meta.json` (project root) — name, title, site URL, description, keywords, job title, company (`worksFor`), profile links (`sameAs`), and Google verification. These values are injected into `index.html` at build time for metadata and JSON-LD structured schemas.
+Edit `site-meta.json` (project root) — name, title, site URL, description, keywords,
+social image (`ogImage`), job title, company (`worksFor`), profile links (`sameAs`),
+and Google verification. These values are injected into `index.html` at build
+time for metadata and JSON-LD structured data. The build also generates
+`dist/sitemap.xml` and `dist/robots.txt` from the canonical site URL. There are no
+separate sitemap or robots source files to edit.
 
 ### Step 5 — Branding _(optional)_
 
 - Replace `public/favicon.ico`.
-- **Social Cover (OG Image):** We provide an automated pipeline to generate a pixel-perfect social cover image.
+- **Social Cover (OG Image):** Generate a social cover from the SVG template.
   1. Add your own profile picture to `public/assets/profile-photo.png`.
   2. Open `public/assets/og-cover.svg` in an editor and update the text elements (Name, Role, GitHub URL) to match your profile.
   3. Run `npm run update:og-avatar` — this crops `profile-photo.png` into a circle
      and embeds it in the SVG template. Use `-- --help` to see temporary input and
      output path options.
-  4. Run `npm run build:og-cover` — this uses headless Chromium and the local
+  4. Install Chromium once with `npx playwright install chromium`.
+  5. Run `npm run build:og-cover` — this uses headless Chromium and the local
      Fontsource packages to render `public/assets/og-cover.png` without a network
      font dependency. Use `-- --help` for custom input/output paths.
-- Update `public/sitemap.xml` and `public/robots.txt` with your site URL.
 
 ### Adding New Skill Icons
 
@@ -110,7 +120,13 @@ The deployment workflow is already included in `.github/workflows/cd.yml`.
 Use one of these modes:
 
 - User site repository (`<username>.github.io`): keep `base: '/'` in `vite.config.ts`.
-- Project site repository (`<repo-name>`): change Vite base in `vite.config.ts` to `'/<repo-name>/'` and update `site-meta.json` `siteUrl` to your final Pages URL.
+- Project site repository (`<repo-name>`): set Vite `base` in `vite.config.ts` to
+  `'/<repo-name>/'` and `site-meta.json` `siteUrl` to
+  `'https://<username>.github.io/<repo-name>/'`. Set `ogImage` to
+  `'assets/og-cover.png'` (relative to the site URL),
+  `'/<repo-name>/assets/og-cover.png'`, or the complete HTTPS image URL. A path
+  starting with `/assets/` resolves at the domain root and omits the repository
+  path.
 
 Then:
 
@@ -147,6 +163,8 @@ file and 600 kB raw / 195 kB gzip combined. Browser tests are included in strict
 TypeScript checking through `tsconfig.e2e.json`.
 
 ```bash
+# Install the browser once before running end-to-end checks
+npx playwright install chromium
 npm run check
 
 # Individual stages for focused development
@@ -212,4 +230,5 @@ Import aliases:
 
 - Enable `Issues`.
 - Enable `Discussions`.
-- Protect `main` with pull requests and required checks: `quality`, `e2e-smoke`.
+- Require the `quality` and `e2e-smoke` checks. Repository rules must permit the
+  maintainer release procedure above; do not disable protection to complete a release.
