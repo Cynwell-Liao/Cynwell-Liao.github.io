@@ -18,16 +18,12 @@ describe('openLaunchedProfile', () => {
     const open = vi.spyOn(window, 'open').mockImplementation(() => null)
     const assign = vi.fn()
     vi.spyOn(window, 'matchMedia').mockImplementation(
-      (query: string): MediaQueryList => ({
-        matches: query === '(pointer: coarse), (hover: none)',
-        media: query,
-        onchange: null,
-        addListener: () => undefined,
-        removeListener: () => undefined,
-        addEventListener: () => undefined,
-        removeEventListener: () => undefined,
-        dispatchEvent: () => false,
-      })
+      (query: string): MediaQueryList =>
+        Object.assign(new EventTarget(), {
+          matches: query === '(pointer: coarse), (hover: none)',
+          media: query,
+          onchange: null,
+        }) as unknown as MediaQueryList
     )
 
     openLaunchedProfile(url, { assign })

@@ -111,8 +111,8 @@ describe('SectionNavigation', () => {
     mockLinkDimensions(about, 4, 96)
     clickWithoutFollowing(about)
 
-    expect(about).toHaveStyle({ color: 'var(--color-white)' })
-    expect(projects).toHaveStyle({ color: 'var(--color-slate-700)' })
+    expect(about.style.color).toBe('var(--color-white)')
+    expect(projects.style.color).toBe('var(--color-slate-700)')
 
     rerender(
       <>
@@ -124,8 +124,8 @@ describe('SectionNavigation', () => {
 
     expect(about).toHaveAttribute('aria-current', 'location')
     expect(projects).not.toHaveAttribute('aria-current')
-    expect(about).toHaveStyle({ color: 'var(--color-slate-900)' })
-    expect(projects).toHaveStyle({ color: 'var(--color-slate-200)' })
+    expect(about.style.color).toBe('var(--color-slate-900)')
+    expect(projects.style.color).toBe('var(--color-slate-200)')
     expect(screen.getByTestId('navbar-indicator')).toHaveStyle({
       width: '96px',
       transform: 'translateX(4px)',

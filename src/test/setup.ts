@@ -127,16 +127,12 @@ vi.mock('framer-motion', () => {
 Object.defineProperty(window, 'matchMedia', {
   configurable: true,
   writable: true,
-  value: (query: string): MediaQueryList => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: () => undefined,
-    removeListener: () => undefined,
-    addEventListener: () => undefined,
-    removeEventListener: () => undefined,
-    dispatchEvent: () => false,
-  }),
+  value: (query: string): MediaQueryList =>
+    Object.assign(new EventTarget(), {
+      matches: false,
+      media: query,
+      onchange: null,
+    }) as unknown as MediaQueryList,
 })
 
 class ResizeObserverMock implements ResizeObserver {
