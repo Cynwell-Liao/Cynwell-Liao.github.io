@@ -86,7 +86,7 @@
       },
       {
         "name": "Google Cloud",
-        "note": "Cloud Run, Pub/Sub, Storage",
+        "note": "Firebase, Cloud Run, Pub/Sub",
         "icon": "gcp",
         "color": "#4285F4"
       },

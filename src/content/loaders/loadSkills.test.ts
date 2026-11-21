@@ -52,6 +52,9 @@ describe('skills content', () => {
       'AWS',
       'Google Cloud',
     ])
+    expect(cloud?.items.find((item) => item.name === 'Google Cloud')?.note).toBe(
+      'Firebase, Cloud Run, Pub/Sub'
+    )
     const databases = skillCategories.find((category) => category.title === 'Databases')
     expect(databases?.items.slice(0, 2).map((item) => item.name)).toEqual([
       'PostgreSQL',
