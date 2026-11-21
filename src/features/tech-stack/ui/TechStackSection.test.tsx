@@ -85,11 +85,11 @@ describe('TechStackSection', () => {
     const dockerItem = screen.getByText('Docker').closest('li')
     const openTelemetryItem = screen.getByText('OpenTelemetry').closest('li')
 
-    expect(dockerItem?.querySelector('span')).toHaveStyle({
-      '--tech-stack-icon-color': '#6172FF',
+    expect(dockerItem).toHaveStyle({
+      '--brand-color': '#6172FF',
     })
-    expect(openTelemetryItem?.querySelector('span')).toHaveStyle({
-      '--tech-stack-icon-color': '#425CC7',
+    expect(openTelemetryItem).toHaveStyle({
+      '--brand-color': '#425CC7',
     })
   })
 
@@ -111,11 +111,12 @@ describe('TechStackSection', () => {
       />
     )
 
-    const iconBox = screen.getByText('Docker').closest('li')?.querySelector('span')
+    const item = screen.getByText('Docker').closest('li')
+    const iconBox = item?.querySelector('span')
 
     expect(iconBox).toHaveClass('tech-stack-tile')
-    expect(iconBox).toHaveStyle({
-      '--tech-stack-icon-color': '#6172FF',
+    expect(item).toHaveStyle({
+      '--brand-color': '#6172FF',
     })
   })
 })

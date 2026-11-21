@@ -48,8 +48,8 @@ describe('EducationSection', () => {
     expect(logo).toHaveAttribute('referrerpolicy', 'no-referrer')
     expect(logo).toHaveAttribute('width', '24')
     expect(logo).toHaveAttribute('height', '24')
-    expect(logo?.closest('span')).toHaveStyle({
-      '--brand-logo-color': '#123ABC',
+    expect(logo?.closest('article')).toHaveStyle({
+      '--brand-color': '#123ABC',
     })
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
@@ -59,7 +59,7 @@ describe('EducationSection', () => {
       <EducationSection {...headingProps} education={[createEducationItem()]} />
     )
     const logo = container.querySelector('img')
-    const logoContainer = logo?.parentElement?.parentElement
+    const logoContainer = logo?.closest('.brand-logo-tile')
 
     expect(logo).not.toBeNull()
     expect(logoContainer).toBeInTheDocument()

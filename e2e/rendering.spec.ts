@@ -43,6 +43,19 @@ test('ambient backgrounds avoid blur filters and respect desktop motion preferen
   await expect.poll(movingOrnaments).toBe(0)
 })
 
+test('tech-stack items apply their brand color on hover @desktop', async ({ page }) => {
+  await page.goto('/')
+
+  const title = page.locator('#tech-stack').getByText('Docker', { exact: true })
+  const item = title.locator('..').locator('..')
+  const iconTile = item.locator('.tech-stack-tile')
+
+  await title.hover()
+
+  await expect(title).toHaveCSS('color', 'rgb(97, 114, 255)')
+  await expect(iconTile).toHaveCSS('border-color', 'rgb(97, 114, 255)')
+})
+
 for (const viewport of [
   { name: 'phone', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },

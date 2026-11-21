@@ -51,11 +51,8 @@ describe('ProjectsSection', () => {
 
     expect(heading).toBeInTheDocument()
     expect(logo).toHaveAttribute('src', 'https://example.com/project-logo.png')
-    expect(logo?.closest('span')).toHaveStyle({
-      '--brand-logo-color': '#123ABC',
-    })
     expect(article).toHaveStyle({
-      '--brand-logo-color': '#123ABC',
+      '--brand-color': '#123ABC',
     })
     expect(within(article).getByText('Validated behavior')).toBeInTheDocument()
     expect(within(article).getByText('TypeScript')).toBeInTheDocument()
@@ -92,7 +89,7 @@ describe('ProjectsSection', () => {
     fireEvent.error(logo as HTMLImageElement)
     expect(container.querySelector('img')).not.toBeInTheDocument()
     expect(article).not.toHaveStyle({
-      '--brand-logo-color': '#123ABC',
+      '--brand-color': '#123ABC',
     })
   })
 

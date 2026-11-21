@@ -1,13 +1,13 @@
 import { m } from 'framer-motion'
-import { useState } from 'react'
 import { FiExternalLink, FiGithub } from 'react-icons/fi'
 
+import { getBrandColorStyle } from '@shared/lib/brand'
 import { cardReveal } from '@shared/lib/motion'
+import { BrandLogo } from '@shared/ui/BrandLogo'
 
 import { ProjectActionLink } from './ProjectActionLink'
 
 import type { Project } from '../model/project.types'
-import type { CSSProperties } from 'react'
 
 interface ProjectCardProps {
   project: Project
@@ -22,68 +22,26 @@ export function ProjectCard({
   liveLabel,
   sourceLabel,
 }: ProjectCardProps) {
-  const [hasLogoError, setHasLogoError] = useState(false)
-
   return (
     <m.article
       {...cardReveal(revealDelay)}
       className="glass-panel group flex h-full flex-col p-8"
-      style={
-        project.logoColor
-          ? ({
-              '--brand-logo-color': project.logoColor,
-            } as CSSProperties)
-          : undefined
-      }
+      style={getBrandColorStyle(project.logoColor)}
     >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-10"
         style={{
-          background: `radial-gradient(circle at top right, ${project.logoColor ?? '#e384b2'}, transparent 70%)`,
+          background:
+            'radial-gradient(circle at top right, var(--brand-color, #e384b2), transparent 70%)',
         }}
       />
 
       <div className="relative z-10 flex h-full flex-col">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            {project.logoUrl && !hasLogoError ? (
-              <span
-                aria-hidden="true"
-                className="project-brand-tile brand-logo-tile inline-flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 p-3 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover:scale-110"
-                style={
-                  project.logoColor
-                    ? ({
-                        '--brand-logo-color': project.logoColor,
-                      } as CSSProperties)
-                    : undefined
-                }
-              >
-                <img
-                  alt=""
-                  className="h-6 w-6 object-contain"
-                  decoding="async"
-                  height={24}
-                  loading="lazy"
-                  onError={() => {
-                    setHasLogoError(true)
-                  }}
-                  referrerPolicy="no-referrer"
-                  src={project.logoUrl}
-                  width={24}
-                />
-              </span>
-            ) : null}
-            <h3
-              className="project-brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white"
-              style={
-                project.logoColor
-                  ? ({
-                      '--brand-logo-color': project.logoColor,
-                    } as CSSProperties)
-                  : undefined
-              }
-            >
+            <BrandLogo url={project.logoUrl} />
+            <h3 className="brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white">
               {project.title}
             </h3>
           </div>
@@ -121,8 +79,8 @@ export function ProjectCard({
                 aria-hidden="true"
                 className="mt-2 h-1.5 w-1.5 flex-shrink-0 rounded-full"
                 style={{
-                  backgroundColor: project.logoColor ?? '#e384b2',
-                  boxShadow: `0 0 8px ${project.logoColor ?? '#e384b2'}`,
+                  backgroundColor: 'var(--brand-color, #e384b2)',
+                  boxShadow: '0 0 8px var(--brand-color, #e384b2)',
                 }}
               />
               <span>{highlight}</span>

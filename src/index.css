@@ -11,23 +11,15 @@
 @custom-variant dark (&:is(.dark *));
 
 .dark .brand-logo-tile {
-  border-color: var(--brand-logo-color, #ffffff);
+  border-color: var(--brand-color, #ffffff);
 }
 
-.group:hover .project-brand-tile {
-  border-color: var(--brand-logo-color, #e384b2);
+.group:hover .brand-logo-tile {
+  border-color: var(--brand-color, #e384b2);
 }
 
-.group:hover .project-brand-title {
-  color: var(--brand-logo-color, #e384b2);
-}
-
-.group:hover .education-brand-tile {
-  border-color: var(--brand-logo-color, #e384b2);
-}
-
-.group:hover .education-brand-title {
-  color: var(--brand-logo-color, #e384b2);
+.group:hover .brand-title {
+  color: var(--brand-color, #e384b2);
 }
 
 @theme {

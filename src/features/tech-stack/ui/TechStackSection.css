@@ -1,13 +1,21 @@
 .tech-stack-icon {
-  color: var(--tech-stack-icon-color);
+  color: var(--brand-color);
   background-color: #f1f5f9;
 }
 
 .dark .tech-stack-icon {
   color: #ffffff;
-  background-color: var(--tech-stack-icon-color);
+  background-color: var(--brand-color);
 }
 
-.group\\/item:hover .tech-stack-title {
-  color: var(--tech-stack-icon-color);
+.group\/item:hover .tech-stack-title {
+  color: var(--brand-color);
+}
+
+.group\/item:hover .tech-stack-tile {
+  border-color: var(--brand-color);
+}
+
+.dark .group\/item:hover .tech-stack-tile {
+  border-color: #ffffff;
 }
