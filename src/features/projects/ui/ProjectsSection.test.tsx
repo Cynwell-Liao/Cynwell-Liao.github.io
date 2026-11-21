@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { fireEvent, render, screen, within } from '@testing-library/react'
 import { describe, expect, it } from 'vitest'
 
 import { createProject } from '../../../test/factories/portfolio'
@@ -30,8 +30,70 @@ describe('ProjectsSection', () => {
     expect(
       within(article).getByText('A deterministic project summary.')
     ).toBeInTheDocument()
+  })
+
+  it('renders an optional project logo beside the project title', () => {
+    render(
+      <ProjectsSection
+        {...headingProps}
+        projects={[
+          createProject({
+            logoUrl: 'https://example.com/project-logo.png',
+            title: 'ParkPie',
+          }),
+        ]}
+      />
+    )
+
+    const article = screen.getByRole('article')
+    const heading = within(article).getByRole('heading', { level: 3, name: 'ParkPie' })
+    const logo = article.querySelector('img')
+
+    expect(heading).toBeInTheDocument()
+    expect(logo).toHaveAttribute('src', 'https://example.com/project-logo.png')
+    expect(logo?.closest('span')).toHaveStyle({
+      '--brand-logo-color': '#123ABC',
+    })
+    expect(article).toHaveStyle({
+      '--brand-logo-color': '#123ABC',
+    })
     expect(within(article).getByText('Validated behavior')).toBeInTheDocument()
     expect(within(article).getByText('TypeScript')).toBeInTheDocument()
+  })
+
+  it('omits a project logo when no URL is configured', () => {
+    const { container } = render(
+      <ProjectsSection
+        {...headingProps}
+        projects={[createProject({ logoUrl: undefined })]}
+      />
+    )
+
+    expect(container.querySelector('img')).not.toBeInTheDocument()
+  })
+
+  it('uses the fallback brand color and hides a logo after loading fails', () => {
+    const { container } = render(
+      <ProjectsSection
+        {...headingProps}
+        projects={[
+          createProject({
+            logoColor: undefined,
+            logoUrl: 'https://example.com/broken-logo.png',
+          }),
+        ]}
+      />
+    )
+
+    const article = screen.getByRole('article')
+    const logo = container.querySelector('img')
+
+    expect(logo).not.toBeNull()
+    fireEvent.error(logo as HTMLImageElement)
+    expect(container.querySelector('img')).not.toBeInTheDocument()
+    expect(article).not.toHaveStyle({
+      '--brand-logo-color': '#123ABC',
+    })
   })
 
   it('gives outbound links project-specific accessible names and safe attributes', () => {

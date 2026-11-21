@@ -12,6 +12,8 @@ export const createProject = (overrides: Partial<Project> = {}): Project => ({
   summary: 'A deterministic project summary.',
   highlights: ['Validated behavior', 'Accessible interface'],
   stack: ['TypeScript', 'React'],
+  logoUrl: 'https://example.com/logo.png',
+  logoColor: '#123ABC',
   liveUrl: 'https://example.com/project',
   repoUrl: 'https://github.com/example/project',
   ...overrides,

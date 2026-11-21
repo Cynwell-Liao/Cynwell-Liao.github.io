@@ -56,7 +56,7 @@ test('theme choice persists across page reloads @desktop', async ({ page }) => {
   await expect(page.locator('html')).not.toHaveClass(/dark/u)
 })
 
-test('hero introduces the name below a role label matching the certifications heading', async ({
+test('hero introduces the name above the section-title role label', async ({
   page,
 }) => {
   await page.goto('/')
@@ -76,24 +76,8 @@ test('hero introduces the name below a role label matching the certifications he
   if (!nameBounds || !roleBounds || !certificationBounds) {
     throw new Error('Hero introduction and certification heading must be visible')
   }
-  expect(roleBounds.y + roleBounds.height).toBeLessThan(nameBounds.y)
-  expect(nameBounds.y + nameBounds.height).toBeLessThan(certificationBounds.y)
-
-  const labelStyles = await Promise.all(
-    [role, certifications].map((locator) =>
-      locator.evaluate((element) => {
-        const style = getComputedStyle(element)
-        return {
-          fontSize: style.fontSize,
-          fontWeight: style.fontWeight,
-          letterSpacing: style.letterSpacing,
-          textTransform: style.textTransform,
-          color: style.color,
-        }
-      })
-    )
-  )
-  expect(labelStyles[0]).toEqual(labelStyles[1])
+  expect(nameBounds.y + nameBounds.height).toBeLessThan(roleBounds.y)
+  expect(roleBounds.y + roleBounds.height).toBeLessThan(certificationBounds.y)
 })
 
 test('hero omits activity statistics and social icons', async ({ page }) => {

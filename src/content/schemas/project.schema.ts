@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-import { httpsUrlSchema, nonBlankTextSchema } from './primitives'
+import { hexColorSchema, httpsUrlSchema, nonBlankTextSchema } from './primitives'
 
 const projectIdSchema = nonBlankTextSchema.regex(
   /^[a-z0-9]+(?:-[a-z0-9]+)*$/iu,
@@ -14,6 +14,8 @@ export const projectSchema = z
     summary: nonBlankTextSchema,
     highlights: z.array(nonBlankTextSchema).min(1),
     stack: z.array(nonBlankTextSchema).min(1),
+    logoUrl: httpsUrlSchema.optional(),
+    logoColor: hexColorSchema.optional(),
     repoUrl: httpsUrlSchema.optional(),
     liveUrl: httpsUrlSchema.optional(),
   })

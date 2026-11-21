@@ -93,7 +93,7 @@ describe('TechStackSection', () => {
     })
   })
 
-  it('uses neutral white icon-box trims in dark mode', () => {
+  it('uses white icon-box trims in dark mode', () => {
     render(
       <TechStackSection
         {...headingProps}
@@ -113,7 +113,9 @@ describe('TechStackSection', () => {
 
     const iconBox = screen.getByText('Docker').closest('li')?.querySelector('span')
 
-    expect(iconBox).toHaveClass('dark:border-white/80')
-    expect(iconBox).toHaveClass('dark:group-hover/item:border-white')
+    expect(iconBox).toHaveClass('tech-stack-tile')
+    expect(iconBox).toHaveStyle({
+      '--tech-stack-icon-color': '#6172FF',
+    })
   })
 })

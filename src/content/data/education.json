@@ -6,7 +6,7 @@
     "duration": "2026",
     "achievements": ["Melbourne Plus Award issued by the University of Melbourne"],
     "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=unimelb.edu.au",
-    "color": "#094183"
+    "color": "#001040"
   },
   {
     "institution": "Harvard University",
@@ -17,10 +17,10 @@
       "Engineering Exchange Scholarship issued by Faculty of Engineering and Information Technology (FEIT), University of Melbourne"
     ],
     "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=harvard.edu",
-    "color": "#A51C30"
+    "color": "#A02030"
   },
   {
-    "institution": "Queensland University of Technology (QUT)",
+    "institution": "Queensland University of Technology",
     "location": "Brisbane, QLD, Australia",
     "degree": "Bachelor of Business, International Business",
     "duration": "2024",
@@ -28,6 +28,6 @@
       "QUT Executive Deans' Commendation for Academic Excellence issued by Executive Dean, Faculty of Business and Law, QUT"
     ],
     "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=qut.edu.au",
-    "color": "#003C71"
+    "color": "#103050"
   }
 ]

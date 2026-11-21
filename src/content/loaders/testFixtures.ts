@@ -17,6 +17,8 @@ export const createValidProjects = () => [
     summary: 'A deterministic project fixture.',
     highlights: ['Validated at runtime'],
     stack: ['TypeScript'],
+    logoUrl: 'https://example.com/project-logo.png',
+    logoColor: '#123ABC',
     repoUrl: 'https://github.com/example/example-project',
     liveUrl: 'https://example.com/example-project',
   },

@@ -46,8 +46,11 @@ describe('EducationSection', () => {
     expect(logo).toHaveAttribute('loading', 'lazy')
     expect(logo).toHaveAttribute('decoding', 'async')
     expect(logo).toHaveAttribute('referrerpolicy', 'no-referrer')
-    expect(logo).toHaveAttribute('width', '56')
-    expect(logo).toHaveAttribute('height', '56')
+    expect(logo).toHaveAttribute('width', '24')
+    expect(logo).toHaveAttribute('height', '24')
+    expect(logo?.closest('span')).toHaveStyle({
+      '--brand-logo-color': '#123ABC',
+    })
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
 

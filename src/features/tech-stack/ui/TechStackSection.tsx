@@ -65,7 +65,7 @@ export function TechStackSection({
                     <span
                       aria-hidden="true"
                       className={cn(
-                        'inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover/item:scale-110 group-hover/item:border-accent-400/50 dark:border-white/80 dark:group-hover/item:border-white',
+                        'tech-stack-tile inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover/item:scale-110 group-hover/item:border-[var(--tech-stack-icon-color)] dark:border-white/80 dark:group-hover/item:border-white',
                         item.color
                           ? 'tech-stack-icon'
                           : 'text-slate-700 dark:bg-white/5 dark:text-slate-300'
@@ -86,10 +86,19 @@ export function TechStackSection({
                         : null}
                     </span>
                     <div>
-                      <span className="block text-base font-semibold text-slate-900 dark:text-slate-100">
+                      <span
+                        className="tech-stack-title block text-base leading-snug font-semibold text-slate-900 dark:text-slate-100"
+                        style={
+                          item.color
+                            ? ({
+                                '--tech-stack-icon-color': item.color,
+                              } as CSSProperties)
+                            : {}
+                        }
+                      >
                         {item.name}
                       </span>
-                      <span className="mt-1 block text-sm leading-snug font-normal text-slate-500 dark:text-slate-400">
+                      <span className="block text-sm leading-snug font-normal text-slate-600 dark:text-slate-400">
                         {item.note}
                       </span>
                     </div>

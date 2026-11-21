@@ -72,6 +72,8 @@ export interface Project {
   readonly summary: string
   readonly highlights: readonly string[]
   readonly stack: readonly string[]
+  readonly logoUrl?: string
+  readonly logoColor?: string
   readonly repoUrl?: string
   readonly liveUrl?: string
 }

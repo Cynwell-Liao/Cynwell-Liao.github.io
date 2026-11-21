@@ -10,7 +10,8 @@
       "Established CI/CD with GitHub Actions utilising multi-stage Docker builds (reducing image size by ~40%) and ensured production monitoring with OpenTelemetry tracing and structured logging"
     ],
     "stack": ["Java", "Spring Boot", "MySQL", "Pub/Sub", "Terraform", "GCP"],
-    "liveUrl": "https://www.cheap.guide"
+    "logoUrl": "https://www.google.com/s2/favicons?sz=256&domain=cheap.guide",
+    "logoColor": "#FF7070"
   },
   {
     "id": "parkpie",
@@ -23,6 +24,7 @@
       "Added comprehensive monitoring and tracing with LangSmith for LLM behaviour and OpenTelemetry + the Grafana stack (Loki, Tempo, Prometheus, Alloy) to observe complex backend workflows"
     ],
     "stack": ["Python", "Django", "PostgreSQL", "LangChain", "Docker", "AWS"],
-    "liveUrl": "https://parkpie-landing.vercel.app"
+    "logoUrl": "https://parkpie-landing.vercel.app/favicon.ico",
+    "logoColor": "#609030"
   }
 ]

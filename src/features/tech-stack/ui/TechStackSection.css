@@ -7,3 +7,7 @@
   color: #ffffff;
   background-color: var(--tech-stack-icon-color);
 }
+
+.group\\/item:hover .tech-stack-title {
+  color: var(--tech-stack-icon-color);
+}

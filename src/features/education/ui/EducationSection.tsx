@@ -7,6 +7,7 @@ import { SECTION_ID } from '@shared/lib/navigation'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { EducationItem } from '../model/education.types'
+import type { CSSProperties } from 'react'
 
 interface EducationSectionProps {
   education: readonly EducationItem[]
@@ -15,7 +16,13 @@ interface EducationSectionProps {
   headingDescription: string
 }
 
-function EducationLogo({ logoUrl }: { logoUrl: string | undefined }) {
+function EducationLogo({
+  logoColor,
+  logoUrl,
+}: {
+  logoColor: string | undefined
+  logoUrl: string | undefined
+}) {
   const [hasLogoError, setHasLogoError] = useState(false)
 
   if (!logoUrl || hasLogoError) {
@@ -26,20 +33,27 @@ function EducationLogo({ logoUrl }: { logoUrl: string | undefined }) {
     <div className="mt-1 flex-shrink-0 sm:mt-0">
       <span
         aria-hidden="true"
-        className="inline-flex h-14 w-14 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-white p-0 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-transform duration-500 group-hover:scale-110 group-hover:rotate-3 dark:border-white/10"
+        className="education-brand-tile brand-logo-tile inline-flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 p-3 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover:scale-110"
+        style={
+          logoColor
+            ? ({
+                '--brand-logo-color': logoColor,
+              } as CSSProperties)
+            : undefined
+        }
       >
         <img
           alt=""
-          className="h-full w-full scale-110 object-cover mix-blend-multiply dark:mix-blend-normal"
+          className="h-6 w-6 object-contain"
           decoding="async"
-          height={56}
+          height={24}
           loading="lazy"
           onError={() => {
             setHasLogoError(true)
           }}
           referrerPolicy="no-referrer"
           src={logoUrl}
-          width={56}
+          width={24}
         />
       </span>
     </div>
@@ -97,34 +111,44 @@ export function EducationSection({
               />
 
               <div className="relative z-10 flex h-full flex-col">
-                <div className="mb-8 flex flex-col justify-between gap-4 border-b border-slate-200 pb-6 sm:flex-row sm:items-start dark:border-white/10">
-                  <div className="flex flex-col gap-2">
-                    <h3 className="text-2xl font-bold tracking-tight text-slate-900 transition-colors group-hover:text-accent-600 dark:text-white dark:group-hover:text-accent-300">
+                <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
+                  <div className="flex items-center gap-3">
+                    <EducationLogo logoColor={item.color} logoUrl={item.logoUrl} />
+                    <h3
+                      className="education-brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white"
+                      style={
+                        item.color
+                          ? ({
+                              '--brand-logo-color': item.color,
+                            } as CSSProperties)
+                          : undefined
+                      }
+                    >
                       {item.institution}
                     </h3>
+                  </div>
+                </div>
+
+                <div className="mb-6 flex flex-col gap-1 border-b border-slate-200 pb-6 dark:border-white/10">
+                  <span className="text-base leading-snug font-semibold text-slate-900 dark:text-slate-100">
+                    {item.degree}
+                  </span>
+                  <div className="mt-1 flex flex-wrap items-center gap-2">
+                    <span className="w-fit rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs leading-none font-mono text-accent-600 dark:border-white/10 dark:bg-white/5 dark:text-accent-400">
+                      {item.duration}
+                    </span>
                     {item.location && (
-                      <span className="text-sm font-medium tracking-wide text-slate-500 capitalize dark:text-slate-400">
+                      <span className="text-sm leading-snug font-normal text-slate-500 dark:text-slate-400">
                         {item.location}
                       </span>
                     )}
                   </div>
-
-                  <EducationLogo logoUrl={item.logoUrl} />
-                </div>
-
-                <div className="mb-6 flex flex-col gap-1">
-                  <span className="text-lg font-semibold text-slate-800 dark:text-slate-200">
-                    {item.degree}
-                  </span>
-                  <span className="text-sm font-mono text-accent-600 dark:text-accent-400">
-                    {item.duration}
-                  </span>
                 </div>
 
                 <ul className="mt-auto space-y-3">
                   {item.achievements.map((achievement) => (
                     <li
-                      className="body-copy flex items-start gap-3 text-slate-600 dark:text-slate-400"
+                      className="flex items-start gap-3 text-sm leading-snug font-normal text-slate-600 dark:text-slate-400"
                       key={achievement}
                     >
                       <span

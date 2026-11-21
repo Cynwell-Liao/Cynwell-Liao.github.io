@@ -10,6 +10,26 @@
 
 @custom-variant dark (&:is(.dark *));
 
+.dark .brand-logo-tile {
+  border-color: var(--brand-logo-color, #ffffff);
+}
+
+.group:hover .project-brand-tile {
+  border-color: var(--brand-logo-color, #e384b2);
+}
+
+.group:hover .project-brand-title {
+  color: var(--brand-logo-color, #e384b2);
+}
+
+.group:hover .education-brand-tile {
+  border-color: var(--brand-logo-color, #e384b2);
+}
+
+.group:hover .education-brand-title {
+  color: var(--brand-logo-color, #e384b2);
+}
+
 @theme {
   --font-sans: Sora Variable, ui-sans-serif, system-ui;
   --font-mono: JetBrains Mono Variable, ui-monospace, SFMono-Regular;
