@@ -1,0 +1,9 @@
+.tech-stack-icon {
+  color: var(--tech-stack-icon-color);
+  background-color: #f1f5f9;
+}
+
+.dark .tech-stack-icon {
+  color: #ffffff;
+  background-color: var(--tech-stack-icon-color);
+}

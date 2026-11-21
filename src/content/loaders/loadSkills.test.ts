@@ -8,6 +8,42 @@ describe('skills content', () => {
     expect(skillCategories.length).toBeGreaterThan(0)
   })
 
+  it('uses the requested category names and observability tools', () => {
+    expect(skillCategories.map((category) => category.title)).toEqual([
+      'Languages',
+      'Cloud',
+      'AI',
+      'Frameworks',
+      'Databases',
+      'Observability',
+    ])
+
+    const observability = skillCategories.find(
+      (category) => category.title === 'Observability'
+    )
+    expect(observability?.items.map((item) => item.name)).toContain('Grafana')
+    expect(observability?.items.map((item) => item.name)).toContain('Splunk')
+    expect(observability?.items.map((item) => item.name)).not.toContain('Pytest')
+    expect(observability?.items.map((item) => item.name)).not.toContain('Go test')
+
+    const framework = skillCategories.find(
+      (category) => category.title === 'Frameworks'
+    )
+    expect(framework?.items.map((item) => item.name)).toContain('Temporal')
+
+    const cloud = skillCategories.find((category) => category.title === 'Cloud')
+    expect(cloud?.items.map((item) => item.name)).toContain('Argo CD')
+    expect(cloud?.items.slice(0, 2).map((item) => item.name)).toEqual([
+      'AWS',
+      'Google Cloud',
+    ])
+    const databases = skillCategories.find((category) => category.title === 'Databases')
+    expect(databases?.items.slice(0, 2).map((item) => item.name)).toEqual([
+      'PostgreSQL',
+      'MySQL',
+    ])
+  })
+
   it('parses a valid skill fixture', () => {
     expect(parseSkills(createValidSkills())).toEqual(createValidSkills())
   })

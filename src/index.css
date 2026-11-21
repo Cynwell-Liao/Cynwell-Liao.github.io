@@ -6,6 +6,7 @@
 /* Colocated feature styles share the global Tailwind compilation context. */
 @import './features/hero/ui/HeroSection.css';
 @import './features/hero/ui/CertificationMarquee.css';
+@import './features/tech-stack/ui/TechStackSection.css';
 
 @custom-variant dark (&:is(.dark *));
 

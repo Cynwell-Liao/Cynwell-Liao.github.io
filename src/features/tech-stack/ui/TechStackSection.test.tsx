@@ -57,4 +57,63 @@ describe('TechStackSection', () => {
     expect(container.querySelector('svg')).toHaveAttribute('aria-hidden', 'true')
     expect(screen.queryByRole('img')).not.toBeInTheDocument()
   })
+
+  it('uses library-backed brand colors as light-mode icon colors', () => {
+    render(
+      <TechStackSection
+        {...headingProps}
+        categories={[
+          createSkillCategory({
+            title: 'Infrastructure',
+            items: [
+              createSkillItem({
+                color: '#6172FF',
+                icon: 'docker',
+                name: 'Docker',
+              }),
+              createSkillItem({
+                color: '#425CC7',
+                icon: 'opentelemetry',
+                name: 'OpenTelemetry',
+              }),
+            ],
+          }),
+        ]}
+      />
+    )
+
+    const dockerItem = screen.getByText('Docker').closest('li')
+    const openTelemetryItem = screen.getByText('OpenTelemetry').closest('li')
+
+    expect(dockerItem?.querySelector('span')).toHaveStyle({
+      '--tech-stack-icon-color': '#6172FF',
+    })
+    expect(openTelemetryItem?.querySelector('span')).toHaveStyle({
+      '--tech-stack-icon-color': '#425CC7',
+    })
+  })
+
+  it('uses neutral white icon-box trims in dark mode', () => {
+    render(
+      <TechStackSection
+        {...headingProps}
+        categories={[
+          createSkillCategory({
+            items: [
+              createSkillItem({
+                color: '#6172FF',
+                icon: 'docker',
+                name: 'Docker',
+              }),
+            ],
+          }),
+        ]}
+      />
+    )
+
+    const iconBox = screen.getByText('Docker').closest('li')?.querySelector('span')
+
+    expect(iconBox).toHaveClass('dark:border-white/80')
+    expect(iconBox).toHaveClass('dark:group-hover/item:border-white')
+  })
 })

@@ -3,22 +3,22 @@
     "title": "Languages",
     "items": [
       {
-        "name": "Java",
-        "note": "Enterprise JVM applications",
-        "icon": "java",
-        "color": "#F89820"
+        "name": "Go",
+        "note": "APIs & concurrent services",
+        "icon": "go",
+        "color": "#00ADD8"
       },
       {
         "name": "Python",
-        "note": "Data pipelines & ML scripting",
+        "note": "Backend, data pipelines & ML",
         "icon": "python",
         "color": "#3776AB"
       },
       {
-        "name": "Go",
-        "note": "Concurrent systems & APIs",
-        "icon": "go",
-        "color": "#00ADD8"
+        "name": "Java",
+        "note": "Enterprise JVM applications",
+        "icon": "java",
+        "color": "#F89820"
       },
       {
         "name": "TypeScript",
@@ -41,11 +41,99 @@
     ]
   },
   {
-    "title": "Backend & Frontend",
+    "title": "Cloud",
+    "items": [
+      {
+        "name": "AWS",
+        "note": "EC2, EKS, RDS, S3, Lambda",
+        "icon": "aws",
+        "color": "#FF9900"
+      },
+      {
+        "name": "Google Cloud",
+        "note": "Cloud Run, Pub/Sub, Storage",
+        "icon": "gcp",
+        "color": "#4285F4"
+      },
+      {
+        "name": "Docker",
+        "note": "Containerization",
+        "icon": "docker",
+        "color": "#6172FF"
+      },
+      {
+        "name": "Kubernetes",
+        "note": "Container orchestration",
+        "icon": "kubernetes",
+        "color": "#326CE5"
+      },
+      {
+        "name": "Argo CD",
+        "note": "Kubernetes GitOps delivery",
+        "icon": "argocd",
+        "color": "#EF7B4D"
+      },
+      {
+        "name": "Helm",
+        "note": "Kubernetes package manager",
+        "icon": "helm",
+        "color": "#0F1689"
+      },
+      {
+        "name": "Terraform",
+        "note": "Infrastructure as code",
+        "icon": "terraform",
+        "color": "#844FBA"
+      }
+    ]
+  },
+  {
+    "title": "AI",
+    "items": [
+      {
+        "name": "LangChain",
+        "note": "LLM orchestration & RAG",
+        "icon": "langchain",
+        "color": "#7FC8FF"
+      },
+      {
+        "name": "PyTorch",
+        "note": "Deep learning framework",
+        "icon": "pytorch",
+        "color": "#EE4C2C"
+      },
+      {
+        "name": "Ollama",
+        "note": "Local LLM inference",
+        "icon": "ollama",
+        "color": "#000000"
+      },
+      {
+        "name": "GPT",
+        "note": "OpenAI models & APIs",
+        "icon": "openai",
+        "color": "#10A37F"
+      },
+      {
+        "name": "Claude",
+        "note": "Anthropic models & APIs",
+        "icon": "claude",
+        "color": "#D97757"
+      },
+      {
+        "name": "Gemini",
+        "note": "Google models & APIs",
+        "icon": "gemini",
+        "color": "#8E75B2"
+      }
+    ]
+  },
+  {
+    "title": "Frameworks",
     "items": [
       {
         "name": "Spring Boot",
-        "note": "JVM app framework",
+        "note": "Java backend framework",
         "icon": "springboot",
         "color": "#6DB33F"
       },
@@ -66,129 +154,12 @@
         "note": "Component-based UI library",
         "icon": "react",
         "color": "#61DAFB"
-      }
-    ]
-  },
-  {
-    "title": "ML & AI",
-    "items": [
-      {
-        "name": "PyTorch",
-        "note": "Deep learning framework",
-        "icon": "pytorch",
-        "color": "#EE4C2C"
       },
       {
-        "name": "LangChain",
-        "note": "LLM app framework",
-        "icon": "langchain",
-        "color": "#7FC8FF"
-      },
-      {
-        "name": "Claude",
-        "note": "Anthropic LLM APIs",
-        "icon": "claude",
-        "color": "#D97757"
-      },
-      {
-        "name": "Gemini",
-        "note": "Google LLM APIs",
-        "icon": "gemini",
-        "color": "#8E75B2"
-      },
-      {
-        "name": "GPT",
-        "note": "OpenAI LLM APIs",
-        "icon": "openai",
-        "color": "#10A37F"
-      },
-      {
-        "name": "Ollama",
-        "note": "Local model serving",
-        "icon": "ollama",
+        "name": "Temporal",
+        "note": "Durable workflow execution",
+        "icon": "temporal",
         "color": "#000000"
-      }
-    ]
-  },
-  {
-    "title": "Testing & Observability",
-    "items": [
-      {
-        "name": "LangSmith",
-        "note": "LLM observability & evaluation",
-        "icon": "langchain",
-        "color": "#7FC8FF"
-      },
-      {
-        "name": "OpenTelemetry",
-        "note": "Telemetry tooling",
-        "icon": "opentelemetry",
-        "color": "#000000"
-      },
-      {
-        "name": "Prometheus",
-        "note": "Metrics monitoring & alerting",
-        "icon": "prometheus",
-        "color": "#E6522C"
-      },
-      {
-        "name": "JUnit",
-        "note": "Java testing framework",
-        "icon": "junit",
-        "color": "#25A162"
-      },
-      {
-        "name": "Pytest",
-        "note": "Python testing framework",
-        "icon": "pytest",
-        "color": "#0A9EDC"
-      },
-      {
-        "name": "Go test",
-        "note": "Go testing toolchain",
-        "icon": "go",
-        "color": "#00ADD8"
-      }
-    ]
-  },
-  {
-    "title": "Cloud & Kubernetes",
-    "items": [
-      {
-        "name": "Google Cloud Platform",
-        "note": "Cloud Run, Pub/Sub, Storage",
-        "icon": "gcp",
-        "color": "#4285F4"
-      },
-      {
-        "name": "AWS",
-        "note": "EC2, RDS, S3, Lambda",
-        "icon": "aws",
-        "color": "#FF9900"
-      },
-      {
-        "name": "Docker",
-        "note": "Containerization",
-        "icon": "docker",
-        "color": "#2496ED"
-      },
-      {
-        "name": "Kubernetes",
-        "note": "Container orchestration",
-        "icon": "kubernetes",
-        "color": "#326CE5"
-      },
-      {
-        "name": "Helm",
-        "note": "Kubernetes package manager",
-        "icon": "helm",
-        "color": "#0F1689"
-      },
-      {
-        "name": "Terraform",
-        "note": "Infrastructure as code",
-        "icon": "terraform",
-        "color": "#844FBA"
       }
     ]
   },
@@ -196,16 +167,16 @@
     "title": "Databases",
     "items": [
       {
-        "name": "MySQL",
-        "note": "Relational database",
-        "icon": "mysql",
-        "color": "#4479A1"
-      },
-      {
         "name": "PostgreSQL",
         "note": "Relational, pgvector, PostGIS",
         "icon": "postgresql",
         "color": "#4169E1"
+      },
+      {
+        "name": "MySQL",
+        "note": "Relational database",
+        "icon": "mysql",
+        "color": "#4479A1"
       },
       {
         "name": "MongoDB",
@@ -224,6 +195,41 @@
         "note": "Search and analytics engine",
         "icon": "elasticsearch",
         "color": "#005571"
+      }
+    ]
+  },
+  {
+    "title": "Observability",
+    "items": [
+      {
+        "name": "LangSmith",
+        "note": "LLM observability & evaluation",
+        "icon": "langchain",
+        "color": "#7FC8FF"
+      },
+      {
+        "name": "OpenTelemetry",
+        "note": "Distributed tracing & telemetry",
+        "icon": "opentelemetry",
+        "color": "#425CC7"
+      },
+      {
+        "name": "Prometheus",
+        "note": "Metrics monitoring & alerting",
+        "icon": "prometheus",
+        "color": "#E6522C"
+      },
+      {
+        "name": "Grafana",
+        "note": "Observability & dashboards",
+        "icon": "grafana",
+        "color": "#F46800"
+      },
+      {
+        "name": "Splunk",
+        "note": "Security & observability",
+        "icon": "splunk",
+        "color": "#000000"
       }
     ]
   }

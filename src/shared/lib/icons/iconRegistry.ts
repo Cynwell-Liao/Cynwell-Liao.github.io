@@ -1,6 +1,7 @@
 import { DiMsqlServer } from 'react-icons/di'
 import { FaAws, FaDatabase, FaDocker, FaJava } from 'react-icons/fa'
 import {
+  SiArgo,
   SiClaude,
   SiDjango,
   SiDocker,
@@ -10,11 +11,11 @@ import {
   SiFlask,
   SiGooglecloud,
   SiGooglegemini,
+  SiGrafana,
   SiHtml5,
   SiHelm,
   SiHuggingface,
   SiJavascript,
-  SiJunit5,
   SiKubernetes,
   SiLangchain,
   SiMongodb,
@@ -25,13 +26,14 @@ import {
   SiOpentelemetry,
   SiPostgresql,
   SiPrometheus,
-  SiPytest,
   SiPython,
   SiPytorch,
   SiReact,
   SiRedis,
+  SiSplunk,
   SiSpringboot,
   SiTerraform,
+  SiTemporal,
   SiTypescript,
 } from 'react-icons/si'
 import { TbBrandCSharp, TbBrandGolang, TbBrandOpenai } from 'react-icons/tb'
@@ -62,6 +64,7 @@ const iconRegistry = {
   dotnet: SiDotnet,
   django: SiDjango,
   flask: SiFlask,
+  temporal: SiTemporal,
   nodejs: SiNodedotjs,
   nextjs: SiNextdotjs,
   react: SiReact,
@@ -75,11 +78,11 @@ const iconRegistry = {
   huggingface: SiHuggingface,
   pytorch: SiPytorch,
 
-  // ── Testing & Observability ──
+  // ── Observability ──
   opentelemetry: SiOpentelemetry,
   prometheus: SiPrometheus,
-  junit: SiJunit5,
-  pytest: SiPytest,
+  grafana: SiGrafana,
+  splunk: SiSplunk,
 
   // ── Cloud & Kubernetes ──
   gcp: SiGooglecloud,
@@ -89,6 +92,7 @@ const iconRegistry = {
   'docker-alt': FaDocker,
   helm: SiHelm,
   kubernetes: SiKubernetes,
+  argocd: SiArgo,
   terraform: SiTerraform,
 
   // ── Databases ──

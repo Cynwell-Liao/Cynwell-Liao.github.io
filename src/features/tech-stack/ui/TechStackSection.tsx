@@ -8,6 +8,7 @@ import { SECTION_ID } from '@shared/lib/navigation'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { SkillCategory } from '../model/skill.types'
+import type { CSSProperties } from 'react'
 
 interface TechStackSectionProps {
   categories: readonly SkillCategory[]
@@ -64,12 +65,18 @@ export function TechStackSection({
                     <span
                       aria-hidden="true"
                       className={cn(
-                        'inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover/item:scale-110 group-hover/item:border-accent-400/50 dark:border-white/10 dark:group-hover/item:border-accent-500/30',
+                        'inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 group-hover/item:scale-110 group-hover/item:border-accent-400/50 dark:border-white/80 dark:group-hover/item:border-white',
                         item.color
-                          ? 'dark:bg-white/90'
+                          ? 'tech-stack-icon'
                           : 'text-slate-700 dark:bg-white/5 dark:text-slate-300'
                       )}
-                      style={item.color ? { color: item.color } : {}}
+                      style={
+                        item.color
+                          ? ({
+                              '--tech-stack-icon-color': item.color,
+                            } as CSSProperties)
+                          : {}
+                      }
                     >
                       {Icon
                         ? createElement(Icon, {
