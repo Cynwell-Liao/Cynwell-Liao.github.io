@@ -37,11 +37,10 @@ describe('TechStackSection', () => {
       screen.getByRole('heading', { level: 2, name: 'Technology stack' })
     ).toHaveAttribute('id', 'tech-stack-heading')
     expect(
-      within(region).getByRole('heading', { level: 3, name: 'Languages' })
-    ).toBeInTheDocument()
-    expect(
-      within(region).getByRole('heading', { level: 3, name: 'Infrastructure' })
-    ).toBeInTheDocument()
+      within(region)
+        .getAllByRole('heading', { level: 3 })
+        .map((heading) => heading.textContent)
+    ).toEqual(['Languages', 'Infrastructure'])
     expect(
       within(region).getByText('Typed application development')
     ).toBeInTheDocument()
@@ -90,33 +89,6 @@ describe('TechStackSection', () => {
     })
     expect(openTelemetryItem).toHaveStyle({
       '--brand-color': '#425CC7',
-    })
-  })
-
-  it('uses white icon-box trims in dark mode', () => {
-    render(
-      <TechStackSection
-        {...headingProps}
-        categories={[
-          createSkillCategory({
-            items: [
-              createSkillItem({
-                color: '#6172FF',
-                icon: 'docker',
-                name: 'Docker',
-              }),
-            ],
-          }),
-        ]}
-      />
-    )
-
-    const item = screen.getByText('Docker').closest('li')
-    const iconBox = item?.querySelector('span')
-
-    expect(iconBox).toHaveClass('tech-stack-tile')
-    expect(item).toHaveStyle({
-      '--brand-color': '#6172FF',
     })
   })
 })

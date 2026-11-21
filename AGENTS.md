@@ -145,8 +145,28 @@ Key conventions that cannot be inferred from tool configs alone:
 
 ### Adding Tests
 
-- Always add or update tests for code changes. Don't ask — just do it.
-- For content loaders, test both valid parsing and error cases (see `loadProjects.test.ts`).
+- Add or update a test when a change introduces or alters durable behavior, a
+  validation rule, a transformation, an accessibility/layout contract, or a
+  reproduced regression. A test should fail for a meaningful product defect.
+- Do not add approval tests for routine copy or personal-content edits. In
+  particular, do not duplicate values from `src/content/data/*.json` in loader
+  tests. Production content is covered by runtime schema parsing; test content
+  rendering and ordering with fixtures at the component or browser boundary
+  only when that behavior is an intentional contract.
+- For content loaders, use fixtures to test valid parsing, transformations, and
+  representative error cases (see `loadProjects.test.ts`).
+- Prefer accessible, user-facing queries in React Testing Library and
+  Playwright. Assert implementation details such as CSS classes or DOM nesting
+  only when they are the explicit integration contract; verify real layout and
+  computed styles in browser tests.
+- Keep tests focused and independent. Do not add redundant assertions merely to
+  increase coverage; the coverage threshold is a backstop, not the test-design
+  goal.
+
+Testing approach follows the official guidance in
+[Vitest's testing-in-practice guide](https://vitest.dev/guide/learn/testing-in-practice),
+[Testing Library's guiding principles](https://testing-library.com/docs/guiding-principles/),
+and [Playwright's best practices](https://playwright.dev/docs/best-practices).
 
 ## Boundaries — Do Not Touch
 
