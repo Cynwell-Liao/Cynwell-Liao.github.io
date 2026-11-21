@@ -7,6 +7,66 @@ const viewports = [
   { name: 'wide desktop', width: 1920, height: 1080, tag: '@desktop' },
 ] as const
 
+test('desktop tech-stack cards form content-driven masonry columns @desktop', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1280, height: 900 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+
+  const cards = page.locator('#tech-stack article')
+  await expect(cards.first()).toBeVisible()
+
+  const cardMeasurements = await cards.evaluateAll((elements) =>
+    elements.map((card) => {
+      const list = card.querySelector('ul')
+      if (!list) throw new Error('Tech-stack card list is missing')
+
+      const cardBounds = card.getBoundingClientRect()
+      const listBounds = list.getBoundingClientRect()
+      const style = getComputedStyle(card)
+      return {
+        bottomInset: cardBounds.bottom - listBounds.bottom,
+        bottom: cardBounds.bottom,
+        expectedBottomInset:
+          parseFloat(style.paddingBottom) + parseFloat(style.borderBottomWidth),
+        height: cardBounds.height,
+        left: cardBounds.left,
+        top: cardBounds.top,
+      }
+    })
+  )
+
+  expect(
+    new Set(cardMeasurements.map(({ height }) => Math.round(height))).size
+  ).toBeGreaterThan(1)
+  for (const { bottomInset, expectedBottomInset } of cardMeasurements) {
+    expect(bottomInset).toBeCloseTo(expectedBottomInset, 0)
+  }
+
+  const columns = new Map<number, typeof cardMeasurements>()
+  for (const measurement of cardMeasurements) {
+    const columnKey = Math.round(measurement.left)
+    const column = columns.get(columnKey) ?? []
+    column.push(measurement)
+    columns.set(columnKey, column)
+  }
+  expect(columns.size).toBe(3)
+  for (const cardsInColumn of columns.values()) {
+    const sortedCards = cardsInColumn.toSorted(
+      (first, second) => first.top - second.top
+    )
+    for (let index = 1; index < sortedCards.length; index += 1) {
+      const previousCard = sortedCards[index - 1]
+      const currentCard = sortedCards[index]
+      if (!previousCard || !currentCard) {
+        throw new Error('Masonry card measurement is missing')
+      }
+      expect(currentCard.top - previousCard.bottom).toBeCloseTo(24, 0)
+    }
+  }
+})
+
 for (const viewport of viewports) {
   test(`hero certifications align with About, keep compact vertical padding, and fill the marquee on ${viewport.name} ${viewport.tag}`, async ({
     page,

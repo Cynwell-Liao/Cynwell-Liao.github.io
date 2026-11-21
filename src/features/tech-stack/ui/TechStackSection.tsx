@@ -41,11 +41,11 @@ export function TechStackSection({
         title={headingTitle}
       />
 
-      <div className="relative z-10 mt-12 grid gap-6 md:grid-cols-2 lg:grid-cols-3">
+      <div className="relative z-10 mt-12 columns-1 gap-6 md:columns-2 lg:columns-3">
         {categories.map((category, categoryIndex) => (
           <m.article
             {...cardReveal(categoryIndex * 0.1)}
-            className="glass-panel group/card p-8"
+            className="glass-panel group/card mb-6 w-full break-inside-avoid p-8"
             key={category.title}
           >
             <div

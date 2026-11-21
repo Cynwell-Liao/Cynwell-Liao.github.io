@@ -11,18 +11,23 @@ describe('skills content', () => {
   it('uses the requested category names and observability tools', () => {
     expect(skillCategories.map((category) => category.title)).toEqual([
       'Languages',
-      'Cloud',
       'AI',
-      'Frameworks',
+      'Cloud',
       'Databases',
+      'Frameworks',
       'Observability',
     ])
 
     const observability = skillCategories.find(
       (category) => category.title === 'Observability'
     )
-    expect(observability?.items.map((item) => item.name)).toContain('Grafana')
-    expect(observability?.items.map((item) => item.name)).toContain('Splunk')
+    expect(observability?.items.map(({ name, note }) => ({ name, note }))).toEqual([
+      { name: 'LangSmith', note: 'LLM tracing & evaluation' },
+      { name: 'OpenTelemetry', note: 'Tracing & instrumentation' },
+      { name: 'Prometheus', note: 'Metrics collection & alerts' },
+      { name: 'Grafana', note: 'Dashboards & visualisation' },
+      { name: 'Splunk', note: 'Log analytics & security' },
+    ])
     expect(observability?.items.map((item) => item.name)).not.toContain('Pytest')
     expect(observability?.items.map((item) => item.name)).not.toContain('Go test')
 
@@ -30,6 +35,16 @@ describe('skills content', () => {
       (category) => category.title === 'Frameworks'
     )
     expect(framework?.items.map((item) => item.name)).toContain('Temporal')
+    expect(framework?.items.map((item) => item.name)).toContain('Next.js')
+
+    const ai = skillCategories.find((category) => category.title === 'AI')
+    expect(ai?.items.map((item) => item.name)).toEqual([
+      'LangChain',
+      'Ollama',
+      'GPT',
+      'Claude',
+      'Gemini',
+    ])
 
     const cloud = skillCategories.find((category) => category.title === 'Cloud')
     expect(cloud?.items.map((item) => item.name)).toContain('Argo CD')
