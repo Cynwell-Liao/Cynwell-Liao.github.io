@@ -1,5 +1,5 @@
 import { render, screen, within } from '@testing-library/react'
-import { describe, expect, it } from 'vitest'
+import { describe, expect, it, vi } from 'vitest'
 
 import { createSkillCategory, createSkillItem } from '../../../test/factories/portfolio'
 
@@ -90,5 +90,38 @@ describe('TechStackSection', () => {
     expect(openTelemetryItem).toHaveStyle({
       '--brand-color': '#425CC7',
     })
+  })
+
+  it('measures touch-tablet cards into dense grid rows and cleans up resize work', () => {
+    vi.spyOn(window, 'getComputedStyle').mockReturnValue({
+      columnGap: '24px',
+      gridAutoRows: '1px',
+    } as CSSStyleDeclaration)
+    vi.spyOn(HTMLElement.prototype, 'getBoundingClientRect').mockReturnValue({
+      height: 320,
+    } as DOMRect)
+    const requestFrame = vi.spyOn(window, 'requestAnimationFrame').mockReturnValue(42)
+    const cancelFrame = vi.spyOn(window, 'cancelAnimationFrame')
+
+    const { container, unmount } = render(
+      <TechStackSection
+        {...headingProps}
+        categories={[
+          createSkillCategory(),
+          createSkillCategory({ title: 'Infrastructure' }),
+        ]}
+      />
+    )
+
+    for (const card of container.querySelectorAll('article')) {
+      expect(card.style.gridRowEnd).toBe('span 344')
+    }
+
+    window.dispatchEvent(new Event('resize'))
+    window.dispatchEvent(new Event('resize'))
+    expect(requestFrame).toHaveBeenCalledTimes(1)
+
+    unmount()
+    expect(cancelFrame).toHaveBeenCalledWith(42)
   })
 })

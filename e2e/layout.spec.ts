@@ -67,7 +67,7 @@ test('desktop tech-stack cards form content-driven masonry columns @desktop', as
   }
 })
 
-test('touch-tablet tech-stack cards avoid WebKit multi-column fragmentation @mobile', async ({
+test('touch-tablet tech-stack cards form stable masonry without fragmentation @mobile', async ({
   page,
 }) => {
   await page.setViewportSize({ width: 834, height: 1194 })
@@ -85,14 +85,20 @@ test('touch-tablet tech-stack cards avoid WebKit multi-column fragmentation @mob
         return {
           columnCount: style.columnCount,
           display: style.display,
+          gridAutoFlow: style.gridAutoFlow,
+          gridAutoRows: style.gridAutoRows,
           gridTemplateColumns: style.gridTemplateColumns,
+          rowGap: style.rowGap,
         }
       })
     )
     .toEqual({
       columnCount: 'auto',
       display: 'grid',
+      gridAutoFlow: 'dense',
+      gridAutoRows: '1px',
       gridTemplateColumns: '381px 381px',
+      rowGap: '0px',
     })
 
   const measurements = await cards.evaluateAll((elements) =>
@@ -118,6 +124,28 @@ test('touch-tablet tech-stack cards avoid WebKit multi-column fragmentation @mob
     expect(card.listRight).toBeLessThan(card.right)
     expect(card.listBottom).toBeLessThan(card.bottom)
     expect(card.listLeft).toBeGreaterThan(card.left)
+  }
+
+  const columns = new Map<number, typeof measurements>()
+  for (const measurement of measurements) {
+    const columnKey = Math.round(measurement.left)
+    const column = columns.get(columnKey) ?? []
+    column.push(measurement)
+    columns.set(columnKey, column)
+  }
+  expect(columns.size).toBe(2)
+  for (const cardsInColumn of columns.values()) {
+    const sortedCards = cardsInColumn.toSorted(
+      (first, second) => first.top - second.top
+    )
+    for (let index = 1; index < sortedCards.length; index += 1) {
+      const previousCard = sortedCards[index - 1]
+      const currentCard = sortedCards[index]
+      if (!previousCard || !currentCard) {
+        throw new Error('Masonry card measurement is missing')
+      }
+      expect(currentCard.top - previousCard.bottom).toBeCloseTo(24, 0)
+    }
   }
 
   for (let firstIndex = 0; firstIndex < measurements.length; firstIndex += 1) {

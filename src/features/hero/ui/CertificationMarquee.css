@@ -29,7 +29,6 @@
     hero-cert-marquee-enter var(--hero-cert-marquee-entry-duration, 24s) linear,
     hero-cert-marquee-scroll 24s linear var(--hero-cert-marquee-entry-duration, 24s)
       infinite;
-  will-change: transform;
 }
 
 @utility hero-cert-marquee__set {
@@ -64,10 +63,10 @@
 
 @keyframes hero-cert-marquee-enter {
   from {
-    transform: translateX(var(--hero-cert-marquee-entry-distance, 100vw));
+    translate: var(--hero-cert-marquee-entry-distance, 100vw) 0;
   }
   to {
-    transform: translateX(0);
+    translate: 0 0;
   }
 }
 
@@ -78,6 +77,18 @@
   }
 
   .hero-cert-marquee__viewport {
+    mask-image: none;
+  }
+}
+
+/*
+ * WebKit can briefly drop a masked compositing layer when its transformed
+ * descendant wraps an animation iteration. Touch devices do not need the
+ * decorative edge fade, so keep the continuous track on an unmasked layer.
+ */
+@media (hover: none) and (pointer: coarse) {
+  .hero-cert-marquee__viewport {
+    -webkit-mask-image: none;
     mask-image: none;
   }
 }

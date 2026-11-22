@@ -23,17 +23,23 @@
 /*
  * WebKit can fragment transformed, backdrop-filtered children inside CSS
  * multi-columns on touch tablets. Phones never enter the multi-column layout,
- * so use an ordinary grid once a coarse-pointer device reaches tablet width.
+ * so use measured grid rows once a coarse-pointer device reaches tablet width.
+ * Each card spans its rendered height plus the intended gap, allowing dense
+ * placement without fragmenting or stretching the card itself.
  */
 @media (hover: none) and (pointer: coarse) and (min-width: 48rem) {
   .tech-stack-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-flow: row dense;
+    grid-auto-rows: 1px;
     align-items: start;
+    row-gap: 0;
     column-count: initial;
   }
 
   .tech-stack-card {
+    align-self: start;
     margin-bottom: 0;
   }
 }

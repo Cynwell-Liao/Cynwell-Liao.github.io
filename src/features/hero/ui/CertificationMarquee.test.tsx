@@ -64,16 +64,11 @@ describe('CertificationMarquee', () => {
       })
     ).toBeInTheDocument()
     expect(badges).toHaveLength(certifications.length)
-    expect(
-      screen.getByRole('img', {
-        name: certifications[0].imageAlt,
-      })
-    ).toHaveAttribute('loading', 'lazy')
-    expect(
-      screen.getByRole('img', {
-        name: certifications[0].imageAlt,
-      })
-    ).toHaveAttribute('fetchpriority', 'low')
+    const images = screen.getAllByRole('img')
+    expect(images[0]).toHaveAttribute('loading', 'eager')
+    expect(images[0]).toHaveAttribute('fetchpriority', 'high')
+    expect(images[1]).toHaveAttribute('loading', 'eager')
+    expect(images[1]).toHaveAttribute('fetchpriority', 'auto')
     const clone = container.querySelector('[data-clone="true"]')
     if (!clone) {
       throw new Error('Expected a visual certification clone')
@@ -81,6 +76,10 @@ describe('CertificationMarquee', () => {
     expect(clone).toHaveAttribute('aria-hidden', 'true')
     for (const badge of clone.querySelectorAll('a')) {
       expect(badge).toHaveAttribute('tabindex', '-1')
+    }
+    for (const image of clone.querySelectorAll('img')) {
+      expect(image).toHaveAttribute('loading', 'eager')
+      expect(image).toHaveAttribute('fetchpriority', 'low')
     }
   })
 

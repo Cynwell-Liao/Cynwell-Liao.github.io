@@ -68,7 +68,7 @@ test('the first certification enters from the right before continuous scrolling 
   const { viewport, track, badges } = marqueeElements(page)
   const timing = await track.evaluate((element) => {
     const animations = element.getAnimations()
-    for (const animation of element.getAnimations()) {
+    for (const animation of animations) {
       animation.pause()
       animation.currentTime = 0
     }
@@ -133,6 +133,22 @@ test('the first certification enters from the right before continuous scrolling 
     .toBe(true)
 })
 
+test('touch-tablet certification scrolling avoids the masked WebKit compositing path @mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 834, height: 1194 })
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+
+  const { viewport, track } = marqueeElements(page)
+  await expect(viewport).toHaveCSS('mask-image', 'none')
+  await expect(track).toHaveCSS(
+    'animation-name',
+    'hero-cert-marquee-enter, hero-cert-marquee-scroll'
+  )
+  await expect(track).toHaveCSS('will-change', 'auto')
+})
+
 for (const size of viewports) {
   test(`certification keyboard traversal reveals every badge after animation at ${String(size.width)}px ${size.tag}`, async ({
     page,
@@ -148,16 +164,14 @@ for (const size of viewports) {
     const count = await badges.count()
     expect(count).toBeGreaterThan(0)
     await track.evaluate((element) => {
-      const animation = element
-        .getAnimations()
-        .find(
-          (item) =>
-            item instanceof CSSAnimation &&
-            item.animationName === 'hero-cert-marquee-scroll'
-        )
-      if (!animation) throw new Error('Expected the running certification animation')
-      const delay = animation.effect?.getTiming().delay ?? 0
-      animation.currentTime = delay + 20_000
+      for (const animation of element.getAnimations()) {
+        if (!(animation instanceof CSSAnimation)) continue
+        const timing = animation.effect?.getTiming()
+        animation.currentTime =
+          animation.animationName === 'hero-cert-marquee-enter'
+            ? Number(timing?.duration)
+            : (timing?.delay ?? 0) + 20_000
+      }
     })
     await expect
       .poll(() =>

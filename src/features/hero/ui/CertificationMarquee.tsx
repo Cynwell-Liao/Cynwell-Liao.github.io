@@ -52,9 +52,11 @@ function resetScrollOnBlur(event: FocusEvent<HTMLDivElement>) {
 
 function CertificationBadge({
   certification,
+  fetchPriority,
   isClone,
 }: {
   certification: CertificationItem
+  fetchPriority: 'auto' | 'high' | 'low'
   isClone: boolean
 }) {
   const [hasImageError, setHasImageError] = useState(false)
@@ -77,9 +79,9 @@ function CertificationBadge({
           alt={isClone ? '' : certification.imageAlt}
           className="hero-cert-marquee__badge-image"
           decoding="async"
-          fetchPriority="low"
+          fetchPriority={fetchPriority}
           height={certification.imageHeight ?? 100}
-          loading="lazy"
+          loading="eager"
           onError={() => {
             setHasImageError(true)
           }}
@@ -105,9 +107,13 @@ function CertificationList({
       className="hero-cert-marquee__set"
       data-clone={isClone || undefined}
     >
-      {certifications.map((certification) => (
+      {certifications.map((certification, index) => (
         <li className="shrink-0" key={certification.credentialUrl}>
-          <CertificationBadge certification={certification} isClone={isClone} />
+          <CertificationBadge
+            certification={certification}
+            fetchPriority={isClone ? 'low' : index === 0 ? 'high' : 'auto'}
+            isClone={isClone}
+          />
         </li>
       ))}
     </ul>

@@ -1,5 +1,5 @@
 import { m } from 'framer-motion'
-import { createElement } from 'react'
+import { createElement, useLayoutEffect, useRef } from 'react'
 
 import { getBrandColorStyle } from '@shared/lib/brand'
 import { cn } from '@shared/lib/cn'
@@ -17,12 +17,66 @@ interface TechStackSectionProps {
   headingDescription: string
 }
 
+function useTouchTabletMasonry(cardCount: number) {
+  const gridRef = useRef<HTMLDivElement>(null)
+  const cardRefs = useRef<Array<HTMLElement | null>>([])
+
+  useLayoutEffect(() => {
+    const grid = gridRef.current
+    if (!grid) return
+
+    const cards = cardRefs.current.slice(0, cardCount)
+    let frame: number | null = null
+
+    const measure = () => {
+      frame = null
+      const gridStyle = getComputedStyle(grid)
+      const usesMeasuredMasonry = gridStyle.gridAutoRows === '1px'
+
+      for (const card of cards) {
+        if (!card) continue
+        if (!usesMeasuredMasonry) {
+          card.style.removeProperty('grid-row-end')
+          continue
+        }
+
+        const gap = parseFloat(gridStyle.columnGap)
+        const rowSpan = Math.ceil(card.getBoundingClientRect().height + gap)
+        card.style.gridRowEnd = `span ${String(rowSpan)}`
+      }
+    }
+
+    const scheduleMeasure = () => {
+      if (frame !== null) return
+      frame = requestAnimationFrame(measure)
+    }
+
+    const observer = new ResizeObserver(scheduleMeasure)
+    observer.observe(grid)
+    for (const card of cards) {
+      if (card) observer.observe(card)
+    }
+    window.addEventListener('resize', scheduleMeasure)
+    measure()
+
+    return () => {
+      observer.disconnect()
+      window.removeEventListener('resize', scheduleMeasure)
+      if (frame !== null) cancelAnimationFrame(frame)
+    }
+  }, [cardCount])
+
+  return { cardRefs, gridRef }
+}
+
 export function TechStackSection({
   categories,
   headingEyebrow,
   headingTitle,
   headingDescription,
 }: TechStackSectionProps) {
+  const { cardRefs, gridRef } = useTouchTabletMasonry(categories.length)
+
   return (
     <section
       aria-labelledby="tech-stack-heading"
@@ -41,12 +95,18 @@ export function TechStackSection({
         title={headingTitle}
       />
 
-      <div className="tech-stack-grid relative z-10 mt-12 columns-1 gap-6 md:columns-2 lg:columns-3">
+      <div
+        className="tech-stack-grid relative z-10 mt-12 columns-1 gap-6 md:columns-2 lg:columns-3"
+        ref={gridRef}
+      >
         {categories.map((category, categoryIndex) => (
           <m.article
             {...cardReveal(categoryIndex * 0.1)}
             className="tech-stack-card glass-panel group/card mb-6 w-full break-inside-avoid p-8"
             key={category.title}
+            ref={(element) => {
+              cardRefs.current[categoryIndex] = element
+            }}
           >
             <div
               aria-hidden="true"
