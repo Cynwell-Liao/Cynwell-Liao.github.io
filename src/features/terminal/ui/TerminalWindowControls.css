@@ -230,6 +230,7 @@
     box-shadow: none;
     outline: 1px solid ButtonText;
     outline-offset: -1px;
+    forced-color-adjust: none;
   }
 
   .terminal-window-control-dot svg {

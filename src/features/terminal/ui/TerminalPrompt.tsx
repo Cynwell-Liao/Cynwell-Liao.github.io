@@ -102,11 +102,29 @@ export function TerminalPrompt({
           }}
           onSelect={(event) => {
             const input = event.currentTarget
-            onCaretChange({
-              position: input.selectionStart ?? 0,
-              scroll: input.scrollLeft,
-              selected: input.selectionStart !== input.selectionEnd,
-            })
+            const syncCaret = () => {
+              const position = input.selectionStart ?? 0
+              const selected = position !== input.selectionEnd
+              if (
+                !selected &&
+                position === input.value.length &&
+                input.scrollWidth > input.clientWidth
+              ) {
+                // WebKit scrolls only the native insertion point into view. The
+                // custom block caret occupies one additional cell, so use the
+                // trailing input padding to reveal that cell as well.
+                input.scrollLeft = input.scrollWidth
+              }
+              onCaretChange({
+                position,
+                scroll: input.scrollLeft,
+                selected,
+              })
+            }
+            syncCaret()
+            // WebKit updates an input's horizontal scroll after dispatching its
+            // selection event. Read it again once layout has settled.
+            requestAnimationFrame(syncCaret)
           }}
           ref={inputRef}
           spellCheck={false}

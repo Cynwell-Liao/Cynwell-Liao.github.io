@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs'
+import { existsSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 
 import { z } from 'zod'
@@ -81,13 +81,20 @@ export const readAppVersion = (
   return version.startsWith('v') ? version : `v${version}`
 }
 
+export const resolveSiteMetadataPath = (root = repositoryRoot): string => {
+  const centralizedPath = path.join(root, 'src', 'content', 'data', 'site.json')
+  return existsSync(centralizedPath)
+    ? centralizedPath
+    : path.join(root, 'site-meta.json')
+}
+
 export const readSiteMetadata = (
-  siteMetadataPath = path.join(repositoryRoot, 'site-meta.json')
+  siteMetadataPath = resolveSiteMetadataPath()
 ): SiteMetadata => {
   const rawMetadata = parseJsonFile(
     siteMetadataPath,
     siteMetadataSchema,
-    'site-meta.json'
+    'content/data/site.json'
   )
   const siteUrl = new URL(rawMetadata.siteUrl)
   siteUrl.hash = ''

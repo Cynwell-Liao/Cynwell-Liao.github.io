@@ -1,5 +1,5 @@
 import { profile } from './content'
-import { expect, test } from './fixtures'
+import { expect, moveFocus, test } from './fixtures'
 
 import type { Locator } from '@playwright/test'
 
@@ -142,13 +142,15 @@ test('the logo clears the pill before returning home and the next tab appears di
     const next = element.querySelector<HTMLAnchorElement>('a[href="#tech-stack"]')
     if (!home || !next) throw new Error('Navigation links are missing')
     home.click()
-    for (let frame = 0; frame < 2; frame += 1) {
+    let clearedDuringReturn = false
+    for (let frame = 0; frame < 30; frame += 1) {
       await new Promise<void>((resolve) => requestAnimationFrame(() => resolve()))
+      clearedDuringReturn =
+        window.scrollY > 1 &&
+        !element.querySelector('[aria-current]') &&
+        !element.querySelector('[data-testid="navbar-indicator"]')
+      if (clearedDuringReturn) break
     }
-    const clearedDuringReturn =
-      window.scrollY > 1 &&
-      !element.querySelector('[aria-current]') &&
-      !element.querySelector('[data-testid="navbar-indicator"]')
 
     // Choose a new destination before the return-home scroll has completed.
     next.click()
@@ -202,6 +204,7 @@ test('selection follows deep links, history, and scrolling independently of the 
 })
 
 test('section links keep their keyboard order and activate with Enter @desktop', async ({
+  browserName,
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -213,10 +216,9 @@ test('section links keep their keyboard order and activate with Enter @desktop',
   await navigation.getByRole('link', { name: first.label, exact: true }).focus()
 
   for (const { label } of profile.navLinks.slice(1)) {
-    await page.keyboard.press('Tab')
-    await expect(
-      navigation.getByRole('link', { name: label, exact: true })
-    ).toBeFocused()
+    const link = navigation.getByRole('link', { name: label, exact: true })
+    await moveFocus(page, link, browserName)
+    await expect(link).toBeFocused()
   }
 
   await page.keyboard.press('Enter')

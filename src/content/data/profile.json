@@ -2,7 +2,6 @@
   "name": "Cynwell Liao",
   "brandName": "Cynwell-Liao",
   "title": "Software Engineer",
-  "tagline": "Committing...",
   "githubUsername": "Cynwell-Liao",
   "githubUrl": "https://github.com/Cynwell-Liao",
   "repositoryUrl": "https://github.com/Cynwell-Liao/Cynwell-Liao.github.io",
@@ -19,10 +18,8 @@
     ]
   },
   "hero": {
-    "statusLabel": "SYSTEMS ONLINE",
     "terminalPath": "~/stack",
     "terminalDirectories": ["AI Models", "Cloud Native", "Developer Exp"],
-    "terminalPrompt": "_",
     "certificationsHeading": "Awards & Certifications"
   },
   "certifications": [

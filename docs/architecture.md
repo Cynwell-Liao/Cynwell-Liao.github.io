@@ -69,6 +69,12 @@ components receive explicit props and do not import personal content directly.
 This keeps them testable with fixtures and prevents portfolio data from becoming
 an implicit global dependency.
 
+All fork-specific structured configuration, including build-time SEO metadata,
+lives in `src/content/data/`. Branding binaries remain in `public/` because they
+need stable public URLs. This gives open-source users one configuration directory
+without coupling build tooling to React components or turning one large JSON file
+into a merge-conflict-prone catch-all.
+
 Application-wide interactive state stays in `App` only when multiple features
 coordinate around it. State and hooks used by one capability stay in that
 feature's `model/` directory. Reusable browser behavior belongs in `shared` only

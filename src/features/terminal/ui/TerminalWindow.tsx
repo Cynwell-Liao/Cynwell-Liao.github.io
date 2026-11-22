@@ -86,17 +86,31 @@ export function TerminalWindow({
     focusTarget?.focus({ preventScroll: true })
     const savedView = minimizedView.current
     if (input && savedView) {
-      input.setSelectionRange(
-        savedView.selectionStart,
-        savedView.selectionEnd,
-        savedView.selectionDirection
-      )
-      input.scrollLeft = savedView.inputScroll
-      if (scrollbackRef.current) {
-        scrollbackRef.current.scrollTop = savedView.outputScroll
+      const restoreView = () => {
+        input.setSelectionRange(
+          savedView.selectionStart,
+          savedView.selectionEnd,
+          savedView.selectionDirection
+        )
+        input.scrollLeft = savedView.inputScroll
+        if (scrollbackRef.current) {
+          scrollbackRef.current.scrollTop = savedView.outputScroll
+        }
       }
+      restoreView()
+      // WebKit may apply focus-based scroll anchoring after layout effects.
+      // Reapply the saved view on the next frame once that adjustment settles.
+      let settledFrame = 0
+      const frame = requestAnimationFrame(() => {
+        settledFrame = requestAnimationFrame(restoreView)
+      })
       minimizedView.current = null
+      return () => {
+        cancelAnimationFrame(frame)
+        cancelAnimationFrame(settledFrame)
+      }
     }
+    return undefined
   }, [minimized, handledActivation, isMobile, scrollbackRef])
 
   useEffect(() => {

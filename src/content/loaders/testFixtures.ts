@@ -42,7 +42,6 @@ export const createValidRawProfile = () => ({
   name: 'Example Engineer',
   brandName: 'example-engineer',
   title: 'Software Engineer',
-  tagline: 'Building reliable systems',
   githubUsername: 'example-engineer',
   githubUrl: 'https://github.com/example-engineer',
   repositoryUrl: 'https://github.com/example-engineer/portfolio',
@@ -54,10 +53,8 @@ export const createValidRawProfile = () => ({
     paragraphs: ['I value clear contracts.', 'I test observable behavior.'],
   },
   hero: {
-    statusLabel: 'SYSTEMS ONLINE',
     terminalPath: '~/example',
     terminalDirectories: ['projects', 'skills'],
-    terminalPrompt: '_',
     certificationsHeading: 'Certifications',
   },
   certifications: [

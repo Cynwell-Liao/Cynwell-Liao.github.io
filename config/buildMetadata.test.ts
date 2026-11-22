@@ -1,4 +1,4 @@
-import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
+import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import path from 'node:path'
 
@@ -9,6 +9,7 @@ import {
   injectSiteMetadata,
   readAppVersion,
   readSiteMetadata,
+  resolveSiteMetadataPath,
   type SiteMetadata,
 } from './buildMetadata'
 
@@ -65,7 +66,7 @@ describe('build metadata helpers', () => {
 
   it('validates and normalizes package and site metadata', () => {
     const packagePath = writeTemporaryJson('package.json', { version: '1.2.3' })
-    const metadataPath = writeTemporaryJson('site-meta.json', {
+    const metadataPath = writeTemporaryJson('site.json', {
       name: 'Ada Lovelace',
       title: 'Ada Lovelace | Software Engineer',
       siteUrl: 'https://example.com/portfolio/?draft=true#preview',
@@ -96,6 +97,26 @@ describe('build metadata helpers', () => {
     })
   })
 
+  it('prefers centralized metadata while retaining the legacy fork fallback', () => {
+    temporaryDirectory = mkdtempSync(path.join(tmpdir(), 'portfolio-metadata-'))
+    const legacyPath = path.join(temporaryDirectory, 'site-meta.json')
+    writeFileSync(legacyPath, '{}', 'utf8')
+
+    expect(resolveSiteMetadataPath(temporaryDirectory)).toBe(legacyPath)
+
+    const centralizedPath = path.join(
+      temporaryDirectory,
+      'src',
+      'content',
+      'data',
+      'site.json'
+    )
+    mkdirSync(path.dirname(centralizedPath), { recursive: true })
+    writeFileSync(centralizedPath, '{}', 'utf8')
+
+    expect(resolveSiteMetadataPath(temporaryDirectory)).toBe(centralizedPath)
+  })
+
   it.each([
     ['assets/cover.png', 'https://example.com/portfolio/assets/cover.png'],
     ['/assets/cover.png', 'https://example.com/assets/cover.png'],
@@ -103,7 +124,7 @@ describe('build metadata helpers', () => {
   ])(
     'resolves OG image %s deliberately for a project-site deployment',
     (ogImage, expected) => {
-      const metadataPath = writeTemporaryJson('site-meta.json', {
+      const metadataPath = writeTemporaryJson('site.json', {
         name: 'Example',
         title: 'Example portfolio',
         siteUrl: 'https://example.com/portfolio/',
@@ -122,7 +143,7 @@ describe('build metadata helpers', () => {
 
   it('rejects malformed versions, unsafe URLs, and unknown metadata keys', () => {
     const packagePath = writeTemporaryJson('package.json', { version: 'latest' })
-    const metadataPath = writeTemporaryJson('site-meta.json', {
+    const metadataPath = writeTemporaryJson('site.json', {
       name: 'Ada Lovelace',
       siteUrl: 'http://example.com',
       description: 'A software portfolio',
@@ -133,6 +154,8 @@ describe('build metadata helpers', () => {
     })
 
     expect(() => readAppVersion(packagePath)).toThrow('package.json is invalid')
-    expect(() => readSiteMetadata(metadataPath)).toThrow('site-meta.json is invalid')
+    expect(() => readSiteMetadata(metadataPath)).toThrow(
+      'content/data/site.json is invalid'
+    )
   })
 })

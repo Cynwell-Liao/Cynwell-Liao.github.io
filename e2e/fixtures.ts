@@ -1,5 +1,7 @@
 import { expect, test as base } from '@playwright/test'
 
+import type { Locator, Page } from '@playwright/test'
+
 const TRANSPARENT_PNG = Buffer.from(
   'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNk+A8AAQUBAScY42YAAAAASUVORK5CYII=',
   'base64'
@@ -81,3 +83,24 @@ export const test = base.extend<{ expectedAssetFailures: RegExp[] }>({
 })
 
 export { expect }
+
+/**
+ * Safari follows the operating system's keyboard-navigation preference and may
+ * omit links from native Tab traversal. Keep Chromium's real sequential-focus
+ * assertion while programmatically exercising the same focused UI state in
+ * WebKit, where Playwright cannot enable macOS Full Keyboard Access.
+ */
+export async function moveFocus(
+  page: Page,
+  target: Locator,
+  browserName: 'chromium' | 'firefox' | 'webkit',
+  direction: 'forward' | 'backward' = 'forward'
+) {
+  await page.keyboard.press(direction === 'forward' ? 'Tab' : 'Shift+Tab')
+  if (
+    browserName === 'webkit' &&
+    !(await target.evaluate((element) => element === document.activeElement))
+  ) {
+    await target.focus()
+  }
+}

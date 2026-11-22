@@ -35,12 +35,8 @@ const aboutSchema = z
 
 const heroSchema = z
   .object({
-    // Accepted for existing forks; the UI now displays the deployed version.
-    statusLabel: nonBlankTextSchema.optional(),
     terminalPath: nonBlankTextSchema,
     terminalDirectories: z.array(nonBlankTextSchema).min(1),
-    // Legacy decorative cursor setting; terminal input owns its caret rendering.
-    terminalPrompt: nonBlankTextSchema.optional(),
     certificationsHeading: nonBlankTextSchema,
   })
   .strict()
@@ -66,8 +62,6 @@ export const profileSchema = z
     name: nonBlankTextSchema,
     brandName: nonBlankTextSchema,
     title: nonBlankTextSchema,
-    // Legacy copy accepted at the input boundary, omitted from runtime props.
-    tagline: nonBlankTextSchema.optional(),
     githubUsername: nonBlankTextSchema,
     githubUrl: httpsUrlSchema,
     repositoryUrl: httpsUrlSchema,

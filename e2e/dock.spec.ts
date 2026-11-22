@@ -1,5 +1,5 @@
 import { profile } from './content'
-import { expect, test } from './fixtures'
+import { expect, moveFocus, test } from './fixtures'
 
 import type { Locator } from '@playwright/test'
 
@@ -109,6 +109,7 @@ test('pointer proximity magnifies neighboring apps and resets on leave @desktop'
 test('magnification stays stable under a stationary pointer and preserves the icon baseline @desktop', async ({
   page,
 }) => {
+  test.slow()
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
   const dock = page.getByRole('navigation', { name: 'Application Dock' })
@@ -216,6 +217,7 @@ test('the minimized preview magnifies without stretching its thumbnail or app ba
 })
 
 test('arrow keys move through apps and Enter opens Terminal @desktop', async ({
+  browserName,
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -225,9 +227,9 @@ test('arrow keys move through apps and Enter opens Terminal @desktop', async ({
   const linkedin = dock.getByRole('link', { name: 'LinkedIn' })
   const terminal = dock.getByRole('button', { name: 'Terminal', exact: true })
   await github.focus()
-  await page.keyboard.press('Tab')
+  await moveFocus(page, linkedin, browserName)
   await expect(linkedin).toBeFocused()
-  await page.keyboard.press('Shift+Tab')
+  await moveFocus(page, github, browserName, 'backward')
   await expect(github).toBeFocused()
   await github.press('ArrowRight')
   await expect(linkedin).toBeFocused()
@@ -384,6 +386,7 @@ test('Terminal menus open, restore and quit the app with keyboard navigation @de
 })
 
 test('Tab dismisses app menus and continues through the Dock in either direction @desktop', async ({
+  browserName,
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -394,12 +397,12 @@ test('Tab dismisses app menus and continues through the Dock in either direction
   await github.focus()
   await github.press('Shift+F10')
   await expect(page.getByRole('menu', { name: 'GitHub actions' })).toBeVisible()
-  await page.keyboard.press('Tab')
+  await moveFocus(page, linkedin, browserName)
   await expect(page.getByRole('menu')).toHaveCount(0)
   await expect(linkedin).toBeFocused()
   await linkedin.press('Shift+F10')
   await expect(page.getByRole('menu', { name: 'LinkedIn actions' })).toBeVisible()
-  await page.keyboard.press('Shift+Tab')
+  await moveFocus(page, github, browserName, 'backward')
   await expect(page.getByRole('menu')).toHaveCount(0)
   await expect(github).toBeFocused()
 })

@@ -85,7 +85,7 @@ All personal data is centralized in the following static content JSON files:
 | `src/content/data/projects.json`                                | Project cards                                                  | JSON   |
 | `src/content/data/skills.json`                                  | Tech stack categories and items                                | JSON   |
 | `src/content/data/education.json`                               | Education history and achievements                             | JSON   |
-| `site-meta.json`                                                | SEO metadata (injected into `index.html` at build time)        | JSON   |
+| `src/content/data/site.json`                                    | SEO metadata (injected into `index.html` at build time)        | JSON   |
 | `public/favicon.ico`, `public/assets/og-cover.png`              | Branding assets                                                | Images |
 | `public/assets/og-cover.svg`, `public/assets/profile-photo.png` | OG image generation source templates (avatar and vector cover) | Assets |
 
@@ -99,7 +99,7 @@ institution's logo. The logo is omitted when its URL is absent or the image fail
 to load.
 
 **SEO injection:** `index.html` uses `__PLACEHOLDER__` tokens replaced at build time by a Vite
-`transformIndexHtml` plugin reading from `site-meta.json`. Do not hardcode personal data in `index.html`.
+`transformIndexHtml` plugin reading from `src/content/data/site.json`. Do not hardcode personal data in `index.html`.
 The same plugin generates `dist/sitemap.xml` and `dist/robots.txt` from the canonical
 site URL; do not add separate crawler metadata source files.
 
@@ -144,6 +144,7 @@ Key conventions that cannot be inferred from tool configs alone:
 - Test files live in `e2e/`. Test suites use `*.spec.ts`; `e2e/fixtures.ts` is the shared fixture utility providing route mocking and console error assertions.
 - Tests run against a Vite preview server — `npm run build` must succeed first.
 - Use `@desktop` and `@mobile` tags to scope tests by viewport (Chromium + Pixel 7 projects).
+- Use `@chromium-only` only for a capability WebKit cannot emulate, not for product regressions.
 - Playwright configs: `playwright.config.ts` (default Chromium/Pixel 7 suite) and `playwright.webkit.config.ts` (optional WebKit/Safari suite via `npm run test:e2e:webkit`).
 - Browser tests are strictly type-checked by the referenced `tsconfig.e2e.json` project.
 
@@ -174,7 +175,7 @@ and [Playwright's best practices](https://playwright.dev/docs/best-practices).
 
 ## Boundaries — Do Not Touch
 
-- **Personal content files:** Do not modify JSON files in `src/content/data/` or `site-meta.json` unless explicitly asked. These contain personal portfolio data.
+- **Personal content files:** Do not modify JSON files in `src/content/data/` unless explicitly asked. These contain personal portfolio data.
 - **Governance files:** Do not modify `LICENSE`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, or `CONTRIBUTING.md` without explicit approval.
 - **CI/CD workflows:** Do not modify `.github/workflows/ci.yml` or `.github/workflows/cd.yml` without explicit approval.
 - **No secrets:** Never commit `.env` files, API keys, tokens, or credentials. Use `.env.example` for templates.

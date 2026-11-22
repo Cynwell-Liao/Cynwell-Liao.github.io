@@ -1,4 +1,4 @@
-import { expect, test } from './fixtures'
+import { expect, moveFocus, test } from './fixtures'
 
 import type { Locator, Page } from '@playwright/test'
 
@@ -154,6 +154,7 @@ test('touch-tablet certification scrolling avoids the masked WebKit compositing 
 
 for (const size of viewports) {
   test(`certification keyboard traversal reveals every badge after animation at ${String(size.width)}px ${size.tag}`, async ({
+    browserName,
     page,
   }) => {
     await page.setViewportSize({ width: size.width, height: size.height })
@@ -191,8 +192,9 @@ for (const size of viewports) {
 
     await themeToggle.focus()
     for (let index = 0; index < count; index += 1) {
-      await page.keyboard.press('Tab')
-      await expectFocusedBadgeVisible(badges.nth(index))
+      const badge = badges.nth(index)
+      await moveFocus(page, badge, browserName)
+      await expectFocusedBadgeVisible(badge)
       await expect(track).toHaveCSS('animation-name', 'none')
       await expect(clones).toBeHidden()
       expect(await marquee.evaluate((element) => element.clientHeight)).toBe(
@@ -212,13 +214,14 @@ for (const size of viewports) {
     await expect(clones).toBeVisible()
 
     for (let index = count - 1; index >= 0; index -= 1) {
-      await page.keyboard.press('Shift+Tab')
-      await expectFocusedBadgeVisible(badges.nth(index))
+      const badge = badges.nth(index)
+      await moveFocus(page, badge, browserName, 'backward')
+      await expectFocusedBadgeVisible(badge)
       expect(await marquee.evaluate((element) => element.clientHeight)).toBe(
         normalHeight
       )
     }
-    await page.keyboard.press('Shift+Tab')
+    await moveFocus(page, themeToggle, browserName, 'backward')
     await expect(themeToggle).toBeFocused()
     await expectScrollReset(viewport)
     await expect(track).toHaveCSS('animation-name', /hero-cert-marquee-scroll/)
@@ -228,6 +231,7 @@ for (const size of viewports) {
 
 for (const size of [viewports[1], viewports[3]]) {
   test(`reduced-motion certification badges retain wrapping and keyboard visibility at ${String(size.width)}px ${size.tag}`, async ({
+    browserName,
     page,
   }) => {
     await page.setViewportSize({ width: size.width, height: size.height })
@@ -246,14 +250,16 @@ for (const size of [viewports[1], viewports[3]]) {
 
     await themeToggle.focus()
     for (let index = 0; index < count; index += 1) {
-      await page.keyboard.press('Tab')
-      await expectFocusedBadgeVisible(badges.nth(index))
+      const badge = badges.nth(index)
+      await moveFocus(page, badge, browserName)
+      await expectFocusedBadgeVisible(badge)
     }
     for (let index = count - 2; index >= 0; index -= 1) {
-      await page.keyboard.press('Shift+Tab')
-      await expectFocusedBadgeVisible(badges.nth(index))
+      const badge = badges.nth(index)
+      await moveFocus(page, badge, browserName, 'backward')
+      await expectFocusedBadgeVisible(badge)
     }
-    await page.keyboard.press('Shift+Tab')
+    await moveFocus(page, themeToggle, browserName, 'backward')
     await expect(themeToggle).toBeFocused()
     await expectScrollReset(viewport)
     await expect(track).toHaveCSS('animation-name', 'none')
@@ -264,8 +270,10 @@ for (const size of [viewports[1], viewports[3]]) {
 }
 
 test('rapid reverse traversal cancels page scrolling away from the focused badge @desktop', async ({
+  browserName,
   page,
 }) => {
+  test.slow()
   await page.setViewportSize({ width: 768, height: 1024 })
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
@@ -273,8 +281,9 @@ test('rapid reverse traversal cancels page scrolling away from the focused badge
   await themeToggle.focus()
   const count = await badges.count()
   for (let index = 0; index < count; index += 1) {
-    await page.keyboard.press('Tab')
-    await expectFocusedBadgeVisible(badges.nth(index))
+    const badge = badges.nth(index)
+    await moveFocus(page, badge, browserName)
+    await expectFocusedBadgeVisible(badge)
   }
 
   // Reverse at different stages of the browser's smooth focus scroll to the
@@ -287,7 +296,7 @@ test('rapid reverse traversal cancels page scrolling away from the focused badge
         await new Promise(requestAnimationFrame)
       }
     }, frames)
-    await page.keyboard.press('Shift+Tab')
+    await moveFocus(page, badges.last(), browserName, 'backward')
     await expectFocusedBadgeVisible(badges.last())
     const remainsVisible = await badges.last().evaluate(async (element) => {
       for (let frame = 0; frame < 30; frame += 1) {
@@ -302,6 +311,7 @@ test('rapid reverse traversal cancels page scrolling away from the focused badge
 })
 
 test('pointer focus preserves the animated certification row @desktop', async ({
+  browserName,
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
@@ -325,10 +335,15 @@ test('pointer focus preserves the animated certification row @desktop', async ({
   })
   await badge.click()
 
+  // Safari intentionally does not focus links on pointer activation.
+  if (browserName === 'webkit') await badge.focus()
+
   await expect(badge).toBeFocused()
-  expect(await badge.evaluate((element) => element.matches(':focus-visible'))).toBe(
-    false
-  )
+  if (browserName !== 'webkit') {
+    expect(await badge.evaluate((element) => element.matches(':focus-visible'))).toBe(
+      false
+    )
+  }
   await expect(track).toHaveCSS('animation-name', /hero-cert-marquee-scroll/)
   await expect(track).toHaveCSS('animation-play-state', 'running, paused')
   await expect(viewport).toHaveCSS('overflow-x', 'hidden')

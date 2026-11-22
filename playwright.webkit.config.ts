@@ -12,12 +12,12 @@ export default defineConfig({
   projects: [
     {
       name: 'desktop-webkit',
-      grepInvert: /@mobile/,
+      grepInvert: /@mobile|@chromium-only/,
       use: { ...devices['Desktop Safari'] },
     },
     {
       name: 'mobile-webkit',
-      grepInvert: /@desktop/,
+      grepInvert: /@desktop|@chromium-only/,
       use: { ...devices['iPhone 13'] },
     },
   ],

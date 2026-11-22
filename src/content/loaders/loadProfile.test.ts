@@ -57,28 +57,6 @@ describe('profile content', () => {
     })
   })
 
-  it('accepts profiles without obsolete display settings', () => {
-    const raw = createValidRawProfile()
-    Reflect.deleteProperty(raw, 'tagline')
-    Reflect.deleteProperty(raw.hero, 'statusLabel')
-    Reflect.deleteProperty(raw.hero, 'terminalPrompt')
-
-    expect(parseProfile(raw).profile).toEqual(
-      parseProfile(createValidRawProfile()).profile
-    )
-  })
-
-  it.each(['tagline', 'statusLabel', 'terminalPrompt'] as const)(
-    'validates legacy %s when supplied',
-    (field) => {
-      const raw = createValidRawProfile()
-      if (field === 'tagline') raw.tagline = ' '
-      else raw.hero[field] = ' '
-
-      expect(() => parseProfile(raw)).toThrow(new RegExp(field, 'u'))
-    }
-  )
-
   it.each([
     ['about paragraphs', 'about', 'paragraphs'],
     ['terminal directories', 'hero', 'terminalDirectories'],

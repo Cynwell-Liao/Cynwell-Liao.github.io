@@ -103,7 +103,7 @@
   align-items: center;
   justify-content: center;
   /* Reserve the divider's space; its visible stroke belongs to the glass below. */
-  border-bottom: 1px solid transparent;
+  border-bottom: 1px solid var(--terminal-glass-solid);
   border-radius: var(--terminal-inner-radius) var(--terminal-inner-radius) 0 0;
   box-shadow: inset 0 1px var(--terminal-glass-highlight);
   color: var(--terminal-title-text);

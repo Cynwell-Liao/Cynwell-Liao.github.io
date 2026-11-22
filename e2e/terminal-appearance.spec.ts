@@ -71,6 +71,7 @@ function readColor(value: string) {
 
 for (const theme of ['light', 'dark'] as const) {
   test(`${theme} terminal keeps glass chrome, readable content, and native control states @desktop`, async ({
+    browserName,
     page,
   }, testInfo) => {
     await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'light' })
@@ -264,37 +265,40 @@ for (const theme of ['light', 'dark'] as const) {
     await input.press('Enter')
     await expect(dialog).toHaveAttribute('data-theme', theme)
 
-    // Playwright's media helper does not yet expose reduced transparency.
-    const session = await page.context().newCDPSession(page)
-    await session.send('Emulation.setEmulatedMedia', {
-      features: [
-        { name: 'prefers-reduced-motion', value: 'reduce' },
-        { name: 'prefers-reduced-transparency', value: 'reduce' },
-      ],
-    })
-    expect(
-      await page.evaluate(
-        () => matchMedia('(prefers-reduced-transparency: reduce)').matches
+    // Playwright's media helper does not yet expose reduced transparency, and
+    // CDP media emulation is available only in Chromium.
+    if (browserName === 'chromium') {
+      const session = await page.context().newCDPSession(page)
+      await session.send('Emulation.setEmulatedMedia', {
+        features: [
+          { name: 'prefers-reduced-motion', value: 'reduce' },
+          { name: 'prefers-reduced-transparency', value: 'reduce' },
+        ],
+      })
+      expect(
+        await page.evaluate(
+          () => matchMedia('(prefers-reduced-transparency: reduce)').matches
+        )
+      ).toBe(true)
+      await expect(screen).toHaveCSS('backdrop-filter', 'none')
+      await expect(screen).toHaveCSS(
+        'background-color',
+        theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
       )
-    ).toBe(true)
-    await expect(screen).toHaveCSS('backdrop-filter', 'none')
-    await expect(screen).toHaveCSS(
-      'background-color',
-      theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
-    )
-    await expectSolidChrome(titlebar, '::before')
-    await page.getByRole('button', { name: 'Enter full screen' }).press('ArrowDown')
-    await expect(menu).toBeVisible()
-    await expectSolidChrome(menu)
-    await page.getByRole('button', { name: 'Minimize terminal' }).click()
-    await expect(dock).toBeVisible()
-    await expectSolidChrome(dockGlass)
-    await session.detach()
+      await expectSolidChrome(titlebar, '::before')
+      await page.getByRole('button', { name: 'Enter full screen' }).press('ArrowDown')
+      await expect(menu).toBeVisible()
+      await expectSolidChrome(menu)
+      await page.getByRole('button', { name: 'Minimize terminal' }).click()
+      await expect(dock).toBeVisible()
+      await expectSolidChrome(dockGlass)
+      await session.detach()
+    }
   })
 }
 
 for (const theme of ['light', 'dark'] as const) {
-  test(`${theme} high-contrast controls retain outlines, symbols, and keyboard focus @desktop`, async ({
+  test(`${theme} high-contrast controls retain outlines, symbols, and keyboard focus @desktop @chromium-only`, async ({
     page,
   }, testInfo) => {
     await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' })

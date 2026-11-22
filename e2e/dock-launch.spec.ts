@@ -50,26 +50,27 @@ const observeLaunch = async (launcher: Locator) => {
       }
     }
     const originalOpen = window.open.bind(window)
-    window.open = (url, target, features) => {
-      const frame = readFrame()
-      probe.opens.push(frame)
-      probe.frames.push(frame)
+    const recordNavigation = () => {
+      if (probe.opens.length === 0) {
+        const frame = readFrame()
+        probe.opens.push(frame)
+        probe.frames.push(frame)
+      }
       probe.finished = true
+    }
+    window.open = (url, target, features) => {
+      recordNavigation()
       return originalOpen(url, target, features)
     }
     window.addEventListener(
       'beforeunload',
       () => {
-        if (!probe.finished) {
-          const frame = readFrame()
-          probe.opens.push(frame)
-          probe.frames.push(frame)
-          probe.finished = true
-        }
+        recordNavigation()
         window.recordDockLaunchProbe?.(probe)
       },
       { once: true }
     )
+    window.addEventListener('hashchange', recordNavigation, { once: true })
     element.addEventListener(
       'click',
       (event) => {
@@ -195,6 +196,7 @@ for (const [label, interaction] of [
 
 for (const label of ['GitHub', 'LinkedIn'] as const) {
   test(`${label} redirects the current page after three launch bounces on touch devices @mobile`, async ({
+    browserName,
     page,
     context,
   }) => {
@@ -203,20 +205,38 @@ for (const label of ['GitHub', 'LinkedIn'] as const) {
     const launcher = page
       .getByRole('navigation', { name: 'Application Dock' })
       .getByRole('link', { name: label, exact: true })
-    const href = await launcher.getAttribute('href')
-    if (!href) throw new Error('Missing profile URL')
+    const externalHref = await launcher.getAttribute('href')
+    if (!externalHref) throw new Error('Missing profile URL')
+    const probeHref = new URL('/#dock-launch-probe', page.url()).href
     let capturedProbe: LaunchProbe | null = null
-    await page.exposeFunction('recordDockLaunchProbe', (probe: LaunchProbe) => {
-      capturedProbe = probe
-    })
-    await page.route(href, async (route) => {
-      await route.fulfill({ contentType: 'text/html', body: '<title>Profile</title>' })
-    })
+    if (browserName === 'webkit') {
+      // WebKit tears down bindings and keepalive requests before an external
+      // navigation can return the final animation frame. A same-document URL
+      // exercises its location.assign path while preserving the probe.
+      await launcher.evaluate((element, href) => {
+        element.setAttribute('href', href)
+      }, probeHref)
+    } else {
+      await page.exposeFunction('recordDockLaunchProbe', (probe: LaunchProbe) => {
+        capturedProbe = probe
+      })
+      await page.route(externalHref, async (route) => {
+        await route.fulfill({
+          contentType: 'text/html',
+          body: '<title>Profile</title>',
+        })
+      })
+    }
     await observeLaunch(launcher)
     await launcher.tap()
-    await expect(page).toHaveURL(href)
-    if (!capturedProbe) throw new Error('Expected launch probe before navigation')
-    const probe = capturedProbe as LaunchProbe
+    await expect(page).toHaveURL(browserName === 'webkit' ? probeHref : externalHref)
+    const probe =
+      browserName === 'webkit'
+        ? await page.evaluate(() => window.dockLaunchProbe)
+        : await expect
+            .poll(() => capturedProbe)
+            .not.toBeNull()
+            .then(() => capturedProbe as LaunchProbe)
     expectCompletedLaunchAnimation(probe.frames)
     expect(probe.opens).toHaveLength(1)
     const open = probe.opens[0]

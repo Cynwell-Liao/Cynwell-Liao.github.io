@@ -27,7 +27,7 @@
  * Each card spans its rendered height plus the intended gap, allowing dense
  * placement without fragmenting or stretching the card itself.
  */
-@media (hover: none) and (pointer: coarse) and (min-width: 48rem) {
+@media (min-width: 48rem) {
   .tech-stack-grid {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -44,7 +44,7 @@
   }
 }
 
-@media (hover: none) and (pointer: coarse) and (min-width: 64rem) {
+@media (min-width: 64rem) {
   .tech-stack-grid {
     grid-template-columns: repeat(3, minmax(0, 1fr));
   }

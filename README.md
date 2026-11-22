@@ -49,6 +49,11 @@ policy.
 
 ## Customize for Your Portfolio
 
+All editable portfolio and SEO data is centralized in `src/content/data/`. Start
+with its [configuration map](src/content/data/README.md), then follow the details
+below. Runtime Zod validation and build-time metadata validation reject malformed
+or unknown settings before deployment.
+
 ### Step 1 — Personal Information _(required)_
 
 Edit `src/content/data/profile.json`:
@@ -65,10 +70,9 @@ Edit `src/content/data/profile.json`:
 - **`labels`** — required section headings, button text, terminal copy, and
   accessibility labels.
 
-`tagline`, `hero.statusLabel`, and `hero.terminalPrompt` are optional legacy JSON
-fields. They are validated when present, but omitted from runtime props and do
-not affect the rendered portfolio. The hero status uses the deployed package
-version; social cover text is edited separately in its SVG template.
+The hero status uses the deployed package version; social cover text is edited
+separately in its SVG template. Unknown fields are rejected so configuration
+mistakes cannot silently produce unused settings.
 
 ### Step 2 — Projects _(required)_
 
@@ -86,12 +90,15 @@ logo is omitted when no URL is provided or the image fails to load.
 
 ### Step 4 — SEO Metadata _(required)_
 
-Edit `site-meta.json` (project root) — name, title, site URL, description, keywords,
+Edit `src/content/data/site.json` — name, title, site URL, description, keywords,
 social image (`ogImage`), job title, company (`worksFor`), profile links (`sameAs`),
 and Google verification. These values are injected into `index.html` at build
 time for metadata and JSON-LD structured data. The build also generates
 `dist/sitemap.xml` and `dist/robots.txt` from the canonical site URL. There are no
 separate sitemap or robots source files to edit.
+
+Existing forks that still contain root-level `site-meta.json` remain compatible,
+but the centralized `src/content/data/site.json` takes precedence when both exist.
 
 ### Step 5 — Branding _(optional)_
 
@@ -121,7 +128,7 @@ Use one of these modes:
 
 - User site repository (`<username>.github.io`): keep `base: '/'` in `vite.config.ts`.
 - Project site repository (`<repo-name>`): set Vite `base` in `vite.config.ts` to
-  `'/<repo-name>/'` and `site-meta.json` `siteUrl` to
+  `'/<repo-name>/'` and `src/content/data/site.json` `siteUrl` to
   `'https://<username>.github.io/<repo-name>/'`. Set `ogImage` to
   `'assets/og-cover.png'` (relative to the site URL),
   `'/<repo-name>/assets/og-cover.png'`, or the complete HTTPS image URL. A path
@@ -167,6 +174,9 @@ TypeScript checking through `tsconfig.e2e.json`.
 npx playwright install chromium
 npm run check
 
+# Required pipeline plus the optional Safari/WebKit compatibility suite
+npm run check:all
+
 # Individual stages for focused development
 npm run lint
 npm run typecheck
@@ -197,10 +207,12 @@ for the closest Safari coverage, and verify rendering on actual Safari and iOS
 devices when investigating platform-specific glitches. See
 [Playwright's WebKit documentation](https://playwright.dev/docs/browsers#webkit).
 
-The full suite also includes Chromium-specific CDP emulation and assumptions about
-native keyboard focus and forced colours. These can fail under Windows WebKit;
-investigate those failures separately from rendering regressions. The WebKit
-configuration retains the existing assertions and does not skip these tests.
+Chromium-only capabilities, currently Windows forced-colours emulation, carry an
+explicit `@chromium-only` tag and are excluded by the WebKit configuration. Shared
+behavior and rendering assertions run unchanged in both engines. Safari's native
+link Tab order still follows the operating system's Full Keyboard Access setting;
+WebKit tests normalize that unavailable preference while continuing to verify each
+focused interaction state.
 
 ## Architecture Overview
 

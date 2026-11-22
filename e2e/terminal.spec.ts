@@ -388,17 +388,18 @@ test('the block caret follows Unicode and horizontally scrolled drafts @desktop'
           const cursorBounds = wrapper
             .querySelector('.terminal-cursor')
             ?.getBoundingClientRect()
-          return Boolean(
-            inputBounds &&
-            prefixBounds &&
-            cursorBounds &&
-            Math.abs(cursorBounds.left - prefixBounds.right) < 1 &&
-            cursorBounds.left >= inputBounds.left &&
-            cursorBounds.right <= inputBounds.right + 1
-          )
+          if (!inputBounds || !prefixBounds || !cursorBounds) {
+            throw new Error('Terminal caret geometry is unavailable')
+          }
+          return {
+            aligned: Math.abs(cursorBounds.left - prefixBounds.right) < 1,
+            alignmentError: Math.abs(cursorBounds.left - prefixBounds.right),
+            insideLeft: cursorBounds.left >= inputBounds.left,
+            insideRight: cursorBounds.right <= inputBounds.right + 1,
+          }
         })
       )
-      .toBe(true)
+      .toMatchObject({ aligned: true, insideLeft: true, insideRight: true })
   }
   await expect
     .poll(async () => input.evaluate((element) => element.scrollLeft))
