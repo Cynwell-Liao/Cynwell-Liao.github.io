@@ -59,6 +59,80 @@ async function expectScrollReset(viewport: Locator) {
   await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBe(0)
 }
 
+test('the first certification enters from the right before continuous scrolling @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.goto('/')
+
+  const { viewport, track, badges } = marqueeElements(page)
+  const timing = await track.evaluate((element) => {
+    const animations = element.getAnimations()
+    for (const animation of element.getAnimations()) {
+      animation.pause()
+      animation.currentTime = 0
+    }
+    const entry = animations.find(
+      (animation) =>
+        animation instanceof CSSAnimation &&
+        animation.animationName === 'hero-cert-marquee-enter'
+    )
+    const scroll = animations.find(
+      (animation) =>
+        animation instanceof CSSAnimation &&
+        animation.animationName === 'hero-cert-marquee-scroll'
+    )
+    const viewport = element.parentElement
+    const originalSet = element.querySelector(
+      '.hero-cert-marquee__set:not([data-clone="true"])'
+    )
+    if (!entry || !scroll || !viewport || !originalSet) {
+      throw new Error('Certification marquee animation is incomplete')
+    }
+    return {
+      entryDuration: Number(entry.effect?.getTiming().duration),
+      scrollDelay: scroll.effect?.getTiming().delay ?? 0,
+      setWidth: originalSet.getBoundingClientRect().width,
+      viewportWidth: viewport.clientWidth,
+    }
+  })
+  expect(timing.entryDuration).toBeCloseTo(
+    24_000 * (timing.viewportWidth / timing.setWidth),
+    0
+  )
+  expect(timing.scrollDelay).toBeCloseTo(timing.entryDuration, 0)
+
+  const initialPosition = await Promise.all(
+    [badges.first(), viewport].map((locator) =>
+      locator.evaluate((element) => {
+        const bounds = element.getBoundingClientRect()
+        return { left: bounds.left, right: bounds.right }
+      })
+    )
+  )
+  expect(initialPosition[0].left).toBeGreaterThanOrEqual(initialPosition[1].right)
+
+  await track.evaluate((element, entryDuration) => {
+    for (const animation of element.getAnimations()) {
+      animation.currentTime = entryDuration + 1
+    }
+  }, timing.entryDuration)
+  await expect
+    .poll(() =>
+      badges.first().evaluate((element) => {
+        const viewport = element.closest('.hero-cert-marquee__viewport')
+        if (!viewport) throw new Error('Certification viewport is missing')
+        const badgeBounds = element.getBoundingClientRect()
+        const viewportBounds = viewport.getBoundingClientRect()
+        return (
+          badgeBounds.left >= viewportBounds.left &&
+          badgeBounds.right <= viewportBounds.right
+        )
+      })
+    )
+    .toBe(true)
+})
+
 for (const size of viewports) {
   test(`certification keyboard traversal reveals every badge after animation at ${String(size.width)}px ${size.tag}`, async ({
     page,
@@ -82,7 +156,8 @@ for (const size of viewports) {
             item.animationName === 'hero-cert-marquee-scroll'
         )
       if (!animation) throw new Error('Expected the running certification animation')
-      animation.currentTime = 20_000
+      const delay = animation.effect?.getTiming().delay ?? 0
+      animation.currentTime = delay + 20_000
     })
     await expect
       .poll(() =>
@@ -116,7 +191,7 @@ for (const size of viewports) {
 
     await page.keyboard.press('Tab')
     await expectScrollReset(viewport)
-    await expect(track).toHaveCSS('animation-name', 'hero-cert-marquee-scroll')
+    await expect(track).toHaveCSS('animation-name', /hero-cert-marquee-scroll/)
     await expect(clones).toBeVisible()
 
     for (let index = count - 1; index >= 0; index -= 1) {
@@ -129,7 +204,7 @@ for (const size of viewports) {
     await page.keyboard.press('Shift+Tab')
     await expect(themeToggle).toBeFocused()
     await expectScrollReset(viewport)
-    await expect(track).toHaveCSS('animation-name', 'hero-cert-marquee-scroll')
+    await expect(track).toHaveCSS('animation-name', /hero-cert-marquee-scroll/)
     await expect(clones).toBeVisible()
   })
 }
@@ -218,7 +293,14 @@ test('pointer focus preserves the animated certification row @desktop', async ({
   const { marquee, viewport, track, clones, badges } = marqueeElements(page)
   await marquee.hover()
   await track.evaluate((element) => {
-    for (const animation of element.getAnimations()) animation.currentTime = 0
+    for (const animation of element.getAnimations()) {
+      const timing = animation.effect?.getTiming()
+      animation.currentTime =
+        animation instanceof CSSAnimation &&
+        animation.animationName === 'hero-cert-marquee-enter'
+          ? Number(timing?.duration)
+          : (timing?.delay ?? 0)
+    }
   })
   const badge = badges.first()
   await badge.evaluate((element) => {
@@ -230,8 +312,8 @@ test('pointer focus preserves the animated certification row @desktop', async ({
   expect(await badge.evaluate((element) => element.matches(':focus-visible'))).toBe(
     false
   )
-  await expect(track).toHaveCSS('animation-name', 'hero-cert-marquee-scroll')
-  await expect(track).toHaveCSS('animation-play-state', 'paused')
+  await expect(track).toHaveCSS('animation-name', /hero-cert-marquee-scroll/)
+  await expect(track).toHaveCSS('animation-play-state', 'running, paused')
   await expect(viewport).toHaveCSS('overflow-x', 'hidden')
   await expect(clones).toBeVisible()
 })

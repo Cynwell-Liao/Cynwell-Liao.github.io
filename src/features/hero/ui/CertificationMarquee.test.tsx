@@ -69,6 +69,11 @@ describe('CertificationMarquee', () => {
         name: certifications[0].imageAlt,
       })
     ).toHaveAttribute('loading', 'lazy')
+    expect(
+      screen.getByRole('img', {
+        name: certifications[0].imageAlt,
+      })
+    ).toHaveAttribute('fetchpriority', 'low')
     const clone = container.querySelector('[data-clone="true"]')
     if (!clone) {
       throw new Error('Expected a visual certification clone')

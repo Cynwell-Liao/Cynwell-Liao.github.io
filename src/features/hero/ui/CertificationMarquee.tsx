@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useLayoutEffect, useRef, useState } from 'react'
 
 import type { CertificationItem } from '@shared/types/portfolio.types'
 
@@ -10,6 +10,7 @@ interface CertificationMarqueeProps {
 }
 
 const FOCUS_RING_PADDING_PX = 8
+const MARQUEE_LOOP_DURATION_MS = 24_000
 
 function revealBadge(badge: HTMLAnchorElement, viewport: HTMLDivElement) {
   // Cancel any smooth scroll started by the previous focused link before deciding
@@ -76,6 +77,7 @@ function CertificationBadge({
           alt={isClone ? '' : certification.imageAlt}
           className="hero-cert-marquee__badge-image"
           decoding="async"
+          fetchPriority="low"
           height={certification.imageHeight ?? 100}
           loading="lazy"
           onError={() => {
@@ -116,6 +118,41 @@ export function CertificationMarquee({
   certifications,
   heading,
 }: CertificationMarqueeProps) {
+  const viewportRef = useRef<HTMLDivElement>(null)
+
+  useLayoutEffect(() => {
+    const viewport = viewportRef.current
+    const track = viewport?.querySelector<HTMLElement>('.hero-cert-marquee__track')
+    const originalSet = track?.querySelector<HTMLElement>(
+      '.hero-cert-marquee__set:not([data-clone="true"])'
+    )
+    if (!viewport || !track || !originalSet) return
+
+    const syncEntryTiming = () => {
+      const entryDistance = viewport.clientWidth
+      const setWidth = originalSet.getBoundingClientRect().width
+      if (entryDistance <= 0 || setWidth <= 0) return
+
+      const entryDuration = MARQUEE_LOOP_DURATION_MS * (entryDistance / setWidth)
+      track.style.setProperty(
+        '--hero-cert-marquee-entry-distance',
+        `${String(entryDistance)}px`
+      )
+      track.style.setProperty(
+        '--hero-cert-marquee-entry-duration',
+        `${String(entryDuration)}ms`
+      )
+    }
+
+    syncEntryTiming()
+    const observer = new ResizeObserver(syncEntryTiming)
+    observer.observe(viewport)
+    observer.observe(originalSet)
+    return () => {
+      observer.disconnect()
+    }
+  }, [certifications])
+
   return (
     <section aria-labelledby="hero-certifications-heading" className="mt-8 w-full">
       <h2
@@ -129,6 +166,7 @@ export function CertificationMarquee({
           className="hero-cert-marquee__viewport"
           onBlur={resetScrollOnBlur}
           onFocus={revealFocusedBadge}
+          ref={viewportRef}
         >
           <div className="hero-cert-marquee__track">
             <CertificationList certifications={certifications} />
