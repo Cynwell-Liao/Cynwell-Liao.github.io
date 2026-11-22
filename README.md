@@ -17,7 +17,7 @@ Forks and small improvements are welcome.
 - Vite 8
 - TypeScript 6
 - Tailwind CSS 4
-- Framer Motion 13
+- Framer Motion 14
 - GitHub Actions (CI/CD)
 - GitHub Pages
 
@@ -210,6 +210,12 @@ configuration retains the existing assertions and does not skip these tests.
 - `src/features`: feature modules (`about`, `dock`, `education`, `footer`, `hero`, `navbar`, `projects`, `tech-stack`, `terminal`)
 - `src/shared`: shared UI and reusable logic
 - `src/content`: static content and validated loaders
+
+The enforced dependency direction is `app -> features -> shared` and
+`app -> content -> shared`. Outside consumers import each feature and the content
+module through its public `index.ts` API. See
+[Architecture](docs/architecture.md) for the rationale, module rules, data flow,
+tooling boundaries, and deliberate non-goals.
 
 Import aliases:
 
