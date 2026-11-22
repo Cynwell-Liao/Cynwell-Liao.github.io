@@ -146,6 +146,7 @@ test('touch-tablet certification scrolling avoids the masked WebKit compositing 
     'animation-name',
     'hero-cert-marquee-enter, hero-cert-marquee-scroll'
   )
+  await expect(track).toHaveCSS('animation-direction', 'normal, reverse')
   await expect(track).toHaveCSS('will-change', 'auto')
 })
 

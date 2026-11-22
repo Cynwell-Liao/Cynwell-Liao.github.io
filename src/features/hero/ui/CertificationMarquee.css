@@ -28,7 +28,7 @@
   animation:
     hero-cert-marquee-enter var(--hero-cert-marquee-entry-duration, 24s) linear,
     hero-cert-marquee-scroll 24s linear var(--hero-cert-marquee-entry-duration, 24s)
-      infinite;
+      infinite reverse;
 }
 
 @utility hero-cert-marquee__set {
@@ -54,10 +54,10 @@
 
 @keyframes hero-cert-marquee-scroll {
   from {
-    transform: translateX(0);
+    transform: translateX(-50%);
   }
   to {
-    transform: translateX(-50%);
+    transform: translateX(0);
   }
 }
 
