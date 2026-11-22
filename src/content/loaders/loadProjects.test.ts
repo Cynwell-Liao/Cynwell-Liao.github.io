@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { ZodError } from 'zod'
 
+import { getRequired } from '../../test/getRequired'
+
 import { parseProjects, projects } from './loadProjects'
 import { createValidProjects } from './testFixtures'
 
@@ -11,7 +13,7 @@ describe('projects content', () => {
 
   it('parses and trims a valid project fixture', () => {
     const input = createValidProjects()
-    input[0].title = '  Example Project  '
+    getRequired(input, 0, 'project fixture').title = '  Example Project  '
 
     expect(parseProjects(input)).toEqual([
       {
@@ -35,7 +37,7 @@ describe('projects content', () => {
   })
 
   it('rejects project IDs that differ only by case', () => {
-    const project = createValidProjects()[0]
+    const project = getRequired(createValidProjects(), 0, 'project fixture')
 
     expect(() =>
       parseProjects([project, { ...project, id: project.id.toUpperCase() }])

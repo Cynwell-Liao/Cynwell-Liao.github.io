@@ -64,22 +64,21 @@ export function SectionNavigation({ links, theme }: SectionNavigationProps) {
     >
       {indicator && (
         <m.span
+          {...(reduceMotion
+            ? {
+                style: {
+                  width: indicator.width,
+                  transform: `translateX(${String(indicator.x)}px)`,
+                  opacity: activeHref ? 1 : 0,
+                },
+              }
+            : {
+                animate: { ...indicator, opacity: activeHref ? 1 : 0 },
+              })}
           aria-hidden="true"
           className="pointer-events-none absolute top-1 bottom-1 left-0 rounded-full bg-slate-900 transition-none dark:bg-slate-100"
           data-testid="navbar-indicator"
           initial={false}
-          animate={
-            reduceMotion ? undefined : { ...indicator, opacity: activeHref ? 1 : 0 }
-          }
-          style={
-            reduceMotion
-              ? {
-                  width: indicator.width,
-                  transform: `translateX(${String(indicator.x)}px)`,
-                  opacity: activeHref ? 1 : 0,
-                }
-              : undefined
-          }
           transition={{ duration: 0.32, ease: 'easeOut' }}
         />
       )}
@@ -88,24 +87,19 @@ export function SectionNavigation({ links, theme }: SectionNavigationProps) {
 
         return (
           <m.a
+            {...(isActive ? { 'aria-current': 'location' as const } : {})}
+            {...(reduceMotion
+              ? { style: { color: isActive ? activeColor : inactiveColor } }
+              : {
+                  animate: {
+                    color: isActive ? activeColor : inactiveColor,
+                    opacity: isActive ? 1 : 0.8,
+                  },
+                })}
             key={link.href}
-            aria-current={isActive ? 'location' : undefined}
             className="relative z-10 inline-flex h-9 shrink-0 items-center justify-center rounded-full px-3 text-xs font-medium whitespace-nowrap transition-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-100 lg:px-4 lg:text-sm dark:focus-visible:ring-accent-400 dark:focus-visible:ring-offset-slate-900"
             href={link.href}
             initial={false}
-            animate={
-              reduceMotion
-                ? undefined
-                : {
-                    color: isActive ? activeColor : inactiveColor,
-                    opacity: isActive ? 1 : 0.8,
-                  }
-            }
-            style={
-              reduceMotion
-                ? { color: isActive ? activeColor : inactiveColor }
-                : undefined
-            }
             whileHover={{ opacity: 1 }}
             whileFocus={{ opacity: 1 }}
             transition={{ duration: reduceMotion ? 0 : 0.16, ease: 'easeOut' }}

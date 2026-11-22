@@ -1,6 +1,6 @@
 import { m } from 'framer-motion'
 
-import { getBrandColorStyle } from '@shared/lib/brand'
+import { getMotionBrandColorStyle } from '@shared/lib/brand'
 import { cn } from '@shared/lib/cn'
 import { cardReveal } from '@shared/lib/motion'
 import { SECTION_ID } from '@shared/lib/navigation'
@@ -48,12 +48,12 @@ export function EducationSection({
           return (
             <m.article
               {...cardReveal(index * 0.15)}
+              {...(item.color ? { style: getMotionBrandColorStyle(item.color) } : {})}
               className={cn(
                 'glass-panel group flex flex-col p-8',
                 isHero ? 'md:col-span-2' : 'md:col-span-1'
               )}
               key={item.institution}
-              style={getBrandColorStyle(item.color)}
             >
               <div
                 aria-hidden="true"

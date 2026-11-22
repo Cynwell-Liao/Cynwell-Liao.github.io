@@ -111,6 +111,10 @@ Husky pre-commit hook runs lint-staged automatically. Do not bypass it.
 Key conventions that cannot be inferred from tool configs alone:
 
 - Use `import type { ... }` for type-only imports (enforced by ESLint `consistent-type-imports`).
+- Keep `isolatedModules`, `exactOptionalPropertyTypes`, and
+  `noUncheckedIndexedAccess` enabled in every TypeScript execution environment.
+- Keep implicit returns, implicit overrides, index-signature property access,
+  unreachable code, and unused labels checked by TypeScript.
 - Functional React components only. No class components.
 - Export public API through barrel `index.ts` files with named exports.
 - Use Zod schemas for all runtime content validation.

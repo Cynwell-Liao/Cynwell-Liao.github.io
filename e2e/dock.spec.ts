@@ -23,7 +23,7 @@ test('the Dock has three apps, correct profile links, and inline decorative icon
   for (const [label, href] of [
     ['GitHub', profile.githubUrl],
     ['LinkedIn', profile.linkedinUrl],
-  ]) {
+  ] as const) {
     const link = dock.getByRole('link', { name: label, exact: true })
     await expect(link).toHaveAttribute('href', href)
     await expect(link).toHaveAttribute('target', '_blank')
@@ -150,14 +150,18 @@ test('magnification stays stable under a stationary pointer and preserves the ic
       })
       const current = await Promise.all(apps.map(boundsFor))
       for (const [index, bounds] of current.entries()) {
+        const settledBounds = settled[index]
+        if (!settledBounds) throw new Error('Missing settled Dock bounds')
         expect(bounds.width).toBeLessThanOrEqual(78.5)
         expect(bounds.y + bounds.height).toBeCloseTo(resting.y + resting.height, 0)
         for (const dimension of ['x', 'y', 'width', 'height'] as const) {
-          expect(bounds[dimension]).toBeCloseTo(settled[index][dimension], 0)
+          expect(bounds[dimension]).toBeCloseTo(settledBounds[dimension], 0)
         }
         if (index > 0) {
+          const previousBounds = current[index - 1]
+          if (!previousBounds) throw new Error('Missing previous Dock bounds')
           expect(bounds.x).toBeGreaterThanOrEqual(
-            current[index - 1].x + current[index - 1].width
+            previousBounds.x + previousBounds.width
           )
         }
       }

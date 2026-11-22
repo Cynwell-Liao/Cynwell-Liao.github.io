@@ -1,7 +1,12 @@
 import { describe, expect, it } from 'vitest'
 
+import { getRequired } from '../../test/getRequired'
+
 import { parseSkills, skillCategories } from './loadSkills'
 import { createValidSkills } from './testFixtures'
+
+const firstCategory = () => getRequired(createValidSkills(), 0, 'skill category')
+const firstSkill = () => getRequired(firstCategory().items, 0, 'skill item')
 
 describe('skills content', () => {
   it('exports a validated readonly skill collection', () => {
@@ -14,13 +19,13 @@ describe('skills content', () => {
 
   it.each([
     ['an empty collection', []],
-    ['an empty category', [{ ...createValidSkills()[0], items: [] }]],
+    ['an empty category', [{ ...firstCategory(), items: [] }]],
     [
       'an unknown icon',
       [
         {
-          ...createValidSkills()[0],
-          items: [{ ...createValidSkills()[0].items[0], icon: 'unknown-icon' }],
+          ...firstCategory(),
+          items: [{ ...firstSkill(), icon: 'unknown-icon' }],
         },
       ],
     ],
@@ -28,8 +33,8 @@ describe('skills content', () => {
       'an invalid color',
       [
         {
-          ...createValidSkills()[0],
-          items: [{ ...createValidSkills()[0].items[0], color: '#1234' }],
+          ...firstCategory(),
+          items: [{ ...firstSkill(), color: '#1234' }],
         },
       ],
     ],
@@ -37,18 +42,18 @@ describe('skills content', () => {
       'an unknown item property',
       [
         {
-          ...createValidSkills()[0],
-          items: [{ ...createValidSkills()[0].items[0], unexpected: true }],
+          ...firstCategory(),
+          items: [{ ...firstSkill(), unexpected: true }],
         },
       ],
     ],
-    ['an unknown category property', [{ ...createValidSkills()[0], unexpected: true }]],
+    ['an unknown category property', [{ ...firstCategory(), unexpected: true }]],
   ])('rejects %s', (_description, input) => {
     expect(() => parseSkills(input)).toThrow(/Invalid content\/data\/skills\.json/)
   })
 
   it('rejects category titles that differ only by case', () => {
-    const category = createValidSkills()[0]
+    const category = firstCategory()
 
     expect(() =>
       parseSkills([
@@ -59,8 +64,8 @@ describe('skills content', () => {
   })
 
   it('rejects skill names that differ only by case within a category', () => {
-    const category = createValidSkills()[0]
-    const item = category.items[0]
+    const category = firstCategory()
+    const item = getRequired(category.items, 0, 'skill item')
 
     expect(() =>
       parseSkills([

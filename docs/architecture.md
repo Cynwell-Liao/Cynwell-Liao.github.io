@@ -83,6 +83,13 @@ TypeScript projects follow execution environments:
 - `tsconfig.e2e.json` covers Playwright tests, which use Node.js and DOM types.
 - `tsconfig.json` is the solution entry point referencing all three.
 
+All TypeScript environments use isolated-module compilation, exact optional
+property semantics, and checked indexed access. ESLint's current React Hooks rules
+validate the Rules of React and report patterns that would prevent safe compiler
+optimization. React Compiler remains deliberately disabled because its additional
+client code exceeds this site's enforced initial bundle budget without a measured
+rendering bottleneck to justify that cost.
+
 Static files that must keep stable public names live in `public/`. Source modules,
 styles, and JSON that participate in the module graph live in `src/`. Build-time
 metadata logic lives in `config/`; executable maintenance scripts live in

@@ -165,7 +165,7 @@ export const resolveTerminalCommand = ({
   }
 
   const nextCommandHistory = [...commandHistory, input].slice(-MAX_COMMAND_HISTORY)
-  const [command, ...args] = input.split(/\s+/)
+  const [command = '', ...args] = input.split(/\s+/)
   const normalizedCommand = command.toLowerCase()
 
   const createResult = (
@@ -227,7 +227,9 @@ export const resolveTerminalCommand = ({
 
       {
         const openResult = resolveOpenCommand(args[0], projects)
-        return createResult(openResult.output, { openUrl: openResult.openUrl })
+        return createResult(openResult.output, {
+          ...(openResult.openUrl ? { openUrl: openResult.openUrl } : {}),
+        })
       }
     case 'theme': {
       const themeResult = resolveThemeCommand(args[0]?.toLowerCase(), theme)

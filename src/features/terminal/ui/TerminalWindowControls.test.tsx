@@ -2,6 +2,7 @@ import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { afterEach, describe, expect, it, vi } from 'vitest'
 
+import { getRequired } from '../../../test/getRequired'
 import { setMockReducedMotion } from '../../../test/setup'
 
 import { TerminalWindowControls } from './TerminalWindowControls'
@@ -172,7 +173,7 @@ describe('TerminalWindowControls', () => {
     })
     openMenu()
     const menu = screen.getByRole('menu')
-    const firstItem = screen.getAllByRole('menuitem')[0]
+    const firstItem = getRequired(screen.getAllByRole('menuitem'), 0, 'menu item')
     expect(firstItem).toHaveFocus()
 
     fireEvent.pointerLeave(expandButton())
@@ -229,17 +230,21 @@ describe('TerminalWindowControls', () => {
     document.addEventListener('keydown', escaped)
     openMenu()
     const items = screen.getAllByRole('menuitem')
-    expect(items[0]).toHaveFocus()
+    const [firstItem, secondItem, thirdItem] = items
+    if (!firstItem || !secondItem || !thirdItem) {
+      throw new Error('Expected three window arrangement items')
+    }
+    expect(firstItem).toHaveFocus()
 
-    fireEvent.keyDown(items[0], { key: 'ArrowDown' })
-    expect(items[1]).toHaveFocus()
-    fireEvent.keyDown(items[1], { key: 'End' })
-    expect(items[2]).toHaveFocus()
-    fireEvent.keyDown(items[2], { key: 'Home' })
-    expect(items[0]).toHaveFocus()
-    fireEvent.keyDown(items[0], { key: 'ArrowUp' })
-    expect(items[2]).toHaveFocus()
-    fireEvent.keyDown(items[2], { key: 'Escape' })
+    fireEvent.keyDown(firstItem, { key: 'ArrowDown' })
+    expect(secondItem).toHaveFocus()
+    fireEvent.keyDown(secondItem, { key: 'End' })
+    expect(thirdItem).toHaveFocus()
+    fireEvent.keyDown(thirdItem, { key: 'Home' })
+    expect(firstItem).toHaveFocus()
+    fireEvent.keyDown(firstItem, { key: 'ArrowUp' })
+    expect(thirdItem).toHaveFocus()
+    fireEvent.keyDown(thirdItem, { key: 'Escape' })
 
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
     expect(expandButton()).toHaveFocus()
@@ -284,7 +289,7 @@ describe('TerminalWindowControls', () => {
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()
 
     openMenu()
-    fireEvent.blur(screen.getAllByRole('menuitem')[0], {
+    fireEvent.blur(getRequired(screen.getAllByRole('menuitem'), 0, 'menu item'), {
       relatedTarget: document.body,
     })
     expect(screen.queryByRole('menu')).not.toBeInTheDocument()

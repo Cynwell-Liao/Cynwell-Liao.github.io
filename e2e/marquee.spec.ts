@@ -110,7 +110,9 @@ test('the first certification enters from the right before continuous scrolling 
       })
     )
   )
-  expect(initialPosition[0].left).toBeGreaterThanOrEqual(initialPosition[1].right)
+  const [badgePosition, viewportPosition] = initialPosition
+  if (!badgePosition || !viewportPosition) throw new Error('Missing marquee bounds')
+  expect(badgePosition.left).toBeGreaterThanOrEqual(viewportPosition.right)
 
   await track.evaluate((element, entryDuration) => {
     for (const animation of element.getAnimations()) {

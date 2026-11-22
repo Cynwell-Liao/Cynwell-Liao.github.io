@@ -11,6 +11,7 @@ beforeAll(async () => {
 
 const boundaryMessages = async (filePath: string, source: string) => {
   const [result] = await eslint.lintText(source, { filePath })
+  if (!result) throw new Error(`ESLint returned no result for ${filePath}`)
   expect(result.fatalErrorCount).toBe(0)
   expect(
     result.messages.filter(({ ruleId }) => ruleId === 'import/no-unresolved')

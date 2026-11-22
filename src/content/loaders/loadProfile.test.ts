@@ -1,6 +1,8 @@
 import { describe, expect, it } from 'vitest'
 import { ZodError } from 'zod'
 
+import { getRequired } from '../../test/getRequired'
+
 import { navLinks, parseProfile, profile } from './loadProfile'
 import { createValidRawProfile } from './testFixtures'
 
@@ -102,7 +104,11 @@ describe('profile content', () => {
     const profileWithUnsafeUrl = createValidRawProfile()
     const profileWithUnsafeCredential = createValidRawProfile()
     profileWithUnsafeUrl.githubUrl = 'http://github.com/example-engineer'
-    profileWithUnsafeCredential.certifications[0].credentialUrl = 'javascript:alert(1)'
+    getRequired(
+      profileWithUnsafeCredential.certifications,
+      0,
+      'certification fixture'
+    ).credentialUrl = 'javascript:alert(1)'
 
     expect(() => parseProfile(profileWithUnsafeUrl)).toThrow(
       /Must use the HTTPS protocol/
@@ -115,8 +121,13 @@ describe('profile content', () => {
   it('rejects invalid dimensions and unknown navigation fragments', () => {
     const profileWithBadDimension = createValidRawProfile()
     const profileWithUnknownTarget = createValidRawProfile()
-    profileWithBadDimension.certifications[0].imageWidth = 0
-    profileWithUnknownTarget.navLinks[0].href = '#unknown'
+    getRequired(
+      profileWithBadDimension.certifications,
+      0,
+      'certification fixture'
+    ).imageWidth = 0
+    getRequired(profileWithUnknownTarget.navLinks, 0, 'navigation fixture').href =
+      '#unknown'
 
     expect(() => parseProfile(profileWithBadDimension)).toThrow(
       /certifications\.0\.imageWidth/

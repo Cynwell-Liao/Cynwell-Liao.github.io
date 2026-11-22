@@ -182,8 +182,10 @@ for (const [label, interaction] of [
     const probe = await page.evaluate(() => window.dockLaunchProbe)
     expectCompletedLaunchAnimation(probe.frames)
     expect(probe.opens).toHaveLength(1)
-    expect(probe.opens[0].y).toBeCloseTo(0, 1)
-    expect(probe.opens[0].elapsed).toBeGreaterThanOrEqual(1600)
+    const open = probe.opens[0]
+    if (!open) throw new Error('Expected one recorded profile open')
+    expect(open.y).toBeCloseTo(0, 1)
+    expect(open.elapsed).toBeGreaterThanOrEqual(1600)
     expect(context.pages()).toHaveLength(2)
     expect(await popup.evaluate(() => window.opener)).toBeNull()
     expect(await popup.evaluate(() => document.referrer)).toBe('')
@@ -217,8 +219,10 @@ for (const label of ['GitHub', 'LinkedIn'] as const) {
     const probe = capturedProbe as LaunchProbe
     expectCompletedLaunchAnimation(probe.frames)
     expect(probe.opens).toHaveLength(1)
-    expect(probe.opens[0].y).toBeCloseTo(0, 1)
-    expect(probe.opens[0].elapsed).toBeGreaterThanOrEqual(1600)
+    const open = probe.opens[0]
+    if (!open) throw new Error('Expected one recorded profile open')
+    expect(open.y).toBeCloseTo(0, 1)
+    expect(open.elapsed).toBeGreaterThanOrEqual(1600)
     expect(context.pages()).toHaveLength(1)
   })
 }
@@ -283,7 +287,9 @@ test('choosing another profile during launch opens only the latest destination @
   const probe = await page.evaluate(() => window.dockLaunchProbe)
   expectCompletedLaunchAnimation(probe.frames)
   expect(probe.opens).toHaveLength(1)
-  expect(probe.opens[0].y).toBeCloseTo(0, 1)
+  const open = probe.opens[0]
+  if (!open) throw new Error('Expected one recorded profile open')
+  expect(open.y).toBeCloseTo(0, 1)
   expect(context.pages()).toHaveLength(2)
   await popup.close()
 })

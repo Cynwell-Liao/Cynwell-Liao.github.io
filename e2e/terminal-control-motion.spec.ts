@@ -107,6 +107,7 @@ test('traffic lights magnify the hovered dot and expand further on press without
     }
 
     const target = originalTargets[index]
+    if (!target) throw new Error('Missing original traffic-light target')
     const center = {
       x: target.x + target.width / 2,
       y: target.y + target.height / 2,

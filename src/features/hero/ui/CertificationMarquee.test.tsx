@@ -1,6 +1,7 @@
 import { fireEvent, render, screen } from '@testing-library/react'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 
+import { getRequired } from '../../../test/getRequired'
 import { heroProfile } from '../model/profile.fixture'
 
 import { CertificationMarquee } from './CertificationMarquee'
@@ -15,6 +16,12 @@ const certifications = [
 ]
 
 const scrollIntoView = vi.fn()
+
+const getBadge = (badges: readonly HTMLElement[], index: number): HTMLElement => {
+  const badge = badges[index]
+  if (!badge) throw new Error(`Expected certification badge at index ${String(index)}`)
+  return badge
+}
 
 function renderMarquee() {
   const { container } = render(
@@ -86,21 +93,26 @@ describe('CertificationMarquee', () => {
   it('shows a readable fallback when a remote image fails', () => {
     renderMarquee()
 
-    fireEvent.error(screen.getByRole('img', { name: certifications[0].imageAlt }))
+    const certification = getRequired(certifications, 0, 'certification fixture')
+    fireEvent.error(screen.getByRole('img', { name: certification.imageAlt }))
 
     expect(
       screen.getByRole('link', {
-        name: certifications[0].imageAlt,
+        name: certification.imageAlt,
       })
-    ).toHaveTextContent(certifications[0].imageAlt)
+    ).toHaveTextContent(certification.imageAlt)
   })
 
   it('uses intrinsic image dimensions when supplied and defaults to 100px', () => {
     render(
       <CertificationMarquee
         certifications={[
-          { ...certifications[0], imageWidth: 240, imageHeight: 180 },
-          certifications[1],
+          {
+            ...getRequired(certifications, 0, 'certification fixture'),
+            imageWidth: 240,
+            imageHeight: 180,
+          },
+          getRequired(certifications, 1, 'certification fixture'),
         ]}
         heading="Credentials"
       />
@@ -120,12 +132,13 @@ describe('CertificationMarquee', () => {
     'reveals keyboard focus %s with space for its ring',
     (_label, left, right, expected) => {
       const { viewport, badges } = renderMarquee()
+      const badge = getBadge(badges, 0)
       viewport.scrollLeft = 100
       vi.spyOn(viewport, 'getBoundingClientRect').mockReturnValue(bounds(0, 200))
-      vi.spyOn(badges[0], 'getBoundingClientRect').mockReturnValue(bounds(left, right))
-      vi.spyOn(badges[0], 'matches').mockReturnValue(true)
+      vi.spyOn(badge, 'getBoundingClientRect').mockReturnValue(bounds(left, right))
+      vi.spyOn(badge, 'matches').mockReturnValue(true)
 
-      fireEvent.focus(badges[0])
+      fireEvent.focus(badge)
 
       expect(viewport.scrollLeft).toBe(expected)
       expect(scrollIntoView).toHaveBeenCalledWith({
@@ -138,11 +151,12 @@ describe('CertificationMarquee', () => {
 
   it('leaves pointer-focused badges alone', () => {
     const { viewport, badges } = renderMarquee()
+    const badge = getBadge(badges, 0)
     viewport.scrollLeft = 25
-    const measure = vi.spyOn(badges[0], 'getBoundingClientRect')
-    vi.spyOn(badges[0], 'matches').mockReturnValue(false)
+    const measure = vi.spyOn(badge, 'getBoundingClientRect')
+    vi.spyOn(badge, 'matches').mockReturnValue(false)
 
-    fireEvent.focus(badges[0])
+    fireEvent.focus(badge)
 
     expect(viewport.scrollLeft).toBe(25)
     expect(measure).not.toHaveBeenCalled()
@@ -155,26 +169,29 @@ describe('CertificationMarquee', () => {
       return frames.length
     })
     const { badges } = renderMarquee()
-    vi.spyOn(badges[0], 'matches').mockReturnValue(true)
-    badges[0].focus()
+    const badge = getBadge(badges, 0)
+    vi.spyOn(badge, 'matches').mockReturnValue(true)
+    badge.focus()
     expect(scrollIntoView).toHaveBeenCalledTimes(1)
     frames.shift()?.(0)
     expect(scrollIntoView).toHaveBeenCalledTimes(2)
 
-    fireEvent.focus(badges[0])
+    fireEvent.focus(badge)
     expect(scrollIntoView).toHaveBeenCalledTimes(3)
-    badges[0].blur()
+    badge.blur()
     frames.shift()?.(0)
     expect(scrollIntoView).toHaveBeenCalledTimes(3)
   })
 
   it('preserves scrolling within the list and resets it when focus leaves', () => {
     const { viewport, badges } = renderMarquee()
+    const firstBadge = getBadge(badges, 0)
+    const secondBadge = getBadge(badges, 1)
     viewport.scrollLeft = 125
 
-    fireEvent.blur(badges[0], { relatedTarget: badges[1] })
+    fireEvent.blur(firstBadge, { relatedTarget: secondBadge })
     expect(viewport.scrollLeft).toBe(125)
-    fireEvent.blur(badges[1], { relatedTarget: null })
+    fireEvent.blur(secondBadge, { relatedTarget: null })
     expect(viewport.scrollLeft).toBe(0)
   })
 })

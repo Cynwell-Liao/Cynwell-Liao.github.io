@@ -68,10 +68,12 @@ for (const theme of ['light', 'dark'] as const) {
           offset < pixels.length;
           offset += 4
         ) {
-          maximumContrast = Math.max(
-            maximumContrast,
-            Math.abs(pixels[offset] - pixels[offset - stripeWidthBytes])
-          )
+          const current = pixels[offset]
+          const previous = pixels[offset - stripeWidthBytes]
+          if (current === undefined || previous === undefined) {
+            throw new Error('Missing divider pixel sample')
+          }
+          maximumContrast = Math.max(maximumContrast, Math.abs(current - previous))
         }
         return maximumContrast
       })

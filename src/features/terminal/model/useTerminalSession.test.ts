@@ -138,12 +138,14 @@ describe('useTerminalSession', () => {
   it('opens a project once during submission and resets the input', () => {
     const open = vi.spyOn(window, 'open').mockImplementation(() => null)
     const { result, submit, rerender } = renderSession()
+    const project = terminalTestProjects[0]
+    if (!project) throw new Error('Expected a terminal project fixture')
 
     submit('open 1')
     rerender({ theme: 'dark' })
 
     expect(open).toHaveBeenCalledExactlyOnceWith(
-      terminalTestProjects[0].liveUrl,
+      project.liveUrl,
       '_blank',
       'noopener,noreferrer'
     )

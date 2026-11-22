@@ -6,8 +6,8 @@ export interface CertificationItem {
   readonly imageUrl: string
   readonly imageAlt: string
   /** Intrinsic image dimensions; the marquee displays a fixed 100px thumbnail. */
-  readonly imageWidth?: number
-  readonly imageHeight?: number
+  readonly imageWidth?: number | undefined
+  readonly imageHeight?: number | undefined
 }
 
 export interface ProfileData {
@@ -46,19 +46,19 @@ export interface NavLink {
 
 export interface EducationItem {
   readonly institution: string
-  readonly location?: string
+  readonly location?: string | undefined
   readonly degree: string
   readonly duration: string
   readonly achievements: readonly string[]
-  readonly logoUrl?: string
-  readonly color?: string
+  readonly logoUrl?: string | undefined
+  readonly color?: string | undefined
 }
 
 export interface SkillItem {
   readonly name: string
   readonly note: string
   readonly icon: IconKey
-  readonly color?: string
+  readonly color?: string | undefined
 }
 
 export interface SkillCategory {
@@ -72,8 +72,8 @@ export interface Project {
   readonly summary: string
   readonly highlights: readonly string[]
   readonly stack: readonly string[]
-  readonly logoUrl?: string
-  readonly logoColor?: string
-  readonly repoUrl?: string
-  readonly liveUrl?: string
+  readonly logoUrl?: string | undefined
+  readonly logoColor?: string | undefined
+  readonly repoUrl?: string | undefined
+  readonly liveUrl?: string | undefined
 }

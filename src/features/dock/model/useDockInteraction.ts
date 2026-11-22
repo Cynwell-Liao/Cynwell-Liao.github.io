@@ -93,9 +93,11 @@ export function useDockInteraction({
       event.key === 'ContextMenu' ||
       (event.shiftKey && event.key === 'F10')
     ) {
+      const currentItem = items[current]
+      if (!currentItem) return
       event.preventDefault()
       event.stopPropagation()
-      openMenu(current, items[current])
+      openMenu(current, currentItem)
       return
     }
     let next: number

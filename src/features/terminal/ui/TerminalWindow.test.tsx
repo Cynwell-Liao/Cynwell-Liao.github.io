@@ -183,20 +183,20 @@ describe('TerminalWindow', () => {
 
   it('opens project links safely from the open command', async () => {
     const openMock = vi.spyOn(window, 'open').mockImplementation(() => null)
+    const project = terminalTestProjects[0]
+    if (!project) throw new Error('Expected a terminal project fixture')
     renderTerminalWindow()
 
     submitCommand('open 1')
 
     await waitFor(() => {
       expect(openMock).toHaveBeenCalledWith(
-        terminalTestProjects[0].liveUrl,
+        project.liveUrl,
         '_blank',
         'noopener,noreferrer'
       )
     })
-    expect(
-      screen.getByText(`Opening ${terminalTestProjects[0].title}...`)
-    ).toBeInTheDocument()
+    expect(screen.getByText(`Opening ${project.title}...`)).toBeInTheDocument()
   })
 
   it('requests dismissal from the close control', async () => {

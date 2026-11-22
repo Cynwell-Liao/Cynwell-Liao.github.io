@@ -140,19 +140,21 @@ describe('ProjectsSection', () => {
     const articles = screen.getAllByRole('article')
 
     expect(articles).toHaveLength(2)
-    expect(within(articles[0]).getByRole('heading', { level: 3 })).toHaveTextContent(
+    const [liveArticle, sourceArticle] = articles
+    if (!liveArticle || !sourceArticle) throw new Error('Expected two project articles')
+    expect(within(liveArticle).getByRole('heading', { level: 3 })).toHaveTextContent(
       'Live only'
     )
-    expect(within(articles[1]).getByRole('heading', { level: 3 })).toHaveTextContent(
+    expect(within(sourceArticle).getByRole('heading', { level: 3 })).toHaveTextContent(
       'Source only'
     )
-    expect(within(articles[0]).getAllByRole('link')).toHaveLength(1)
-    expect(within(articles[1]).getAllByRole('link')).toHaveLength(1)
+    expect(within(liveArticle).getAllByRole('link')).toHaveLength(1)
+    expect(within(sourceArticle).getAllByRole('link')).toHaveLength(1)
     expect(
-      within(articles[0]).getByRole('link', { name: 'View live: Live only' })
+      within(liveArticle).getByRole('link', { name: 'View live: Live only' })
     ).toHaveAttribute('title', 'View live: Live only')
     expect(
-      within(articles[1]).getByRole('link', { name: 'View source: Source only' })
+      within(sourceArticle).getByRole('link', { name: 'View source: Source only' })
     ).toHaveAttribute('title', 'View source: Source only')
   })
 })

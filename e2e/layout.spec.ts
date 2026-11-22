@@ -181,14 +181,12 @@ for (const viewport of viewports) {
     await expect(marquee).toBeVisible()
     await expect(aboutContent).toBeVisible()
 
-    const [marqueeBounds, aboutBounds] = await Promise.all(
-      [marquee, aboutContent].map((locator) =>
-        locator.evaluate((element) => {
-          const bounds = element.getBoundingClientRect()
-          return { left: bounds.left, right: bounds.right }
-        })
-      )
-    )
+    const readHorizontalBounds = (element: Element) => {
+      const bounds = element.getBoundingClientRect()
+      return { left: bounds.left, right: bounds.right }
+    }
+    const marqueeBounds = await marquee.evaluate(readHorizontalBounds)
+    const aboutBounds = await aboutContent.evaluate(readHorizontalBounds)
 
     expect(marqueeBounds.left).toBeCloseTo(aboutBounds.left, 0)
     expect(marqueeBounds.right).toBeCloseTo(aboutBounds.right, 0)
@@ -231,7 +229,11 @@ for (const viewport of viewports) {
       .evaluateAll((sets) => sets.map((set) => parseFloat(getComputedStyle(set).width)))
 
     expect(setWidths).toHaveLength(2)
-    expect(setWidths[0]).toBeCloseTo(setWidths[1], 0)
+    const [firstSetWidth, secondSetWidth] = setWidths
+    if (firstSetWidth === undefined || secondSetWidth === undefined) {
+      throw new Error('Expected two certification set widths')
+    }
+    expect(firstSetWidth).toBeCloseTo(secondSetWidth, 0)
     for (const width of setWidths) {
       expect(width).toBeGreaterThanOrEqual(viewportContentWidth)
     }

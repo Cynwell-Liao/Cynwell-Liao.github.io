@@ -1,7 +1,7 @@
 import { m } from 'framer-motion'
 import { FiExternalLink, FiGithub } from 'react-icons/fi'
 
-import { getBrandColorStyle } from '@shared/lib/brand'
+import { getMotionBrandColorStyle } from '@shared/lib/brand'
 import { cardReveal } from '@shared/lib/motion'
 import { BrandLogo } from '@shared/ui/BrandLogo'
 
@@ -25,8 +25,10 @@ export function ProjectCard({
   return (
     <m.article
       {...cardReveal(revealDelay)}
+      {...(project.logoColor
+        ? { style: getMotionBrandColorStyle(project.logoColor) }
+        : {})}
       className="glass-panel group flex h-full flex-col p-8"
-      style={getBrandColorStyle(project.logoColor)}
     >
       <div
         aria-hidden="true"

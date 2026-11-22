@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { getRequired } from '../../../test/getRequired'
+
 import {
   DOCK_ICON_SIZE,
   DOCK_GAP,
@@ -27,10 +29,13 @@ describe('Dock magnification', () => {
   it('centers the lens with symmetric neighboring icons', () => {
     const sizes = getDockSizes(0, false)
     expect(sizes).toHaveLength(3)
-    expect(sizes[1]).toBeCloseTo(DOCK_ICON_SIZE + DOCK_MAGNIFICATION, 3)
-    expect(sizes[0]).toBeCloseTo(sizes[2], 6)
-    expect(sizes[0]).toBeGreaterThan(DOCK_ICON_SIZE)
-    expect(sizes[0]).toBeLessThan(sizes[1])
+    const first = getRequired(sizes, 0, 'first Dock size')
+    const center = getRequired(sizes, 1, 'center Dock size')
+    const last = getRequired(sizes, 2, 'last Dock size')
+    expect(center).toBeCloseTo(DOCK_ICON_SIZE + DOCK_MAGNIFICATION, 3)
+    expect(first).toBeCloseTo(last, 6)
+    expect(first).toBeGreaterThan(DOCK_ICON_SIZE)
+    expect(first).toBeLessThan(center)
   })
 
   it.each([false, true])(

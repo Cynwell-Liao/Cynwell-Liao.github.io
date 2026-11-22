@@ -1,9 +1,9 @@
 import '@testing-library/jest-dom/vitest'
 import { cleanup } from '@testing-library/react'
-import { createElement, forwardRef, Fragment } from 'react'
+import { createElement, Fragment } from 'react'
 import { afterEach, beforeEach, vi } from 'vitest'
 
-import type { ComponentType, ReactNode } from 'react'
+import type { ComponentType, ReactNode, Ref } from 'react'
 
 const TRANSIENT_MOTION_PROPS = [
   'initial',
@@ -30,6 +30,7 @@ const TRANSIENT_MOTION_PROPS = [
 type MockMotionProps = {
   [key: string]: unknown
   children?: ReactNode
+  ref?: Ref<HTMLElement>
 }
 
 interface MotionMockState {
@@ -75,14 +76,16 @@ vi.mock('framer-motion', () => {
           return cachedComponent
         }
 
-        const MockMotionComponent = forwardRef<HTMLElement, MockMotionProps>(
-          ({ children, ...restProps }, ref) =>
-            createElement(
-              tagName,
-              { ...stripTransientMotionProps(restProps), ref },
-              (children as ReactNode) ?? null
-            )
-        )
+        const MockMotionComponent = ({
+          children,
+          ref,
+          ...restProps
+        }: MockMotionProps) =>
+          createElement(
+            tagName,
+            { ...stripTransientMotionProps(restProps), ref },
+            children ?? null
+          )
         MockMotionComponent.displayName = `MockMotion.${tagName}`
         componentCache.set(tagName, MockMotionComponent)
         return MockMotionComponent

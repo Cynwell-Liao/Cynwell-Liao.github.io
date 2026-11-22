@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 
 import type { Project } from '@shared/types/portfolio.types'
 
+import { getRequired } from '../../../test/getRequired'
+
 import {
   appendTerminalLines,
   createInitialTerminalLines,
@@ -14,6 +16,8 @@ import { getTerminalToneClass } from './terminalTheme'
 
 const profile = terminalTestProfile
 const projects = terminalTestProjects
+const firstProject = getRequired(projects, 0, 'terminal project')
+const secondProject = getRequired(projects, 1, 'terminal project')
 
 const runCommand = (
   rawInput: string,
@@ -61,7 +65,11 @@ describe('terminal', () => {
       tone: 'default',
     })
     expect(lines).toContainEqual({
-      text: `drwxr-xr-x ${profile.heroTerminalDirectories[0]}`,
+      text: `drwxr-xr-x ${getRequired(
+        profile.heroTerminalDirectories,
+        0,
+        'terminal directory'
+      )}`,
     })
   })
 
@@ -71,7 +79,7 @@ describe('terminal', () => {
 
   it('resolves core informational commands', () => {
     const help = runCommand('help')
-    expect(help?.output[0].text).toBe('Available commands:')
+    expect(help?.output[0]?.text).toBe('Available commands:')
     expect(help?.shouldClear).toBe(false)
 
     const ls = runCommand('ls')
@@ -84,12 +92,14 @@ describe('terminal', () => {
     expect(whoami?.output).toEqual([{ text: `${profile.name} (${profile.title})` }])
 
     const listedProjects = runCommand('projects')
-    expect(listedProjects?.output[0].text).toContain('[1]')
+    expect(listedProjects?.output[0]?.text).toContain('[1]')
   })
 
   it('resolves cat command variants', () => {
     const supported = runCommand('cat about.txt')
-    expect(supported?.output[0].text).toBe(`- ${profile.about[0]}`)
+    expect(supported?.output[0]?.text).toBe(
+      `- ${getRequired(profile.about, 0, 'profile paragraph')}`
+    )
 
     const unsupported = runCommand('cat notes.txt')
     expect(unsupported?.output).toEqual([
@@ -102,14 +112,14 @@ describe('terminal', () => {
     expect(noArg?.output).toEqual([{ text: 'Usage: open <id|index>', tone: 'error' }])
 
     const byIndex = runCommand('open 1')
-    expect(byIndex?.openUrl).toBe(projects[0].liveUrl)
-    expect(byIndex?.output[0].tone).toBe('success')
+    expect(byIndex?.openUrl).toBe(firstProject.liveUrl)
+    expect(byIndex?.output[0]?.tone).toBe('success')
 
-    const byId = runCommand(`open ${projects[1].id.toUpperCase()}`)
-    expect(byId?.openUrl).toBe(projects[1].liveUrl ?? projects[1].repoUrl)
+    const byId = runCommand(`open ${secondProject.id.toUpperCase()}`)
+    expect(byId?.openUrl).toBe(secondProject.liveUrl ?? secondProject.repoUrl)
 
     const missing = runCommand('open missing')
-    expect(missing?.output[0].text).toContain("Project 'missing' not found")
+    expect(missing?.output[0]?.text).toContain("Project 'missing' not found")
     expect(missing?.openUrl).toBeUndefined()
 
     const malformedIndex = runCommand('open 1abc')
@@ -147,16 +157,16 @@ describe('terminal', () => {
   })
 
   it.each(['3d-editor', '1abc', '123'])('opens the valid project id %s', (id) => {
-    const project = { ...projects[0], id }
+    const project = { ...firstProject, id }
     expect(
       runCommand(`open ${id.toUpperCase()}`, { commandProjects: [project] })?.openUrl
     ).toBe(project.liveUrl)
   })
 
   it('prefers a matching numeric id over the positional index', () => {
-    const numericIdProject = { ...projects[1], id: '1' }
+    const numericIdProject = { ...secondProject, id: '1' }
     expect(
-      runCommand('open 1', { commandProjects: [projects[0], numericIdProject] })
+      runCommand('open 1', { commandProjects: [firstProject, numericIdProject] })
         ?.openUrl
     ).toBe(numericIdProject.repoUrl)
   })
@@ -165,13 +175,13 @@ describe('terminal', () => {
     'rejects the out-of-range index %s',
     (selector) => {
       expect(runCommand(`open ${selector}`)?.openUrl).toBeUndefined()
-      expect(runCommand(`open ${selector}`)?.output[0].text).toContain('not found')
+      expect(runCommand(`open ${selector}`)?.output[0]?.text).toContain('not found')
     }
   )
 
   it('resolves theme command variants', () => {
     const noArg = runCommand('theme', { theme: 'light' })
-    expect(noArg?.output[0].text).toBe('Current theme: light')
+    expect(noArg?.output[0]?.text).toBe('Current theme: light')
     expect(noArg?.shouldToggleTheme).toBe(false)
 
     const invalid = runCommand('theme bad', { theme: 'light' })

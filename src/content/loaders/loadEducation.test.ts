@@ -1,5 +1,7 @@
 import { describe, expect, it } from 'vitest'
 
+import { getRequired } from '../../test/getRequired'
+
 import { education, parseEducation } from './loadEducation'
 import { createValidEducation } from './testFixtures'
 
@@ -13,7 +15,10 @@ describe('education content', () => {
   })
 
   it('accepts education entries without a logo', () => {
-    const item = { ...createValidEducation()[0], logoUrl: undefined }
+    const item = {
+      ...getRequired(createValidEducation(), 0, 'education fixture'),
+      logoUrl: undefined,
+    }
 
     expect(parseEducation([item])).toEqual([item])
   })
@@ -39,7 +44,7 @@ describe('education content', () => {
   })
 
   it('rejects institution names that differ only by case', () => {
-    const item = createValidEducation()[0]
+    const item = getRequired(createValidEducation(), 0, 'education fixture')
 
     expect(() =>
       parseEducation([

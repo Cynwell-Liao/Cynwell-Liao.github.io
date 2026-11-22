@@ -209,6 +209,7 @@ test('section links keep their keyboard order and activate with Enter @desktop',
   const navigation = page.getByRole('navigation', { name: 'Primary navigation' })
   const [first] = profile.navLinks
   const last = profile.navLinks[profile.navLinks.length - 1]
+  if (!first || !last) throw new Error('Expected navigation links')
   await navigation.getByRole('link', { name: first.label, exact: true }).focus()
 
   for (const { label } of profile.navLinks.slice(1)) {
@@ -413,7 +414,9 @@ for (const viewport of headerViewports) {
       expect(bounds.brandHeight).toBeCloseTo(36, 1)
       expect(bounds.themeHeight).toBeCloseTo(viewport.themeHeight, 1)
       bounds.outerInsets.forEach((inset, index) => {
-        expect(inset).toBeCloseTo(viewport.outerInsets[index], 1)
+        const expectedInset = viewport.outerInsets[index]
+        if (expectedInset === undefined) throw new Error('Missing expected inset')
+        expect(inset).toBeCloseTo(expectedInset, 1)
       })
       expect(bounds.brandRight).toBeLessThanOrEqual(bounds.controlsLeft)
       expect(bounds.platterLeft).toBeGreaterThanOrEqual(0)

@@ -91,7 +91,7 @@ export default defineConfig([
       js.configs.recommended,
       ...tseslint.configs.recommendedTypeChecked,
       ...tseslint.configs.strictTypeChecked,
-      reactHooks.configs.flat.recommended,
+      reactHooks.configs.flat['recommended-latest'],
       reactRefresh.configs.vite,
       jsxA11y.flatConfigs.recommended,
       importPlugin.flatConfigs.recommended,
