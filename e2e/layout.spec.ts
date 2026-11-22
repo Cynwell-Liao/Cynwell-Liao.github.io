@@ -67,6 +67,79 @@ test('desktop tech-stack cards form content-driven masonry columns @desktop', as
   }
 })
 
+test('touch-tablet tech-stack cards avoid WebKit multi-column fragmentation @mobile', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 834, height: 1194 })
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+
+  const grid = page.locator('.tech-stack-grid')
+  const cards = grid.locator('article')
+  await expect(cards.first()).toBeVisible()
+
+  await expect
+    .poll(() =>
+      grid.evaluate((element) => {
+        const style = getComputedStyle(element)
+        return {
+          columnCount: style.columnCount,
+          display: style.display,
+          gridTemplateColumns: style.gridTemplateColumns,
+        }
+      })
+    )
+    .toEqual({
+      columnCount: 'auto',
+      display: 'grid',
+      gridTemplateColumns: '381px 381px',
+    })
+
+  const measurements = await cards.evaluateAll((elements) =>
+    elements.map((card) => {
+      const bounds = card.getBoundingClientRect()
+      const list = card.querySelector('ul')?.getBoundingClientRect()
+      if (!list) throw new Error('Tech-stack card list is missing')
+      return {
+        bottom: bounds.bottom,
+        left: bounds.left,
+        listBottom: list.bottom,
+        listLeft: list.left,
+        listRight: list.right,
+        listTop: list.top,
+        right: bounds.right,
+        top: bounds.top,
+      }
+    })
+  )
+
+  for (const card of measurements) {
+    expect(card.listTop).toBeGreaterThan(card.top)
+    expect(card.listRight).toBeLessThan(card.right)
+    expect(card.listBottom).toBeLessThan(card.bottom)
+    expect(card.listLeft).toBeGreaterThan(card.left)
+  }
+
+  for (let firstIndex = 0; firstIndex < measurements.length; firstIndex += 1) {
+    for (
+      let secondIndex = firstIndex + 1;
+      secondIndex < measurements.length;
+      secondIndex += 1
+    ) {
+      const first = measurements[firstIndex]
+      const second = measurements[secondIndex]
+      if (!first || !second) throw new Error('Tech-stack card is missing')
+
+      const overlaps =
+        first.left < second.right &&
+        first.right > second.left &&
+        first.top < second.bottom &&
+        first.bottom > second.top
+      expect(overlaps).toBe(false)
+    }
+  }
+})
+
 for (const viewport of viewports) {
   test(`hero certifications align with About, keep compact vertical padding, and fill the marquee on ${viewport.name} ${viewport.tag}`, async ({
     page,

@@ -19,3 +19,27 @@
 .dark .group\/item:hover .tech-stack-tile {
   border-color: #ffffff;
 }
+
+/*
+ * WebKit can fragment transformed, backdrop-filtered children inside CSS
+ * multi-columns on touch tablets. Phones never enter the multi-column layout,
+ * so use an ordinary grid once a coarse-pointer device reaches tablet width.
+ */
+@media (hover: none) and (pointer: coarse) and (min-width: 48rem) {
+  .tech-stack-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+    column-count: initial;
+  }
+
+  .tech-stack-card {
+    margin-bottom: 0;
+  }
+}
+
+@media (hover: none) and (pointer: coarse) and (min-width: 64rem) {
+  .tech-stack-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}

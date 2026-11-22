@@ -1,5 +1,7 @@
 import { m } from 'framer-motion'
 
+import { dockLaunchTransition } from '../model/dockLaunchAnimation'
+
 import { DockIcon } from './DockIcon'
 
 import type { DockItemInteraction } from '../model/useDockInteraction'
@@ -30,10 +32,7 @@ const launchVariants = {
   launch: {
     y: [0, -26, 0],
     transition: {
-      duration: 0.6,
-      repeat: 2,
-      times: [0, 0.5, 1],
-      ease: ['easeOut', 'easeIn'],
+      ...dockLaunchTransition,
     },
   },
 } satisfies Variants
