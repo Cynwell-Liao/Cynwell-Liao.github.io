@@ -334,15 +334,15 @@ test('rapid reverse traversal cancels page scrolling away from the focused badge
   }
 })
 
-test('pointer focus preserves the animated certification row @desktop', async ({
-  browserName,
+test('pointer hover keeps the entry and continuous certification animations moving @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'no-preference' })
   await page.goto('/')
 
-  const { marquee, viewport, track, clones, badges } = marqueeElements(page)
+  const { marquee, viewport, track, clones } = marqueeElements(page)
   await marquee.hover()
+  await expect(track).toHaveCSS('animation-play-state', 'running, running')
   await track.evaluate((element) => {
     for (const animation of element.getAnimations()) {
       const timing = animation.effect?.getTiming()
@@ -353,23 +353,8 @@ test('pointer focus preserves the animated certification row @desktop', async ({
           : (timing?.delay ?? 0)
     }
   })
-  const badge = badges.first()
-  await badge.evaluate((element) => {
-    element.addEventListener('click', (event) => event.preventDefault(), { once: true })
-  })
-  await badge.click()
-
-  // Safari intentionally does not focus links on pointer activation.
-  if (browserName === 'webkit') await badge.focus()
-
-  await expect(badge).toBeFocused()
-  if (browserName !== 'webkit') {
-    expect(await badge.evaluate((element) => element.matches(':focus-visible'))).toBe(
-      false
-    )
-  }
   await expect(track).toHaveCSS('animation-name', /hero-cert-marquee-scroll/)
-  await expect(track).toHaveCSS('animation-play-state', 'running, paused')
+  await expect(track).toHaveCSS('animation-play-state', 'running, running')
   await expect(viewport).toHaveCSS('overflow-x', 'hidden')
   await expect(clones).toBeVisible()
 })

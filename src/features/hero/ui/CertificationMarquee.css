@@ -1,13 +1,5 @@
 @utility hero-cert-marquee {
   @apply relative w-full;
-
-  &:hover .hero-cert-marquee__track {
-    animation-play-state: running, paused;
-  }
-
-  &:focus-within .hero-cert-marquee__track {
-    animation-play-state: running, paused;
-  }
 }
 
 @utility hero-cert-marquee__viewport {
