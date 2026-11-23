@@ -183,39 +183,8 @@ for (const theme of ['light', 'dark'] as const) {
     await input.click()
     await expect(dialog).toHaveAttribute('data-active', 'true')
     await page.getByRole('button', { name: 'Enter full screen' }).hover()
-    const menu = page.getByRole('menu', { name: 'Window arrangement' })
-    await expect(menu).toBeVisible()
-    expect(await expectGlassChrome(menu)).toEqual(titlebarMaterial)
-    const filteredAncestors = await menu.evaluate((element) => {
-      const filtered: string[] = []
-      for (
-        let ancestor = element.parentElement;
-        ancestor;
-        ancestor = ancestor.parentElement
-      ) {
-        const style = getComputedStyle(ancestor)
-        if (style.backdropFilter !== 'none' || style.filter !== 'none') {
-          filtered.push(ancestor.className)
-        }
-      }
-      return filtered
-    })
-    expect(filteredAncestors).toEqual([])
-    for (const item of await menu.getByRole('menuitem').all()) {
-      await expect(item).toBeInViewport({ ratio: 1 })
-      await expect(item).toHaveCSS('opacity', '1')
-      expect(
-        readColor(await item.evaluate((element) => getComputedStyle(element).color))
-          .alpha
-      ).toBe(1)
-    }
+    await expect(page.getByRole('menu')).toHaveCount(0)
     await expect(input).toBeFocused()
-    const menuPreview = testInfo.outputPath(`terminal-${theme}-hover-menu.png`)
-    await dialog.screenshot({ path: menuPreview })
-    await testInfo.attach(`terminal-${theme}-hover-menu`, {
-      path: menuPreview,
-      contentType: 'image/png',
-    })
 
     await page.getByRole('button', { name: 'Minimize terminal' }).click()
     const dock = page.getByRole('button', { name: 'Restore terminal' })
@@ -286,9 +255,7 @@ for (const theme of ['light', 'dark'] as const) {
         theme === 'dark' ? 'rgb(30, 30, 30)' : 'rgb(255, 255, 255)'
       )
       await expectSolidChrome(titlebar, '::before')
-      await page.getByRole('button', { name: 'Enter full screen' }).press('ArrowDown')
-      await expect(menu).toBeVisible()
-      await expectSolidChrome(menu)
+      await expect(page.getByRole('menu')).toHaveCount(0)
       await page.getByRole('button', { name: 'Minimize terminal' }).click()
       await expect(dock).toBeVisible()
       await expectSolidChrome(dockGlass)
@@ -363,10 +330,7 @@ for (const theme of ['light', 'dark'] as const) {
     })
     await page.keyboard.up('Space')
     await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
-    await page.getByRole('button', { name: 'Exit full screen' }).press('ArrowDown')
-    const menu = page.getByRole('menu', { name: 'Window arrangement' })
-    await expect(menu).toBeVisible()
-    await expectSolidChrome(menu)
+    await expect(page.getByRole('menu')).toHaveCount(0)
     await page.getByRole('button', { name: 'Minimize terminal' }).click()
     const dock = page.getByRole('button', { name: 'Restore terminal' })
     await expect(dock).toBeFocused()
@@ -374,7 +338,7 @@ for (const theme of ['light', 'dark'] as const) {
   })
 }
 
-test('keyboard menu selection stays visible and full screen removes every window corner @desktop', async ({
+test('keyboard activation enters full screen and removes every window corner @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -392,32 +356,7 @@ test('keyboard menu selection stays visible and full screen removes every window
   expect(parseFloat(originalRadius)).toBeGreaterThan(0)
 
   await green.focus()
-  await green.press('ArrowDown')
-  const menu = page.getByRole('menu', { name: 'Window arrangement' })
-  const first = menu.getByRole('menuitem').first()
-  const last = menu.getByRole('menuitem').last()
-  await expect(first).toBeFocused()
-  await expect
-    .poll(
-      async () =>
-        readColor(
-          await first.evaluate((element) => getComputedStyle(element).backgroundColor)
-        ).alpha
-    )
-    .toBeGreaterThan(0)
-  const selectedBackground = await first.evaluate(
-    (element) => getComputedStyle(element).backgroundColor
-  )
-  const unselectedBackground = await last.evaluate(
-    (element) => getComputedStyle(element).backgroundColor
-  )
-  expect(selectedBackground).not.toBe(unselectedBackground)
-  await first.press('End')
-  await expect(last).toBeFocused()
-  await expect(last).toHaveCSS('background-color', selectedBackground)
-  await expect(first).toHaveCSS('background-color', unselectedBackground)
-  await last.press('Home')
-  await first.press('Enter')
+  await green.press('Enter')
 
   await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
   for (const surface of [
@@ -432,9 +371,9 @@ test('keyboard menu selection stays visible and full screen removes every window
   await expect(dialog).toHaveCSS('border-top-left-radius', originalRadius)
 })
 
-test('the glass arrangement menu fits a narrow mobile viewport without clipping items @mobile', async ({
+test('the green control exposes no arrangement menu in a narrow mobile viewport @mobile', async ({
   page,
-}, testInfo) => {
+}) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
@@ -448,34 +387,6 @@ test('the glass arrangement menu fits a narrow mobile viewport without clipping 
   const green = page.getByRole('button', { name: 'Enter full screen' })
   await green.focus()
   await green.press('ArrowDown')
-  const menu = page.getByRole('menu', { name: 'Window arrangement' })
-  await expect(menu).toBeVisible()
-  // WebKit can deliver the native resize event after setViewportSize resolves.
-  // Wait for the window to respond before inspecting its menu's final bounds.
-  await expect
-    .poll(async () => {
-      const menuBounds = await menu.boundingBox()
-      return menuBounds ? menuBounds.x + menuBounds.width : Number.POSITIVE_INFINITY
-    })
-    .toBeLessThanOrEqual(viewport.width)
-  const bounds = await menu.boundingBox()
-  if (!bounds) throw new Error('Window arrangement menu bounds are unavailable')
-  const titlebarBounds = await page.getByTestId('terminal-titlebar').boundingBox()
-  if (!titlebarBounds) throw new Error('Terminal title bar bounds are unavailable')
-  expect(bounds.y).toBeGreaterThanOrEqual(titlebarBounds.y + titlebarBounds.height)
-  expect(bounds.x).toBeGreaterThanOrEqual(0)
-  expect(bounds.y).toBeGreaterThanOrEqual(0)
-  expect(bounds.x + bounds.width).toBeLessThanOrEqual(viewport.width)
-  expect(bounds.y + bounds.height).toBeLessThanOrEqual(viewport.height)
-  for (const item of await menu.getByRole('menuitem').all()) {
-    await expect(item).toBeInViewport({ ratio: 1 })
-    expect(
-      await item.evaluate((element) => element.scrollWidth <= element.clientWidth)
-    ).toBe(true)
-  }
-  await expect(menu.getByRole('menuitem').first()).toBeFocused()
-  await testInfo.attach('terminal-narrow-mobile-menu', {
-    body: await page.screenshot(),
-    contentType: 'image/png',
-  })
+  await expect(page.getByRole('menu')).toHaveCount(0)
+  await expect(green).toHaveAttribute('aria-label', 'Enter full screen')
 })

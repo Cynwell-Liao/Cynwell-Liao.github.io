@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 
 import type { PointerEvent as ReactPointerEvent } from 'react'
 
-type WindowMode = 'windowed' | 'zoomed' | 'fullscreen' | 'left' | 'right'
+type WindowMode = 'windowed' | 'zoomed' | 'fullscreen'
 
 interface WindowBounds {
   x: number
@@ -50,17 +50,7 @@ function expandedBounds(mode: Exclude<WindowMode, 'windowed'>): WindowBounds {
     })
   }
 
-  if (mode === 'fullscreen' || window.innerWidth < 640) {
-    return { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }
-  }
-
-  const width = (window.innerWidth - 20) / 2
-  return {
-    x: mode === 'left' ? 8 : width + 12,
-    y: 8,
-    width,
-    height: Math.max(1, window.innerHeight - 16),
-  }
+  return { x: 0, y: 0, width: window.innerWidth, height: window.innerHeight }
 }
 
 function initialLayout(): WindowLayout {
@@ -108,24 +98,13 @@ export function useTerminalWindow() {
     const handleResize = () => {
       stopPointerInteraction.current?.()
       setLayout((previous) => {
-        const mode =
-          (previous.mode === 'left' || previous.mode === 'right') &&
-          window.innerWidth < 640
-            ? 'fullscreen'
-            : previous.mode
         return {
           ...previous,
-          mode,
           bounds:
-            mode === 'windowed' ? clampBounds(previous.bounds) : expandedBounds(mode),
+            previous.mode === 'windowed'
+              ? clampBounds(previous.bounds)
+              : expandedBounds(previous.mode),
           windowedBounds: clampBounds(previous.windowedBounds),
-          fullscreenRestoreMode:
-            (mode === 'fullscreen' && previous.mode !== 'fullscreen') ||
-            (window.innerWidth < 640 &&
-              (previous.fullscreenRestoreMode === 'left' ||
-                previous.fullscreenRestoreMode === 'right'))
-              ? 'windowed'
-              : previous.fullscreenRestoreMode,
         }
       })
     }
@@ -149,10 +128,13 @@ export function useTerminalWindow() {
         }
       }
 
-      const mode = previous.fullscreenRestoreMode
-      return mode === 'windowed'
+      return previous.fullscreenRestoreMode === 'windowed'
         ? windowedLayout(previous.windowedBounds)
-        : { ...previous, mode, bounds: expandedBounds(mode) }
+        : {
+            ...previous,
+            mode: 'zoomed',
+            bounds: expandedBounds('zoomed'),
+          }
     })
   }
 
@@ -169,17 +151,6 @@ export function useTerminalWindow() {
   function restoreWindowed() {
     stopPointerInteraction.current?.()
     setLayout((previous) => windowedLayout(previous.windowedBounds))
-  }
-
-  function tile(side: 'left' | 'right') {
-    stopPointerInteraction.current?.()
-    const mode = window.innerWidth < 640 ? 'fullscreen' : side
-    setLayout((previous) => ({
-      ...previous,
-      mode,
-      bounds: expandedBounds(mode),
-      fullscreenRestoreMode: 'windowed',
-    }))
   }
 
   function startPointerInteraction(
@@ -249,7 +220,6 @@ export function useTerminalWindow() {
     toggleExpanded,
     toggleZoom,
     restoreWindowed,
-    tile,
     startDrag: (event: ReactPointerEvent<HTMLElement>) => {
       startPointerInteraction(event, false)
     },

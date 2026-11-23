@@ -303,7 +303,7 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
   await expect(page.getByRole('button', { name: 'Enter full screen' })).toBeInViewport()
 })
 
-test('the delayed green-button menu tiles the window and keeps the prompt usable @desktop', async ({
+test('the green button never opens an arrangement menu and directly toggles full screen @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -314,51 +314,17 @@ test('the delayed green-button menu tiles the window and keeps the prompt usable
     .click()
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
-  const viewport = page.viewportSize()
-  if (!viewport) throw new Error('Viewport is unavailable')
   await input.fill('saved draft')
-  await page.getByRole('button', { name: 'Enter full screen' }).hover()
-  await expect(page.getByRole('menu', { name: 'Window arrangement' })).toBeVisible()
-  await page.getByRole('menuitem', { name: 'Tile Window to Left of Screen' }).click()
-  await expect(dialog).toHaveAttribute('data-window-mode', 'left')
-  await expect
-    .poll(async () => (await dialog.boundingBox())?.x)
-    .toBeGreaterThanOrEqual(0)
-  await expect
-    .poll(async () => {
-      const bounds = await dialog.boundingBox()
-      return bounds ? bounds.x + bounds.width : undefined
-    })
-    .toBeLessThanOrEqual(viewport.width / 2)
-  await expect(input).toHaveValue('saved draft')
-  await expect(input).toBeInViewport()
+  const green = page.getByRole('button', { name: 'Enter full screen' })
+  await green.hover()
+  await page.waitForTimeout(550)
+  await expect(page.getByRole('menu')).toHaveCount(0)
+  await expect(green).not.toHaveAttribute('aria-haspopup')
 
-  const green = page.getByRole('button', { name: /full screen/u })
-  await green.focus()
-  await green.press('ArrowDown')
-  await page.getByRole('menuitem', { name: 'Tile Window to Right of Screen' }).click()
-  await expect(dialog).toHaveAttribute('data-window-mode', 'right')
-  await expect
-    .poll(async () => (await dialog.boundingBox())?.x)
-    .toBeGreaterThanOrEqual(viewport.width / 2)
-  await expect
-    .poll(async () => {
-      const bounds = await dialog.boundingBox()
-      return bounds ? bounds.x + bounds.width : undefined
-    })
-    .toBeLessThanOrEqual(viewport.width)
-  const rightBounds = await dialog.boundingBox()
-  if (!rightBounds) throw new Error('Terminal bounds are unavailable')
-  await expect(input).toHaveValue('saved draft')
-  await expect(input).toBeInViewport()
-
-  await page.getByRole('button', { name: 'Enter full screen' }).click()
+  await green.click()
   await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
-  await page.keyboard.press('Escape')
-  await expect(dialog).toHaveAttribute('data-window-mode', 'right')
-  await expect.poll(async () => await dialog.boundingBox()).toEqual(rightBounds)
   await expect(input).toHaveValue('saved draft')
-  await page.keyboard.press('Escape')
+  await page.getByRole('button', { name: 'Exit full screen' }).click()
   await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
 })
 
@@ -428,25 +394,4 @@ test('the dark terminal retains readable prompt, input, and title colors @deskto
     'rgb(240, 240, 240)'
   )
   await expect(page.locator('.terminal-title')).toHaveCSS('color', 'rgb(222, 222, 222)')
-})
-
-test('Escape dismisses the hover-opened green menu while preserving input focus @desktop', async ({
-  page,
-}) => {
-  await page.goto('/')
-  await page
-    .getByRole('navigation', { name: 'Application Dock' })
-    .getByRole('button', { name: 'Terminal', exact: true })
-    .click()
-  const input = page.getByRole('textbox', { name: 'Terminal command input' })
-  const menu = page.getByRole('menu', { name: 'Window arrangement' })
-  await page.getByRole('button', { name: 'Enter full screen' }).hover()
-  await expect(menu).toBeVisible()
-  await expect(input).toBeFocused()
-
-  await page.keyboard.press('Escape')
-
-  await expect(menu).toHaveCount(0)
-  await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeVisible()
-  await expect(input).toBeFocused()
 })

@@ -45,7 +45,7 @@ test('traffic lights magnify the hovered dot and expand further on press without
   })
 
   await page.getByRole('button', { name: 'Enter full screen' }).hover()
-  await expect(page.getByRole('menu', { name: 'Window arrangement' })).toBeVisible()
+  await expect(page.getByRole('menu')).toHaveCount(0)
   for (const glyph of await controls.locator('svg').all()) {
     await expect(glyph).toHaveCSS('opacity', '1')
   }
@@ -54,8 +54,6 @@ test('traffic lights magnify the hovered dot and expand further on press without
       .poll(async () => (await dot.boundingBox())?.width)
       .toBeCloseTo(index === 2 ? 13.2 : 12, 1)
   }
-  await page.keyboard.press('Escape')
-
   for (const [index, name] of controlNames.entries()) {
     const button = page.getByRole('button', { name, exact: true })
     const dot = button.locator('.terminal-window-control-dot')
@@ -267,7 +265,7 @@ test('keyboard presses animate and interrupted hover or pointer presses reset wi
   }
 })
 
-test('touching a traffic light does not leave hover symbols or open a delayed arrangement menu @mobile', async ({
+test('touching a traffic light does not leave hover symbols or expose an arrangement menu @mobile', async ({
   page,
 }) => {
   const viewport = page.viewportSize()
@@ -284,9 +282,7 @@ test('touching a traffic light does not leave hover symbols or open a delayed ar
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
   await page.getByRole('button', { name: 'Enter full screen' }).tap()
   await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
-  // Let the mouse-only hover-menu delay expire after a real touchscreen tap.
-  await page.waitForTimeout(650)
-  await expect(page.getByRole('menu', { name: 'Window arrangement' })).toHaveCount(0)
+  await expect(page.getByRole('menu')).toHaveCount(0)
   for (const glyph of await page.locator('.terminal-window-control__glyph').all()) {
     await expect(glyph).toHaveCSS('opacity', '0')
   }

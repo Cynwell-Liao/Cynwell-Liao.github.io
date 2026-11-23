@@ -67,25 +67,6 @@ describe('useTerminalWindow', () => {
     expect(result.current.bounds).toEqual(resized)
   })
 
-  it('tiles either half with a gap and preserves the original window', () => {
-    const { result } = renderHook(useTerminalWindow)
-    const original = result.current.bounds
-    act(() => {
-      result.current.tile('left')
-    })
-    expect(result.current.mode).toBe('left')
-    expect(result.current.bounds).toEqual({ x: 8, y: 8, width: 590, height: 784 })
-    act(() => {
-      result.current.tile('right')
-    })
-    expect(result.current.bounds).toEqual({ x: 602, y: 8, width: 590, height: 784 })
-    act(() => {
-      result.current.restoreWindowed()
-    })
-    expect(result.current.mode).toBe('windowed')
-    expect(result.current.bounds).toEqual(original)
-  })
-
   it('zooms inside the viewport and restores each mode after full screen', () => {
     const { result } = renderHook(useTerminalWindow)
     act(() => {
@@ -120,31 +101,6 @@ describe('useTerminalWindow', () => {
     expect(result.current.bounds).toEqual(original)
   })
 
-  it.each(['left', 'right'] as const)(
-    'restores the %s tile after full screen without losing the original window',
-    (side) => {
-      const { result } = renderHook(useTerminalWindow)
-      const original = result.current.bounds
-      act(() => {
-        result.current.tile(side)
-      })
-      const tiled = result.current.bounds
-      act(() => {
-        result.current.toggleExpanded()
-      })
-      expect(result.current.mode).toBe('fullscreen')
-      act(() => {
-        result.current.toggleExpanded()
-      })
-      expect(result.current.mode).toBe(side)
-      expect(result.current.bounds).toEqual(tiled)
-      act(() => {
-        result.current.restoreWindowed()
-      })
-      expect(result.current.bounds).toEqual(original)
-    }
-  )
-
   it('recalculates zoomed bounds after viewport changes and preserves the manual size', () => {
     const { result } = renderHook(useTerminalWindow)
     const original = result.current.bounds
@@ -178,9 +134,6 @@ describe('useTerminalWindow', () => {
   it('keeps zoom inset on a narrow viewport and ignores manual resizing and dragging', () => {
     const { result } = renderHook(useTerminalWindow)
     act(() => {
-      result.current.tile('left')
-    })
-    act(() => {
       result.current.toggleZoom()
     })
     const drag = pointerStart()
@@ -207,7 +160,7 @@ describe('useTerminalWindow', () => {
     const { result } = renderHook(useTerminalWindow)
     expect(result.current.bounds).toEqual({ x: 12, y: 96, width: 351, height: 380 })
     act(() => {
-      result.current.tile('right')
+      result.current.toggleExpanded()
     })
     expect(result.current.mode).toBe('fullscreen')
     expect(result.current.bounds).toEqual({ x: 0, y: 0, width: 375, height: 500 })
@@ -238,52 +191,6 @@ describe('useTerminalWindow', () => {
       window.dispatchEvent(new Event('resize'))
     })
     expect(result.current.bounds).toEqual({ x: 12, y: 12, width: 476, height: 376 })
-  })
-
-  it('switches a tiled window to full screen on a narrow viewport and restores its windowed bounds', () => {
-    const { result } = renderHook(useTerminalWindow)
-    act(() => {
-      result.current.resizeBy(-300, -200)
-    })
-    act(() => {
-      result.current.tile('right')
-    })
-    act(() => {
-      setViewport(500, 600)
-      window.dispatchEvent(new Event('resize'))
-    })
-
-    expect(result.current.mode).toBe('fullscreen')
-    expect(result.current.bounds).toEqual({ x: 0, y: 0, width: 500, height: 600 })
-
-    act(() => {
-      result.current.toggleExpanded()
-    })
-    expect(result.current.mode).toBe('windowed')
-    expect(result.current.bounds).toEqual({ x: 148, y: 96, width: 340, height: 220 })
-  })
-
-  it('restores a manual window when a fullscreen tile no longer fits the viewport', () => {
-    const { result } = renderHook(useTerminalWindow)
-    act(() => {
-      result.current.resizeBy(-300, -200)
-    })
-    act(() => {
-      result.current.tile('left')
-    })
-    act(() => {
-      result.current.toggleExpanded()
-    })
-    act(() => {
-      setViewport(500, 600)
-      window.dispatchEvent(new Event('resize'))
-    })
-    act(() => {
-      result.current.toggleExpanded()
-    })
-
-    expect(result.current.mode).toBe('windowed')
-    expect(result.current.bounds).toEqual({ x: 148, y: 96, width: 340, height: 220 })
   })
 
   it('captures a drag, ignores other pointers and stops moving on pointer up', () => {

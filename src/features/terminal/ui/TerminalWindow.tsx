@@ -37,7 +37,6 @@ export function TerminalWindow({
     toggleExpanded,
     toggleZoom,
     restoreWindowed,
-    tile,
     startDrag,
     startResize,
     resizeBy,
@@ -314,10 +313,6 @@ export function TerminalWindow({
                   expanded={mode === 'fullscreen'}
                   onClose={onClose}
                   onMinimize={minimize}
-                  onTile={(side) => {
-                    tile(side)
-                    focusWindow()
-                  }}
                   onToggleExpanded={expand}
                 />
               </div>

@@ -340,34 +340,22 @@ describe('TerminalWindow', () => {
     expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
   })
 
-  it('tiles to either side from the green control menu without losing the draft', async () => {
+  it('uses the green control only for full screen and preserves the draft', async () => {
     const user = userEvent.setup()
     renderTerminalWindow()
     const dialog = screen.getByRole('dialog', { name: 'Terminal' })
     await user.type(getTerminalInput(), 'draft')
+    const green = screen.getByRole('button', { name: 'Enter full screen' })
 
-    for (const [side, mode] of [
-      ['Left', 'left'],
-      ['Right', 'right'],
-    ] as const) {
-      const green = screen.getByRole('button', { name: /full screen/u })
-      green.focus()
-      await user.keyboard('{ArrowDown}')
-      await user.click(
-        screen.getByRole('menuitem', { name: `Tile Window to ${side} of Screen` })
-      )
+    await user.hover(green)
+    await user.keyboard('{ArrowDown}')
+    expect(screen.queryByRole('menu')).not.toBeInTheDocument()
 
-      expect(dialog).toHaveAttribute('data-window-mode', mode)
-      expect(getTerminalInput()).toHaveValue('draft')
-      expect(screen.queryByRole('menu')).not.toBeInTheDocument()
-
-      await user.click(screen.getByRole('button', { name: 'Enter full screen' }))
-      expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
-      await user.click(screen.getByRole('button', { name: 'Exit full screen' }))
-      expect(dialog).toHaveAttribute('data-window-mode', mode)
-      await user.keyboard('{Escape}')
-      expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
-    }
+    await user.click(green)
+    expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+    expect(getTerminalInput()).toHaveValue('draft')
+    await user.click(screen.getByRole('button', { name: 'Exit full screen' }))
+    expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
   })
 
   it('navigates command history and restores the draft after the newest command', () => {

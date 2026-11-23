@@ -85,11 +85,21 @@ export function TerminalPrompt({
             setFocused(false)
           }}
           onChange={(event) => {
-            session.editInput(event.target.value)
+            const input = event.target
+            session.editInput(input.value)
             onCaretChange({
-              position: event.target.selectionStart ?? event.target.value.length,
-              scroll: event.target.scrollLeft,
+              position: input.selectionStart ?? input.value.length,
+              scroll: input.scrollLeft,
               selected: false,
+            })
+            // Chromium can update the insertion point after the change event,
+            // especially when focus has just been restored after minimizing.
+            requestAnimationFrame(() => {
+              onCaretChange({
+                position: input.selectionStart ?? input.value.length,
+                scroll: input.scrollLeft,
+                selected: input.selectionStart !== input.selectionEnd,
+              })
             })
           }}
           onFocus={() => {
