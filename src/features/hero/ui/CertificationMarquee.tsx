@@ -60,12 +60,23 @@ function CertificationBadge({
   isClone: boolean
 }) {
   const [hasImageError, setHasImageError] = useState(false)
+  const [pointerHovered, setPointerHovered] = useState(false)
 
   return (
     <a
       aria-label={isClone ? undefined : certification.imageAlt}
       className="hero-cert-marquee__badge-link"
+      data-pointer-hover={pointerHovered || undefined}
       href={certification.credentialUrl}
+      onPointerCancel={() => {
+        setPointerHovered(false)
+      }}
+      onPointerEnter={(event) => {
+        if (event.pointerType !== 'touch') setPointerHovered(true)
+      }}
+      onPointerLeave={() => {
+        setPointerHovered(false)
+      }}
       rel="noreferrer"
       tabIndex={isClone ? -1 : undefined}
       target="_blank"

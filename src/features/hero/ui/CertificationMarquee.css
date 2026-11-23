@@ -40,9 +40,13 @@
 }
 
 @utility hero-cert-marquee__badge-link {
-  @apply block shrink-0 rounded-lg transition-transform duration-300 hover:scale-105 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
+  @apply block shrink-0 rounded-lg transition-transform duration-300 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-slate-50 dark:focus-visible:ring-offset-slate-950;
   line-height: 0;
   scroll-margin-block: 6rem;
+}
+
+.hero-cert-marquee__badge-link[data-pointer-hover='true'] {
+  transform: scale(1.05);
 }
 
 @utility hero-cert-marquee__badge-image {

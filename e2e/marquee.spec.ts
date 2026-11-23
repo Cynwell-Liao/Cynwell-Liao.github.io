@@ -59,6 +59,30 @@ async function expectScrollReset(viewport: Locator) {
   await expect.poll(() => viewport.evaluate((element) => element.scrollLeft)).toBe(0)
 }
 
+test('a mouse-like pointer zooms certifications when the device reports no hover @mobile', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.goto('/')
+  const badge = marqueeElements(page).badges.first()
+
+  await badge.evaluate((element) => {
+    element.dispatchEvent(
+      new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' })
+    )
+  })
+  await expect(badge).toHaveAttribute('data-pointer-hover', 'true')
+  await expect(badge).toHaveCSS('transform', 'matrix(1.05, 0, 0, 1.05, 0, 0)')
+
+  await badge.evaluate((element) => {
+    element.dispatchEvent(
+      new PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse' })
+    )
+  })
+  await expect(badge).not.toHaveAttribute('data-pointer-hover')
+  await expect(badge).toHaveCSS('transform', 'none')
+})
+
 test('the first certification enters from the right before continuous scrolling @desktop', async ({
   page,
 }) => {

@@ -103,6 +103,19 @@ describe('CertificationMarquee', () => {
     ).toHaveTextContent(certification.imageAlt)
   })
 
+  it('zooms for mouse-like pointers without leaving touch interaction hovered', () => {
+    const { badges } = renderMarquee()
+    const badge = getBadge(badges, 0)
+
+    fireEvent.pointerEnter(badge, { pointerType: 'mouse' })
+    expect(badge).toHaveAttribute('data-pointer-hover', 'true')
+    fireEvent.pointerLeave(badge, { pointerType: 'mouse' })
+    expect(badge).not.toHaveAttribute('data-pointer-hover')
+
+    fireEvent.pointerEnter(badge, { pointerType: 'touch' })
+    expect(badge).not.toHaveAttribute('data-pointer-hover')
+  })
+
   it('uses intrinsic image dimensions when supplied and defaults to 100px', () => {
     render(
       <CertificationMarquee
