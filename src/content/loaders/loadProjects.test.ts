@@ -44,6 +44,19 @@ describe('projects content', () => {
     ).toThrow(/Project IDs must be unique \(case-insensitive\)/)
   })
 
+  it.each(['highlights', 'stack'] as const)(
+    'rejects duplicate project %s case-insensitively',
+    (field) => {
+      const project = getRequired(createValidProjects(), 0, 'project fixture')
+      const value = getRequired(project[field], 0, `project ${field} fixture`)
+      project[field].push(value.toLocaleUpperCase('en-US'))
+
+      expect(() => parseProjects([project])).toThrow(
+        new RegExp(`Project ${field} must be unique`)
+      )
+    }
+  )
+
   it('reports nested and root paths and preserves the Zod error as cause', () => {
     let nestedError: Error | undefined
     let rootError: Error | undefined

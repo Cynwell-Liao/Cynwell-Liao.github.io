@@ -70,13 +70,13 @@
 }
 
 .terminal-window[data-active='false']
-  .terminal-window-controls:not(:hover):not(:has(:focus-visible))
+  .terminal-window-controls:not(:has([data-hovered='true'])):not(:has(:focus-visible))
   .terminal-window-control-dot {
   background-color: #d0d0d0;
 }
 
 .terminal-window[data-active='false'][data-theme='dark']
-  .terminal-window-controls:not(:hover):not(:has(:focus-visible))
+  .terminal-window-controls:not(:has([data-hovered='true'])):not(:has(:focus-visible))
   .terminal-window-control-dot {
   background-color: #575757;
 }
@@ -96,26 +96,21 @@
   stroke: none;
 }
 
+.terminal-window-controls:has([data-hovered='true']) .terminal-window-control-dot svg,
 .terminal-window-controls:has([data-pressed='true']) .terminal-window-control-dot svg,
 .terminal-window-controls:has(:focus-visible) .terminal-window-control-dot svg {
   opacity: 1;
 }
 
-@media (hover: hover) {
-  .terminal-window-controls:hover .terminal-window-control-dot svg {
-    opacity: 1;
-  }
-}
-
 @media (hover: none) {
   .terminal-window[data-active='false']
-    .terminal-window-controls:not(:has(:focus-visible))
+    .terminal-window-controls:not(:has([data-hovered='true'])):not(:has(:focus-visible))
     .terminal-window-control-dot {
     background-color: #d0d0d0;
   }
 
   .terminal-window[data-active='false'][data-theme='dark']
-    .terminal-window-controls:not(:has(:focus-visible))
+    .terminal-window-controls:not(:has([data-hovered='true'])):not(:has(:focus-visible))
     .terminal-window-control-dot {
     background-color: #575757;
   }

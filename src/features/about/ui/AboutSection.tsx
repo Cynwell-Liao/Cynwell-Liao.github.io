@@ -1,6 +1,7 @@
 import { m } from 'framer-motion'
 
 import { SECTION_ID } from '@shared/lib/navigation'
+import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 interface AboutSectionProps {
@@ -16,6 +17,8 @@ export function AboutSection({
   intro,
   paragraphs,
 }: AboutSectionProps) {
+  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+
   return (
     <section
       aria-labelledby="about-heading"
@@ -37,10 +40,14 @@ export function AboutSection({
         />
 
         <div className="mt-12">
-          <div className="glass-panel group p-8">
+          <div
+            className="glass-panel p-8"
+            data-pointer-hover={pointerHovered}
+            {...pointerHoverHandlers}
+          >
             <div
               aria-hidden="true"
-              className="ambient-glow absolute top-0 right-0 h-64 w-64 text-secondary-500/10 opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+              className="ambient-glow absolute top-0 right-0 h-64 w-64 text-secondary-500/10 opacity-0 transition-opacity duration-500 in-data-[pointer-hover=true]:opacity-100"
             />
 
             <div className="relative z-10 space-y-8">

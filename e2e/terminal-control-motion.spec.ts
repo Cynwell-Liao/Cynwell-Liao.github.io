@@ -292,3 +292,36 @@ test('touching a traffic light does not leave hover symbols or expose an arrange
   await page.getByRole('button', { name: 'Exit full screen' }).tap()
   await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
 })
+
+test('a mouse-like pointer reveals traffic-light glyphs when the device reports no hover @mobile', async ({
+  page,
+}) => {
+  const viewport = page.viewportSize()
+  if (!viewport) throw new Error('Mobile viewport is unavailable')
+  await page.emulateMedia({ reducedMotion: 'reduce' })
+  await page.setViewportSize({ width: 1280, height: 800 })
+  await page.goto('/')
+  await page
+    .getByRole('navigation', { name: 'Application Dock' })
+    .getByRole('button', { name: 'Terminal', exact: true })
+    .tap()
+  await page.setViewportSize(viewport)
+
+  const close = page.getByRole('button', { name: 'Close terminal' })
+  const glyphs = page.locator('.terminal-window-control__glyph')
+  await close.evaluate((element) => {
+    element.dispatchEvent(
+      new PointerEvent('pointerover', { bubbles: true, pointerType: 'mouse' })
+    )
+  })
+  await expect(close).toHaveAttribute('data-hovered', 'true')
+  for (const glyph of await glyphs.all()) await expect(glyph).toHaveCSS('opacity', '1')
+
+  await close.evaluate((element) => {
+    element.dispatchEvent(
+      new PointerEvent('pointerout', { bubbles: true, pointerType: 'mouse' })
+    )
+  })
+  await expect(close).toHaveAttribute('data-hovered', 'false')
+  for (const glyph of await glyphs.all()) await expect(glyph).toHaveCSS('opacity', '0')
+})

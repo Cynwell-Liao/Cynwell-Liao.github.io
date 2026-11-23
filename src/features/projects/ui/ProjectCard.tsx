@@ -3,6 +3,7 @@ import { FiExternalLink, FiGithub } from 'react-icons/fi'
 
 import { getMotionBrandColorStyle } from '@shared/lib/brand'
 import { cardReveal } from '@shared/lib/motion'
+import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
 import { BrandLogo } from '@shared/ui/BrandLogo'
 
 import { ProjectActionLink } from './ProjectActionLink'
@@ -22,17 +23,21 @@ export function ProjectCard({
   liveLabel,
   sourceLabel,
 }: ProjectCardProps) {
+  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+
   return (
     <m.article
       {...cardReveal(revealDelay)}
       {...(project.logoColor
         ? { style: getMotionBrandColorStyle(project.logoColor) }
         : {})}
-      className="glass-panel group flex h-full flex-col p-8"
+      className="glass-panel flex h-full flex-col p-8"
+      data-pointer-hover={pointerHovered}
+      {...pointerHoverHandlers}
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 group-hover:opacity-10"
+        className="pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500 in-data-[pointer-hover=true]:opacity-10"
         style={{
           background:
             'radial-gradient(circle at top right, var(--brand-color, #e384b2), transparent 70%)',
@@ -42,7 +47,7 @@ export function ProjectCard({
       <div className="relative z-10 flex h-full flex-col">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <BrandLogo url={project.logoUrl} />
+            <BrandLogo active={pointerHovered} url={project.logoUrl} />
             <h3 className="brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white">
               {project.title}
             </h3>
@@ -93,7 +98,7 @@ export function ProjectCard({
         <div className="mt-auto flex flex-wrap gap-2 border-t border-slate-200 pt-6 dark:border-white/10">
           {project.stack.map((tech) => (
             <span
-              className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs leading-none font-mono text-accent-600 transition-colors group-hover:border-accent-400/50 dark:border-white/10 dark:bg-white/5 dark:text-accent-400 dark:group-hover:border-accent-500/30"
+              className="rounded-full border border-slate-200 bg-slate-100 px-2 py-0.5 text-xs leading-none font-mono text-accent-600 transition-colors in-data-[pointer-hover=true]:border-accent-400/50 dark:border-white/10 dark:bg-white/5 dark:text-accent-400 dark:in-data-[pointer-hover=true]:border-accent-500/30"
               key={tech}
             >
               {tech}

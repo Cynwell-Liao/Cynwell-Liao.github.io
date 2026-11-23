@@ -8,8 +8,7 @@
     <meta name="google-site-verification" content="__SITE_GOOGLE_VERIFICATION__" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="color-scheme" content="light dark" />
-    <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#020617" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#f8fafc" />
     <meta name="description" content="__SITE_DESCRIPTION__" />
     <meta name="keywords" content="__SITE_KEYWORDS__" />
     <meta name="author" content="__SITE_NAME__" />
@@ -47,6 +46,9 @@
           storedTheme === 'dark' || (storedTheme !== 'light' && prefersDark)
         document.documentElement.classList.toggle('dark', shouldUseDark)
         document.documentElement.style.colorScheme = shouldUseDark ? 'dark' : 'light'
+        document
+          .querySelector?.('meta[name="theme-color"]')
+          ?.setAttribute('content', shouldUseDark ? '#020617' : '#f8fafc')
       })()
     </script>
   </head>

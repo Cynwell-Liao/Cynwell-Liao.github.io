@@ -36,15 +36,36 @@ const storeTheme = (theme: ThemeMode) => {
 
 export const useTheme = () => {
   const [theme, setTheme] = useState<ThemeMode>(getInitialTheme)
+  const [followsSystem, setFollowsSystem] = useState(() => readStoredTheme() === null)
 
   useEffect(() => {
     document.documentElement.classList.toggle('dark', theme === 'dark')
     document.documentElement.style.colorScheme = theme
-    storeTheme(theme)
+    document
+      .querySelector('meta[name="theme-color"]')
+      ?.setAttribute('content', theme === 'dark' ? '#020617' : '#f8fafc')
   }, [theme])
 
+  useEffect(() => {
+    if (!followsSystem) return
+
+    const preference = window.matchMedia('(prefers-color-scheme: dark)')
+    const syncSystemTheme = () => {
+      setTheme(preference.matches ? 'dark' : 'light')
+    }
+    preference.addEventListener('change', syncSystemTheme)
+    return () => {
+      preference.removeEventListener('change', syncSystemTheme)
+    }
+  }, [followsSystem])
+
   const toggleTheme = () => {
-    setTheme((currentTheme) => (currentTheme === 'dark' ? 'light' : 'dark'))
+    setFollowsSystem(false)
+    setTheme((currentTheme) => {
+      const nextTheme = currentTheme === 'dark' ? 'light' : 'dark'
+      storeTheme(nextTheme)
+      return nextTheme
+    })
   }
 
   return { theme, toggleTheme }

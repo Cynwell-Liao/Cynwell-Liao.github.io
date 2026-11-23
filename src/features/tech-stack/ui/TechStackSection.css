@@ -8,15 +8,15 @@
   background-color: var(--brand-color);
 }
 
-.group\/item:hover .tech-stack-title {
+[data-pointer-hover='true'] > div > .tech-stack-title {
   color: var(--brand-color);
 }
 
-.group\/item:hover .tech-stack-tile {
+[data-pointer-hover='true'] > .tech-stack-tile {
   border-color: var(--brand-color);
 }
 
-.dark .group\/item:hover .tech-stack-tile {
+.dark [data-pointer-hover='true'] > .tech-stack-tile {
   border-color: #ffffff;
 }
 

@@ -3,10 +3,15 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 
 import { getInitialTheme, useTheme } from './useTheme'
 
-const mockSystemTheme = (isDark: boolean) =>
-  vi.spyOn(window, 'matchMedia').mockReturnValue({
+const mockSystemTheme = (isDark: boolean) => {
+  const preference = Object.assign(new EventTarget(), {
     matches: isDark,
-  } as MediaQueryList)
+    media: '(prefers-color-scheme: dark)',
+    onchange: null,
+  }) as unknown as MediaQueryList
+  vi.spyOn(window, 'matchMedia').mockReturnValue(preference)
+  return preference
+}
 
 describe('getInitialTheme', () => {
   beforeEach(() => {
@@ -39,6 +44,10 @@ describe('getInitialTheme', () => {
 })
 
 describe('useTheme', () => {
+  beforeEach(() => {
+    localStorage.clear()
+  })
+
   it('applies, persists, and toggles the active theme', () => {
     localStorage.setItem('portfolio-theme', 'light')
     const { result } = renderHook(() => useTheme())
@@ -78,5 +87,27 @@ describe('useTheme', () => {
     expect(result.current.theme).toBe('dark')
     expect(document.documentElement).toHaveClass('dark')
     expect(document.documentElement.style.colorScheme).toBe('dark')
+  })
+
+  it('follows system changes until the visitor explicitly chooses a theme', () => {
+    const preference = mockSystemTheme(false)
+    const meta = document.createElement('meta')
+    meta.name = 'theme-color'
+    document.head.append(meta)
+    const { result } = renderHook(() => useTheme())
+
+    expect(localStorage.getItem('portfolio-theme')).toBeNull()
+    act(() => {
+      Object.defineProperty(preference, 'matches', { value: true })
+      preference.dispatchEvent(new Event('change'))
+    })
+    expect(result.current.theme).toBe('dark')
+    expect(meta).toHaveAttribute('content', '#020617')
+
+    act(() => {
+      result.current.toggleTheme()
+    })
+    expect(localStorage.getItem('portfolio-theme')).toBe('light')
+    meta.remove()
   })
 })

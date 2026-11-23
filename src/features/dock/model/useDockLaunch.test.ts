@@ -67,6 +67,21 @@ describe('useDockLaunch', () => {
     expect(openApp).toHaveBeenCalledExactlyOnceWith()
   })
 
+  it('completes a launch when the browser drops the animation callback', () => {
+    vi.useFakeTimers()
+    const openApp = vi.fn()
+    const { result } = renderHook(() => useDockLaunch())
+
+    act(() => {
+      result.current.startLaunch(0, openApp, false)
+      vi.advanceTimersByTime(2_100)
+    })
+
+    expect(openApp).toHaveBeenCalledExactlyOnceWith()
+    expect(result.current.launching).toEqual([])
+    vi.useRealTimers()
+  })
+
   it('ignores repeated activation while the same app is launching', () => {
     const openApp = vi.fn()
     const repeatedOpen = vi.fn()

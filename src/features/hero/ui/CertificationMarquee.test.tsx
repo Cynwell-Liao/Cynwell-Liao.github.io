@@ -114,6 +114,10 @@ describe('CertificationMarquee', () => {
 
     fireEvent.pointerEnter(badge, { pointerType: 'touch' })
     expect(badge).not.toHaveAttribute('data-pointer-hover')
+
+    fireEvent.pointerEnter(badge, { pointerType: 'mouse' })
+    fireEvent.blur(window)
+    expect(badge).not.toHaveAttribute('data-pointer-hover')
   })
 
   it('uses intrinsic image dimensions when supplied and defaults to 100px', () => {

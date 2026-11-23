@@ -20,6 +20,22 @@ export const projectSchema = z
     liveUrl: httpsUrlSchema.optional(),
   })
   .strict()
+  .superRefine((project, context) => {
+    for (const field of ['highlights', 'stack'] as const) {
+      const seenValues = new Set<string>()
+      project[field].forEach((value, index) => {
+        const normalizedValue = value.toLocaleLowerCase('en-US')
+        if (seenValues.has(normalizedValue)) {
+          context.addIssue({
+            code: 'custom',
+            message: `Project ${field} must be unique (case-insensitive)`,
+            path: [field, index],
+          })
+        }
+        seenValues.add(normalizedValue)
+      })
+    }
+  })
 
 export const projectsSchema = z
   .array(projectSchema)

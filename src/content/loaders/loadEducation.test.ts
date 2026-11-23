@@ -56,4 +56,14 @@ describe('education content', () => {
       ])
     ).toThrow(/Education institutions must be unique \(case-insensitive\)/)
   })
+
+  it('rejects duplicate achievements case-insensitively', () => {
+    const item = getRequired(createValidEducation(), 0, 'education fixture')
+    const achievement = getRequired(item.achievements, 0, 'achievement fixture')
+    item.achievements.push(achievement.toLocaleUpperCase('en-US'))
+
+    expect(() => parseEducation([item])).toThrow(
+      /Education achievements must be unique \(case-insensitive\)/
+    )
+  })
 })

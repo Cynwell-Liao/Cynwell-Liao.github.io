@@ -13,6 +13,20 @@ export const educationItemSchema = z
     color: hexColorSchema.optional(),
   })
   .strict()
+  .superRefine((item, context) => {
+    const seenAchievements = new Set<string>()
+    item.achievements.forEach((achievement, index) => {
+      const normalizedAchievement = achievement.toLocaleLowerCase('en-US')
+      if (seenAchievements.has(normalizedAchievement)) {
+        context.addIssue({
+          code: 'custom',
+          message: 'Education achievements must be unique (case-insensitive)',
+          path: ['achievements', index],
+        })
+      }
+      seenAchievements.add(normalizedAchievement)
+    })
+  })
 
 export const educationSchema = z
   .array(educationItemSchema)

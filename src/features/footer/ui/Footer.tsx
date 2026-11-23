@@ -1,9 +1,12 @@
+import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+
 interface FooterProps {
   name: string
   repositoryUrl: string
 }
 
 export function Footer({ name, repositoryUrl }: FooterProps) {
+  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
   const currentYear = new Date().getFullYear()
   const repository = new URL(repositoryUrl)
   const repositoryLabel = `${repository.host}${repository.pathname}`.replace(/\/$/u, '')
@@ -15,7 +18,9 @@ export function Footer({ name, repositoryUrl }: FooterProps) {
           © {currentYear} {name}
         </p>
         <a
-          className="rounded-sm font-medium text-slate-600 transition-colors hover:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:hover:text-accent-300 dark:focus-visible:ring-offset-slate-950"
+          className="rounded-sm font-medium text-slate-600 transition-colors data-[pointer-hover=true]:text-accent-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-4 focus-visible:ring-offset-slate-50 dark:text-slate-400 dark:data-[pointer-hover=true]:text-accent-300 dark:focus-visible:ring-offset-slate-950"
+          data-pointer-hover={pointerHovered}
+          {...pointerHoverHandlers}
           href={repositoryUrl}
           rel="noreferrer"
           target="_blank"

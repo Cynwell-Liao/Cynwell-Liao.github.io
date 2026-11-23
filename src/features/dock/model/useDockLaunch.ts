@@ -1,5 +1,20 @@
 import { useEffect, useRef, useState } from 'react'
 
+import { openExternalUrl } from '@shared/lib/browser/openExternalUrl'
+
+import {
+  DOCK_LAUNCH_BOUNCES,
+  DOCK_LAUNCH_HOP_DURATION_SECONDS,
+} from './dockLaunchAnimation'
+
+const DOCK_LAUNCH_FALLBACK_MS =
+  DOCK_LAUNCH_BOUNCES * DOCK_LAUNCH_HOP_DURATION_SECONDS * 1000 + 250
+
+interface PendingLaunch {
+  action: () => void
+  fallback: ReturnType<typeof setTimeout>
+}
+
 /**
  * Open a Dock profile destination after the three-bounce launch animation completes.
  *
@@ -12,24 +27,18 @@ export function openLaunchedProfile(
   url: string,
   location: Pick<Location, 'assign'> = window.location
 ) {
-  const isTouchPrimary = window.matchMedia('(pointer: coarse), (hover: none)').matches
-
-  if (!isTouchPrimary && navigator.userActivation.isActive) {
-    window.open(url, '_blank', 'noopener,noreferrer')
-    return
-  }
-
-  location.assign(url)
+  openExternalUrl(url, location)
 }
 
 /** Keep each launch pending until its icon has landed, without queuing repeat clicks. */
 export function useDockLaunch() {
-  const pending = useRef(new Map<number, () => void>())
+  const pending = useRef(new Map<number, PendingLaunch>())
   const [launching, setLaunching] = useState<number[]>([])
 
   useEffect(() => {
     const actions = pending.current
     return () => {
+      for (const launch of actions.values()) clearTimeout(launch.fallback)
       actions.clear()
     }
   }, [])
@@ -40,20 +49,27 @@ export function useDockLaunch() {
       action()
       return
     }
-    pending.current.set(index, action)
+    const fallback = setTimeout(() => {
+      completeLaunch(index)
+    }, DOCK_LAUNCH_FALLBACK_MS)
+    pending.current.set(index, { action, fallback })
     setLaunching((current) => [...current, index])
   }
 
   const completeLaunch = (index: number) => {
-    const action = pending.current.get(index)
-    if (!action) return
+    const launch = pending.current.get(index)
+    if (!launch) return
     pending.current.delete(index)
+    clearTimeout(launch.fallback)
     setLaunching((current) => current.filter((app) => app !== index))
-    action()
+    launch.action()
   }
 
   const cancelLaunch = (index: number) => {
-    if (!pending.current.delete(index)) return
+    const launch = pending.current.get(index)
+    if (!launch) return
+    clearTimeout(launch.fallback)
+    pending.current.delete(index)
     setLaunching((current) => current.filter((app) => app !== index))
   }
 

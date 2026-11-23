@@ -75,6 +75,19 @@ export const profileSchema = z
   .strict()
   .superRefine((rawProfile, context) => {
     const seenTargets = new Set<string>()
+    const seenCredentials = new Set<string>()
+
+    rawProfile.certifications.forEach((certification, index) => {
+      const normalizedUrl = certification.credentialUrl.toLocaleLowerCase('en-US')
+      if (seenCredentials.has(normalizedUrl)) {
+        context.addIssue({
+          code: 'custom',
+          message: 'Certification credential URLs must be unique',
+          path: ['certifications', index, 'credentialUrl'],
+        })
+      }
+      seenCredentials.add(normalizedUrl)
+    })
 
     rawProfile.navLinks.forEach((link, index) => {
       const normalizedTarget = link.href.toLocaleLowerCase('en-US')

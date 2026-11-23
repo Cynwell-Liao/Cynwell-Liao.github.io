@@ -127,6 +127,16 @@ describe('profile content', () => {
     )
   })
 
+  it('rejects duplicate certification credential URLs', () => {
+    const input = createValidRawProfile()
+    const certification = getRequired(input.certifications, 0, 'certification fixture')
+    input.certifications.push({ ...certification })
+
+    expect(() => parseProfile(input)).toThrow(
+      /Certification credential URLs must be unique/
+    )
+  })
+
   it('rejects unknown properties at both root and nested object paths', () => {
     const raw = createValidRawProfile()
     const rootInput = { ...raw, unexpected: true }

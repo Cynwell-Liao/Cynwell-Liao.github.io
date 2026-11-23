@@ -1,5 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 
+import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
 import type { CertificationItem } from '@shared/types/portfolio.types'
 
 import type { FocusEvent } from 'react'
@@ -60,7 +61,7 @@ function CertificationBadge({
   isClone: boolean
 }) {
   const [hasImageError, setHasImageError] = useState(false)
-  const [pointerHovered, setPointerHovered] = useState(false)
+  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
 
   return (
     <a
@@ -68,15 +69,7 @@ function CertificationBadge({
       className="hero-cert-marquee__badge-link"
       data-pointer-hover={pointerHovered || undefined}
       href={certification.credentialUrl}
-      onPointerCancel={() => {
-        setPointerHovered(false)
-      }}
-      onPointerEnter={(event) => {
-        if (event.pointerType !== 'touch') setPointerHovered(true)
-      }}
-      onPointerLeave={() => {
-        setPointerHovered(false)
-      }}
+      {...pointerHoverHandlers}
       rel="noreferrer"
       tabIndex={isClone ? -1 : undefined}
       target="_blank"

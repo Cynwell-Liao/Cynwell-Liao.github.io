@@ -56,10 +56,13 @@ jobs:
         run: npm ci
 
       - name: Install Playwright browsers
-        run: npx playwright install --with-deps chromium
+        run: npx playwright install --with-deps chromium webkit
 
       - name: Build app
         run: npm run build
 
       - name: Run Playwright smoke tests
         run: npm run test:e2e
+
+      - name: Run WebKit smoke tests
+        run: npm run test:e2e:webkit

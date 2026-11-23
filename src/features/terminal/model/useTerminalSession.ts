@@ -1,5 +1,7 @@
 import { useRef, useState } from 'react'
 
+import { openExternalUrl } from '@shared/lib/browser/openExternalUrl'
+
 import {
   appendTerminalLines,
   createInitialTerminalLines,
@@ -65,7 +67,7 @@ export function useTerminalSession({
       setHistory(result.nextCommandHistory)
       if (result.shouldToggleTheme) onToggleTheme()
       if (result.openUrl) {
-        window.open(result.openUrl, '_blank', 'noopener,noreferrer')
+        openExternalUrl(result.openUrl)
       }
       if (result.shouldClear) clearOutput()
       else appendOutput(result.executedInput, result.output)
