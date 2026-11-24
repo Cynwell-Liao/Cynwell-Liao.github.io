@@ -85,6 +85,49 @@ test('tech-stack items show temporary finger feedback on touch browsers @mobile'
   await expect(item).toHaveAttribute('data-pointer-hover', 'false')
 })
 
+test('hover visual surfaces show temporary finger feedback @mobile', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  for (const surface of [
+    page.locator('.hero-cert-marquee__badge-link').first(),
+    page.locator('#about .glass-panel'),
+    page.locator('#tech-stack article').first(),
+    page.locator('#projects article').first(),
+    page.locator('#education article').first(),
+  ]) {
+    await surface.evaluate((element) => {
+      element.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          isPrimary: true,
+          pointerType: 'touch',
+        })
+      )
+    })
+    await expect(surface).toHaveAttribute('data-pointer-hover', 'true')
+
+    await surface.evaluate((element) => {
+      element.dispatchEvent(
+        new PointerEvent('pointerup', { bubbles: true, pointerType: 'touch' })
+      )
+    })
+    await expect(surface).not.toHaveAttribute('data-pointer-hover', 'true')
+  }
+
+  for (const card of [
+    page.locator('#projects article').first(),
+    page.locator('#education article').first(),
+  ]) {
+    await card.dispatchEvent('pointerdown', {
+      isPrimary: true,
+      pointerType: 'touch',
+    })
+    await expect(card.locator('.brand-logo-tile')).toHaveCSS('scale', '1.1')
+  }
+})
+
 for (const viewport of [
   { name: 'phone', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },

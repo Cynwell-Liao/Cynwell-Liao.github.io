@@ -18,7 +18,7 @@ interface EducationSectionProps {
 }
 
 function EducationCard({ item, index }: { item: EducationItem; index: number }) {
-  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
+  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
   const isHero = index === 0
 
   return (
@@ -26,16 +26,17 @@ function EducationCard({ item, index }: { item: EducationItem; index: number }) 
       {...cardReveal(index * 0.15)}
       {...(item.color ? { style: getMotionBrandColorStyle(item.color) } : {})}
       className={cn(
-        'glass-panel flex flex-col p-8',
+        'group glass-panel flex flex-col p-8',
         isHero ? 'md:col-span-2' : 'md:col-span-1'
       )}
+      data-pointer-hover={pointerActive}
       {...pointerFeedbackHandlers}
     >
       <div
         aria-hidden="true"
         className={cn(
           'pointer-events-none absolute inset-0 rounded-3xl opacity-0 transition-opacity duration-500',
-          pointerHovered && 'opacity-10'
+          pointerActive && 'opacity-10'
         )}
         style={
           item.color
@@ -50,7 +51,7 @@ function EducationCard({ item, index }: { item: EducationItem; index: number }) 
       <div className="relative z-10 flex h-full flex-col">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
           <div className="flex items-center gap-3">
-            <BrandLogo active={pointerHovered} url={item.logoUrl} />
+            <BrandLogo active={pointerActive} url={item.logoUrl} />
             <h3 className="brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white">
               {item.institution}
             </h3>

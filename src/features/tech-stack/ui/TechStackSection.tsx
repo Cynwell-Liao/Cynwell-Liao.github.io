@@ -66,13 +66,13 @@ function TechStackCard({
   categoryIndex: number
   registerCard: (element: HTMLElement | null) => void
 }) {
-  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
+  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <m.article
       {...cardReveal(categoryIndex * 0.1)}
       className="tech-stack-card glass-panel mb-6 w-full break-inside-avoid p-8"
-      data-pointer-hover={pointerHovered}
+      data-pointer-hover={pointerActive}
       ref={registerCard}
       {...pointerFeedbackHandlers}
     >

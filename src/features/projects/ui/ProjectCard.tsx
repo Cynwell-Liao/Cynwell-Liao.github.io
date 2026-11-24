@@ -23,7 +23,7 @@ export function ProjectCard({
   liveLabel,
   sourceLabel,
 }: ProjectCardProps) {
-  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
+  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <m.article
@@ -31,8 +31,8 @@ export function ProjectCard({
       {...(project.logoColor
         ? { style: getMotionBrandColorStyle(project.logoColor) }
         : {})}
-      className="glass-panel flex h-full flex-col p-8"
-      data-pointer-hover={pointerHovered}
+      className="group glass-panel flex h-full flex-col p-8"
+      data-pointer-hover={pointerActive}
       {...pointerFeedbackHandlers}
     >
       <div
@@ -47,7 +47,7 @@ export function ProjectCard({
       <div className="relative z-10 flex h-full flex-col">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
           <div className="flex items-center gap-3">
-            <BrandLogo active={pointerHovered} url={project.logoUrl} />
+            <BrandLogo active={pointerActive} url={project.logoUrl} />
             <h3 className="brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white">
               {project.title}
             </h3>

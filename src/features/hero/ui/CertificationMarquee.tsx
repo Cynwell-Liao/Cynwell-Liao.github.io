@@ -61,13 +61,13 @@ function CertificationBadge({
   isClone: boolean
 }) {
   const [hasImageError, setHasImageError] = useState(false)
-  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
+  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <a
       aria-label={isClone ? undefined : certification.imageAlt}
       className="hero-cert-marquee__badge-link"
-      data-pointer-hover={pointerHovered || undefined}
+      data-pointer-hover={pointerActive || undefined}
       href={certification.credentialUrl}
       {...pointerFeedbackHandlers}
       rel="noreferrer"

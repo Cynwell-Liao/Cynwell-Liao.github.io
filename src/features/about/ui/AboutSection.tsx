@@ -17,7 +17,7 @@ export function AboutSection({
   intro,
   paragraphs,
 }: AboutSectionProps) {
-  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
+  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <section
@@ -42,7 +42,7 @@ export function AboutSection({
         <div className="mt-12">
           <div
             className="glass-panel p-8"
-            data-pointer-hover={pointerHovered}
+            data-pointer-hover={pointerActive}
             {...pointerFeedbackHandlers}
           >
             <div
