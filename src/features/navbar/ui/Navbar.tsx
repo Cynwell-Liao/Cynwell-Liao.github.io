@@ -4,7 +4,7 @@ import { FiMoon, FiSun } from 'react-icons/fi'
 
 import { cn } from '@shared/lib/cn'
 import { SECTION_ID } from '@shared/lib/navigation'
-import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
 import type { ThemeMode } from '@shared/types/common'
 
 import { SectionNavigation } from './SectionNavigation'
@@ -20,7 +20,7 @@ interface NavbarProps {
 
 export function Navbar({ brandName, links, theme, onToggleTheme }: NavbarProps) {
   const { scrollY } = useScroll()
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
   const [isScrolled, setIsScrolled] = useState(() => scrollY.get() > 50)
   const logoUrl = `${import.meta.env.BASE_URL}favicon.ico`
 
@@ -73,7 +73,7 @@ export function Navbar({ brandName, links, theme, onToggleTheme }: NavbarProps) 
             className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-500 transition-[color,background-color,border-color] data-[pointer-hover=true]:border-slate-300 data-[pointer-hover=true]:bg-slate-200 data-[pointer-hover=true]:text-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent-600 dark:focus-visible:ring-accent-500 focus-visible:ring-offset-2 focus-visible:ring-offset-white dark:border-white/10 dark:bg-white/5 dark:text-slate-300 dark:data-[pointer-hover=true]:border-white/20 dark:data-[pointer-hover=true]:bg-white/10 dark:data-[pointer-hover=true]:text-white dark:focus-visible:ring-offset-slate-950"
             data-pointer-hover={pointerHovered}
             onClick={onToggleTheme}
-            {...pointerHoverHandlers}
+            {...pointerFeedbackHandlers}
             type="button"
           >
             {theme === 'dark' ? (

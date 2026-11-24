@@ -56,6 +56,35 @@ test('tech-stack items apply their brand color on hover @desktop', async ({ page
   await expect(iconTile).toHaveCSS('border-color', 'rgb(97, 114, 255)')
 })
 
+test('tech-stack items show temporary finger feedback on touch browsers @mobile', async ({
+  page,
+}) => {
+  await page.goto('/')
+  const title = page.locator('#tech-stack').getByText('Docker', { exact: true })
+  const item = title.locator('..').locator('..')
+  const iconTile = item.locator('.tech-stack-tile')
+
+  await item.evaluate((element) => {
+    element.dispatchEvent(
+      new PointerEvent('pointerdown', {
+        bubbles: true,
+        isPrimary: true,
+        pointerType: 'touch',
+      })
+    )
+  })
+  await expect(item).toHaveAttribute('data-pointer-hover', 'true')
+  await expect(title).toHaveCSS('color', 'rgb(97, 114, 255)')
+  await expect(iconTile).toHaveCSS('border-color', 'rgb(97, 114, 255)')
+
+  await item.evaluate((element) => {
+    element.dispatchEvent(
+      new PointerEvent('pointerup', { bubbles: true, pointerType: 'touch' })
+    )
+  })
+  await expect(item).toHaveAttribute('data-pointer-hover', 'false')
+})
+
 for (const viewport of [
   { name: 'phone', width: 390, height: 844 },
   { name: 'tablet', width: 768, height: 1024 },

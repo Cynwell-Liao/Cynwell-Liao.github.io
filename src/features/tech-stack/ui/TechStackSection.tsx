@@ -6,7 +6,7 @@ import { cn } from '@shared/lib/cn'
 import { resolveIcon } from '@shared/lib/icons'
 import { cardReveal } from '@shared/lib/motion'
 import { SECTION_ID } from '@shared/lib/navigation'
-import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { SkillCategory } from '../model/skill.types'
@@ -19,15 +19,15 @@ interface TechStackSectionProps {
 }
 
 function TechStackItem({ item }: { item: SkillCategory['items'][number] }) {
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
   const Icon = resolveIcon(item.icon)
 
   return (
     <li
-      className="flex items-start gap-4"
-      data-pointer-hover={pointerHovered}
+      className="tech-stack-item flex items-start gap-4"
+      data-pointer-hover={pointerActive}
       style={getBrandColorStyle(item.color)}
-      {...pointerHoverHandlers}
+      {...pointerFeedbackHandlers}
     >
       <span
         aria-hidden="true"
@@ -35,8 +35,7 @@ function TechStackItem({ item }: { item: SkillCategory['items'][number] }) {
           'tech-stack-tile inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 dark:border-white/80',
           item.color
             ? 'tech-stack-icon'
-            : 'text-slate-700 dark:bg-white/5 dark:text-slate-300',
-          'in-data-[pointer-hover=true]:scale-110'
+            : 'text-slate-700 dark:bg-white/5 dark:text-slate-300'
         )}
       >
         {Icon
@@ -67,7 +66,7 @@ function TechStackCard({
   categoryIndex: number
   registerCard: (element: HTMLElement | null) => void
 }) {
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <m.article
@@ -75,7 +74,7 @@ function TechStackCard({
       className="tech-stack-card glass-panel mb-6 w-full break-inside-avoid p-8"
       data-pointer-hover={pointerHovered}
       ref={registerCard}
-      {...pointerHoverHandlers}
+      {...pointerFeedbackHandlers}
     >
       <div
         aria-hidden="true"

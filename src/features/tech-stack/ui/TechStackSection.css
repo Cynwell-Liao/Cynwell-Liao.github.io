@@ -14,6 +14,7 @@
 
 [data-pointer-hover='true'] > .tech-stack-tile {
   border-color: var(--brand-color);
+  transform: scale(1.1);
 }
 
 .dark [data-pointer-hover='true'] > .tech-stack-tile {

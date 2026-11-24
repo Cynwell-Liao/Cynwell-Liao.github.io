@@ -4,7 +4,7 @@ import { getMotionBrandColorStyle } from '@shared/lib/brand'
 import { cn } from '@shared/lib/cn'
 import { cardReveal } from '@shared/lib/motion'
 import { SECTION_ID } from '@shared/lib/navigation'
-import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
 import { BrandLogo } from '@shared/ui/BrandLogo'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
@@ -18,7 +18,7 @@ interface EducationSectionProps {
 }
 
 function EducationCard({ item, index }: { item: EducationItem; index: number }) {
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
   const isHero = index === 0
 
   return (
@@ -29,7 +29,7 @@ function EducationCard({ item, index }: { item: EducationItem; index: number }) 
         'glass-panel flex flex-col p-8',
         isHero ? 'md:col-span-2' : 'md:col-span-1'
       )}
-      {...pointerHoverHandlers}
+      {...pointerFeedbackHandlers}
     >
       <div
         aria-hidden="true"

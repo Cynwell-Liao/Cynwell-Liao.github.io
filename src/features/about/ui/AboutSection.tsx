@@ -1,7 +1,7 @@
 import { m } from 'framer-motion'
 
 import { SECTION_ID } from '@shared/lib/navigation'
-import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 interface AboutSectionProps {
@@ -17,7 +17,7 @@ export function AboutSection({
   intro,
   paragraphs,
 }: AboutSectionProps) {
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <section
@@ -43,7 +43,7 @@ export function AboutSection({
           <div
             className="glass-panel p-8"
             data-pointer-hover={pointerHovered}
-            {...pointerHoverHandlers}
+            {...pointerFeedbackHandlers}
           >
             <div
               aria-hidden="true"

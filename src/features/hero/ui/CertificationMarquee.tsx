@@ -1,6 +1,6 @@
 import { useLayoutEffect, useRef, useState } from 'react'
 
-import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
 import type { CertificationItem } from '@shared/types/portfolio.types'
 
 import type { FocusEvent } from 'react'
@@ -61,7 +61,7 @@ function CertificationBadge({
   isClone: boolean
 }) {
   const [hasImageError, setHasImageError] = useState(false)
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <a
@@ -69,7 +69,7 @@ function CertificationBadge({
       className="hero-cert-marquee__badge-link"
       data-pointer-hover={pointerHovered || undefined}
       href={certification.credentialUrl}
-      {...pointerHoverHandlers}
+      {...pointerFeedbackHandlers}
       rel="noreferrer"
       tabIndex={isClone ? -1 : undefined}
       target="_blank"

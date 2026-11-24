@@ -3,7 +3,7 @@ import { FiExternalLink, FiGithub } from 'react-icons/fi'
 
 import { getMotionBrandColorStyle } from '@shared/lib/brand'
 import { cardReveal } from '@shared/lib/motion'
-import { usePointerHover } from '@shared/lib/pointer/usePointerHover'
+import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
 import { BrandLogo } from '@shared/ui/BrandLogo'
 
 import { ProjectActionLink } from './ProjectActionLink'
@@ -23,7 +23,7 @@ export function ProjectCard({
   liveLabel,
   sourceLabel,
 }: ProjectCardProps) {
-  const { pointerHovered, pointerHoverHandlers } = usePointerHover()
+  const { pointerHovered, pointerFeedbackHandlers } = usePointerFeedback()
 
   return (
     <m.article
@@ -33,7 +33,7 @@ export function ProjectCard({
         : {})}
       className="glass-panel flex h-full flex-col p-8"
       data-pointer-hover={pointerHovered}
-      {...pointerHoverHandlers}
+      {...pointerFeedbackHandlers}
     >
       <div
         aria-hidden="true"
