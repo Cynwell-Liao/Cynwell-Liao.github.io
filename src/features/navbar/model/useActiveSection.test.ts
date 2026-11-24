@@ -234,23 +234,39 @@ describe('useActiveSection', () => {
     expect(result.current.activeHref).toBe('#tech-stack')
   })
 
-  it.each(['wheel', 'touchstart', 'scrollend'])(
-    'releases a pending navigation on %s',
-    (event) => {
-      const { result } = renderHook(() => useActiveSection(links))
-      flushFrame()
-      scrollTo(800)
-      act(() => {
-        result.current.selectSection('#education')
-      })
-      expect(result.current.activeHref).toBe('#education')
+  it.each(['wheel', 'touchstart'])('releases a pending navigation on %s', (event) => {
+    const { result } = renderHook(() => useActiveSection(links))
+    flushFrame()
+    scrollTo(800)
+    act(() => {
+      result.current.selectSection('#education')
+    })
+    expect(result.current.activeHref).toBe('#education')
 
-      act(() => {
-        window.dispatchEvent(new Event(event))
-      })
-      expect(result.current.activeHref).toBe('#about')
-    }
-  )
+    act(() => {
+      window.dispatchEvent(new Event(event))
+    })
+    expect(result.current.activeHref).toBe('#about')
+  })
+
+  it('keeps a pending navigation when scrolling ends before the destination arrives', () => {
+    const { result } = renderHook(() => useActiveSection(links))
+    flushFrame()
+    scrollTo(800)
+    act(() => {
+      result.current.selectSection('#education')
+      window.dispatchEvent(new Event('scrollend'))
+    })
+    expect(result.current.activeHref).toBe('#education')
+
+    scrollTo(3600)
+    act(() => {
+      window.dispatchEvent(new Event('scrollend'))
+    })
+    expect(result.current.activeHref).toBe('#education')
+    scrollTo(2800)
+    expect(result.current.activeHref).toBe('#projects')
+  })
 
   it('releases a pending navigation for scrolling keys while ignoring typing and other keys', () => {
     const { result } = renderHook(() => useActiveSection(links))

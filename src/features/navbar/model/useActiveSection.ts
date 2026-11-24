@@ -171,7 +171,9 @@ export function useActiveSection(links: readonly NavLink[]) {
     window.addEventListener('resize', onScroll)
     window.addEventListener('hashchange', onHashChange)
     window.addEventListener('click', onHomeClick)
-    window.addEventListener('scrollend', releaseSelection)
+    // WebKit can emit scrollend before history scroll restoration reaches the
+    // fragment. Let syncSection confirm arrival without cancelling the target.
+    window.addEventListener('scrollend', syncSection)
     window.addEventListener('wheel', releaseSelection, { passive: true })
     window.addEventListener('touchstart', releaseSelection, { passive: true })
     window.addEventListener('keydown', onKeyDown)
@@ -183,7 +185,7 @@ export function useActiveSection(links: readonly NavLink[]) {
       window.removeEventListener('resize', onScroll)
       window.removeEventListener('hashchange', onHashChange)
       window.removeEventListener('click', onHomeClick)
-      window.removeEventListener('scrollend', releaseSelection)
+      window.removeEventListener('scrollend', syncSection)
       window.removeEventListener('wheel', releaseSelection)
       window.removeEventListener('touchstart', releaseSelection)
       window.removeEventListener('keydown', onKeyDown)
