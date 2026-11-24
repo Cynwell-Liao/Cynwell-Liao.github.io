@@ -26,7 +26,7 @@ function EducationCard({ item, index }: { item: EducationItem; index: number }) 
       {...cardReveal(index * 0.15)}
       {...(item.color ? { style: getMotionBrandColorStyle(item.color) } : {})}
       className={cn(
-        'group glass-panel flex flex-col p-8',
+        'glass-panel flex flex-col p-8',
         isHero ? 'md:col-span-2' : 'md:col-span-1'
       )}
       data-pointer-hover={pointerActive}

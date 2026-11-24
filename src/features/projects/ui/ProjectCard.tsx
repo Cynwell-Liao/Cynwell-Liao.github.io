@@ -31,7 +31,7 @@ export function ProjectCard({
       {...(project.logoColor
         ? { style: getMotionBrandColorStyle(project.logoColor) }
         : {})}
-      className="group glass-panel flex h-full flex-col p-8"
+      className="glass-panel flex h-full flex-col p-8"
       data-pointer-hover={pointerActive}
       {...pointerFeedbackHandlers}
     >

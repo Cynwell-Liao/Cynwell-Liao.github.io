@@ -14,11 +14,11 @@
   border-color: var(--brand-color, #ffffff);
 }
 
-.group:is(:hover, [data-pointer-hover='true']) .brand-logo-tile {
+[data-pointer-hover='true'] .brand-logo-tile {
   border-color: var(--brand-color, #e384b2);
 }
 
-.group:is(:hover, [data-pointer-hover='true']) .brand-title {
+[data-pointer-hover='true'] .brand-title {
   color: var(--brand-color, #e384b2);
 }
 
@@ -87,7 +87,7 @@
 }
 
 @utility glass-panel {
-  @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 hover:border-white/40 dark:border-white/10 dark:bg-slate-900/40 dark:hover:border-white/20;
+  @apply relative overflow-hidden rounded-3xl border border-white/20 bg-white/40 shadow-soft backdrop-blur-xl transition-[background-color,border-color,box-shadow] duration-300 dark:border-white/10 dark:bg-slate-900/40;
   box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
 
   &[data-pointer-hover='true'] {
@@ -99,7 +99,7 @@
     @apply pointer-events-none absolute inset-0 bg-linear-to-b from-white/10 to-transparent opacity-0 transition-opacity duration-300 dark:from-white/5;
   }
 
-  &:is(:hover, [data-pointer-hover='true'])::before {
+  &[data-pointer-hover='true']::before {
     @apply opacity-100;
   }
 }

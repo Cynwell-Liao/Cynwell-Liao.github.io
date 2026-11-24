@@ -125,6 +125,28 @@ test('hover visual surfaces show temporary finger feedback @mobile', async ({
       pointerType: 'touch',
     })
     await expect(card.locator('.brand-logo-tile')).toHaveCSS('scale', '1.1')
+    await card.dispatchEvent('pointerup', { pointerType: 'touch' })
+    await expect(card).not.toHaveAttribute('data-pointer-hover', 'true')
+  }
+
+  for (const card of [
+    page.locator('#projects article').first(),
+    page.locator('#education article').first(),
+  ]) {
+    const title = card.locator('.brand-title')
+    const settledColor = () =>
+      title.evaluate(async (element) => {
+        await Promise.all(
+          element.getAnimations().map((animation) => animation.finished)
+        )
+        return getComputedStyle(element).color
+      })
+    const restingColor = await settledColor()
+
+    await card.tap()
+
+    await expect(card).not.toHaveAttribute('data-pointer-hover', 'true')
+    expect(await settledColor()).toBe(restingColor)
   }
 })
 
