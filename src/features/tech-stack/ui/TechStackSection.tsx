@@ -24,7 +24,7 @@ function TechStackItem({ item }: { item: SkillCategory['items'][number] }) {
 
   return (
     <li
-      className="tech-stack-item flex items-start gap-4"
+      className="tech-stack-item brand-feedback flex items-start gap-4"
       data-pointer-hover={pointerActive}
       style={getBrandColorStyle(item.color)}
       {...pointerFeedbackHandlers}
@@ -32,7 +32,7 @@ function TechStackItem({ item }: { item: SkillCategory['items'][number] }) {
       <span
         aria-hidden="true"
         className={cn(
-          'tech-stack-tile inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 dark:border-white/80',
+          'tech-stack-tile pointer-events-none inline-flex h-12 w-12 flex-shrink-0 items-center justify-center rounded-2xl border border-slate-200 bg-slate-100 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300 dark:border-white/80',
           item.color
             ? 'tech-stack-icon'
             : 'text-slate-700 dark:bg-white/5 dark:text-slate-300'
@@ -46,7 +46,7 @@ function TechStackItem({ item }: { item: SkillCategory['items'][number] }) {
           : null}
       </span>
       <div>
-        <span className="tech-stack-title block text-base leading-snug font-semibold text-slate-900 dark:text-slate-100">
+        <span className="brand-title block text-base leading-snug font-semibold text-slate-900 transition-colors dark:text-slate-100">
           {item.name}
         </span>
         <span className="block text-sm leading-snug font-normal text-slate-600 dark:text-slate-400">

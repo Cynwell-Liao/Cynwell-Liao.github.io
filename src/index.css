@@ -14,11 +14,18 @@
   border-color: var(--brand-color, #ffffff);
 }
 
-[data-pointer-hover='true'] .brand-logo-tile {
+.brand-feedback[data-pointer-hover='true'] > :is(.brand-logo-tile, .tech-stack-tile) {
   border-color: var(--brand-color, #e384b2);
+  transform: scale(1.1);
 }
 
-[data-pointer-hover='true'] .brand-title {
+.dark
+  .brand-feedback[data-pointer-hover='true']
+  > :is(.brand-logo-tile, .tech-stack-tile) {
+  border-color: #ffffff;
+}
+
+.brand-feedback[data-pointer-hover='true'] .brand-title {
   color: var(--brand-color, #e384b2);
 }
 

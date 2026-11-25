@@ -122,6 +122,16 @@ describe('ProjectsSection', () => {
     ).not.toBeInTheDocument()
   })
 
+  it('transitions the scale property used by the project action hover effect', () => {
+    render(<ProjectsSection {...headingProps} projects={[createProject()]} />)
+
+    const action = screen.getByRole('link', { name: 'View live: Example Project' })
+    expect(action).toHaveClass(
+      'data-[pointer-hover=true]:scale-105',
+      'transition-[color,background-color,border-color,scale]'
+    )
+  })
+
   it('keeps each project and its available actions in content order', () => {
     render(
       <ProjectsSection

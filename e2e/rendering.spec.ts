@@ -85,6 +85,27 @@ test('tech-stack items show temporary finger feedback on touch browsers @mobile'
   await expect(item).toHaveAttribute('data-pointer-hover', 'false')
 })
 
+test('project and education logos respond to the heading area @desktop', async ({
+  page,
+}) => {
+  await page.goto('/')
+
+  for (const section of ['projects', 'education']) {
+    const card = page.locator(`#${section} article`).first()
+    const heading = card.getByRole('heading', { level: 3 })
+    const logo = card.locator('.brand-logo-tile')
+
+    await heading.scrollIntoViewIfNeeded()
+    await expect(card).toHaveCSS('opacity', '1')
+    await heading.hover()
+    await expect(logo).toHaveCSS('transform', 'matrix(1.1, 0, 0, 1.1, 0, 0)')
+
+    await card.getByRole('list').first().hover()
+    await expect(card).toHaveAttribute('data-pointer-hover', 'true')
+    await expect(logo).toHaveCSS('transform', 'none')
+  }
+})
+
 test('hover visual surfaces show temporary finger feedback @mobile', async ({
   page,
 }) => {
@@ -120,13 +141,15 @@ test('hover visual surfaces show temporary finger feedback @mobile', async ({
     page.locator('#projects article').first(),
     page.locator('#education article').first(),
   ]) {
-    await card.dispatchEvent('pointerdown', {
+    const heading = card.getByRole('heading', { level: 3 })
+    const logo = card.locator('.brand-logo-tile')
+    await heading.dispatchEvent('pointerdown', {
       isPrimary: true,
       pointerType: 'touch',
     })
-    await expect(card.locator('.brand-logo-tile')).toHaveCSS('scale', '1.1')
-    await card.dispatchEvent('pointerup', { pointerType: 'touch' })
-    await expect(card).not.toHaveAttribute('data-pointer-hover', 'true')
+    await expect(logo).toHaveCSS('transform', 'matrix(1.1, 0, 0, 1.1, 0, 0)')
+    await heading.dispatchEvent('pointerup', { pointerType: 'touch' })
+    await expect(logo).toHaveCSS('transform', 'none')
   }
 
   for (const card of [
@@ -143,7 +166,7 @@ test('hover visual surfaces show temporary finger feedback @mobile', async ({
       })
     const restingColor = await settledColor()
 
-    await card.tap()
+    await title.tap()
 
     await expect(card).not.toHaveAttribute('data-pointer-hover', 'true')
     expect(await settledColor()).toBe(restingColor)

@@ -1,0 +1,1 @@
+export { BrandHeading } from './BrandHeading'

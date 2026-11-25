@@ -1,16 +1,11 @@
 import { useState } from 'react'
 
-import { cn } from '@shared/lib/cn'
-import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
-
 interface BrandLogoProps {
   url: string | undefined
-  active?: boolean
 }
 
-export function BrandLogo({ url, active = false }: BrandLogoProps) {
+export function BrandLogo({ url }: BrandLogoProps) {
   const [hasError, setHasError] = useState(false)
-  const { pointerActive, pointerFeedbackHandlers } = usePointerFeedback()
 
   if (!url || hasError) {
     return null
@@ -19,11 +14,7 @@ export function BrandLogo({ url, active = false }: BrandLogoProps) {
   return (
     <span
       aria-hidden="true"
-      className={cn(
-        'brand-logo-tile inline-flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 p-3 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300',
-        (active || pointerActive) && 'scale-110'
-      )}
-      {...pointerFeedbackHandlers}
+      className="brand-logo-tile pointer-events-none inline-flex h-12 w-12 flex-shrink-0 items-center justify-center overflow-hidden rounded-2xl border border-slate-200 bg-slate-100 p-3 shadow-[0_0_15px_rgba(227,132,178,0.1)] transition-[transform,border-color] duration-300"
     >
       <img
         alt=""

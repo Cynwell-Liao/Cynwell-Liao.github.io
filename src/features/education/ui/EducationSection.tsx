@@ -5,7 +5,7 @@ import { cn } from '@shared/lib/cn'
 import { cardReveal } from '@shared/lib/motion'
 import { SECTION_ID } from '@shared/lib/navigation'
 import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
-import { BrandLogo } from '@shared/ui/BrandLogo'
+import { BrandHeading } from '@shared/ui/BrandHeading'
 import { SectionHeading } from '@shared/ui/SectionHeading'
 
 import type { EducationItem } from '../model/education.types'
@@ -50,12 +50,7 @@ function EducationCard({ item, index }: { item: EducationItem; index: number }) 
 
       <div className="relative z-10 flex h-full flex-col">
         <div className="mb-8 flex flex-col justify-between gap-4 sm:flex-row sm:items-start">
-          <div className="flex items-center gap-3">
-            <BrandLogo active={pointerActive} url={item.logoUrl} />
-            <h3 className="brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white">
-              {item.institution}
-            </h3>
-          </div>
+          <BrandHeading logoUrl={item.logoUrl} title={item.institution} />
         </div>
 
         <div className="mb-6 flex flex-col gap-1 border-b border-slate-200 pb-6 dark:border-white/10">

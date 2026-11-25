@@ -4,7 +4,7 @@ import { FiExternalLink, FiGithub } from 'react-icons/fi'
 import { getMotionBrandColorStyle } from '@shared/lib/brand'
 import { cardReveal } from '@shared/lib/motion'
 import { usePointerFeedback } from '@shared/lib/pointer/usePointerFeedback'
-import { BrandLogo } from '@shared/ui/BrandLogo'
+import { BrandHeading } from '@shared/ui/BrandHeading'
 
 import { ProjectActionLink } from './ProjectActionLink'
 
@@ -46,12 +46,7 @@ export function ProjectCard({
 
       <div className="relative z-10 flex h-full flex-col">
         <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <BrandLogo active={pointerActive} url={project.logoUrl} />
-            <h3 className="brand-title text-xl font-bold tracking-tight text-slate-900 transition-colors dark:text-white">
-              {project.title}
-            </h3>
-          </div>
+          <BrandHeading logoUrl={project.logoUrl} title={project.title} />
           <div className="flex items-center gap-3">
             {project.liveUrl ? (
               <ProjectActionLink
