@@ -16,7 +16,10 @@
 
 .brand-feedback[data-pointer-hover='true'] > :is(.brand-logo-tile, .tech-stack-tile) {
   border-color: var(--brand-color, #e384b2);
-  transform: scale(1.1);
+
+  @media (prefers-reduced-motion: no-preference) {
+    transform: scale(1.1);
+  }
 }
 
 .dark

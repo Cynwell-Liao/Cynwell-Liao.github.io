@@ -85,6 +85,23 @@ test('tech-stack items show temporary finger feedback on touch browsers @mobile'
   await expect(item).toHaveAttribute('data-pointer-hover', 'false')
 })
 
+test('brand tiles keep color feedback without scaling under reduced motion @desktop', async ({
+  page,
+}) => {
+  await page.emulateMedia({ reducedMotion: 'reduce', colorScheme: 'light' })
+  await page.goto('/')
+
+  const title = page.locator('#tech-stack').getByText('Docker', { exact: true })
+  const item = title.locator('..').locator('..')
+  const iconTile = item.locator('.tech-stack-tile')
+
+  await title.hover()
+
+  await expect(title).toHaveCSS('color', 'rgb(97, 114, 255)')
+  await expect(iconTile).toHaveCSS('border-color', 'rgb(97, 114, 255)')
+  await expect(iconTile).toHaveCSS('transform', 'none')
+})
+
 test('project and education logos respond to the heading area @desktop', async ({
   page,
 }) => {
