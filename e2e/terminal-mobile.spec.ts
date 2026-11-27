@@ -12,7 +12,7 @@ async function openTerminal(page: Page) {
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeVisible()
 }
 
-test('mobile terminal has readable input and touch controls without opening the keyboard @mobile', async ({
+test('mobile terminal uses desktop text sizing and touch controls without opening the keyboard @mobile', async ({
   page,
 }) => {
   await openTerminal(page)
@@ -20,11 +20,14 @@ test('mobile terminal has readable input and touch controls without opening the 
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   await expect(dialog).toBeFocused()
   await expect(input).not.toBeFocused()
-  expect(
-    await input.evaluate((element) =>
-      Number.parseFloat(getComputedStyle(element).fontSize)
-    )
-  ).toBeGreaterThanOrEqual(16)
+  for (const text of [
+    input,
+    dialog.locator('.terminal-prompt'),
+    dialog.getByRole('log', { name: 'Terminal output' }),
+  ]) {
+    await expect(text).toHaveCSS('font-size', '13px')
+    await expect(text).toHaveCSS('line-height', '17px')
+  }
   await expect(input).toHaveAttribute('enterkeyhint', 'enter')
   expect((await input.boundingBox())?.height).toBeGreaterThanOrEqual(44)
   await expect(page.getByRole('button', { name: 'Resize terminal' })).toHaveCount(0)

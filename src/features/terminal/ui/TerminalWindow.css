@@ -188,11 +188,6 @@
   background: var(--color-accent-800);
   color: #fff;
 }
-.terminal-cell-measure {
-  position: absolute;
-  visibility: hidden;
-  pointer-events: none;
-}
 .terminal-line {
   min-height: 17px;
   white-space: pre-wrap;
@@ -481,9 +476,6 @@
   flex-direction: column;
   overflow: hidden;
   padding: 0;
-  /* A readable input size also avoids iOS's small-input focus zoom. */
-  font-size: 16px;
-  line-height: 22px;
 }
 
 .terminal-desktop[data-mobile='true'] .terminal-output {
@@ -507,20 +499,11 @@
   border-top: 1px solid var(--terminal-divider);
 }
 
-.terminal-desktop[data-mobile='true'] .terminal-line {
-  min-height: 22px;
-}
-
 .terminal-desktop[data-mobile='true'] .terminal-input {
   height: 44px;
-  padding-top: 11px;
-  padding-bottom: 11px;
 }
 
 .terminal-desktop[data-mobile='true'] .terminal-caret-track {
-  top: 11px;
-}
-
-.terminal-desktop[data-mobile='true'] .terminal-cursor {
-  height: 22px;
+  top: 50%;
+  transform: translateY(-50%);
 }

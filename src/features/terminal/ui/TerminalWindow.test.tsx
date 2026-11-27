@@ -54,7 +54,9 @@ describe('TerminalWindow', () => {
     expect(dialog).toHaveAttribute('data-theme', 'light')
     expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
     expect(dialog).not.toHaveAttribute('aria-modal')
-    expect(screen.getByText(/ — Portfolio Shell — \d+×\d+$/u)).toBeInTheDocument()
+    expect(
+      screen.getByText(`${terminalTestProfile.githubUsername} — Portfolio Shell`)
+    ).toBeInTheDocument()
     expect(
       screen.getByText("Type 'help' for commands or 'ls' to explore.")
     ).toBeInTheDocument()

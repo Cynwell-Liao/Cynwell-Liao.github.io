@@ -44,13 +44,11 @@ export function TerminalWindow(props: TerminalWindowProps) {
   const screenRef = useRef<HTMLDivElement>(null)
   const outputRef = useRef<HTMLDivElement>(null)
   const scrollbackRef = isMobile ? outputRef : screenRef
-  const characterRef = useRef<HTMLSpanElement>(null)
   const restoreRef = useRef<HTMLButtonElement>(null)
   const [minimized, setMinimized] = useState(false)
   const [hasMinimized, setHasMinimized] = useState(false)
   const [handledActivation, setHandledActivation] = useState(activationRequest)
   const [active, setActive] = useState(true)
-  const [dimensions, setDimensions] = useState({ columns: 80, rows: 24 })
   // Keep the caret snapshot when minimizing unmounts the prompt.
   const [caret, setCaret] = useState<TerminalCaret>({
     position: 0,
@@ -113,30 +111,6 @@ export function TerminalWindow(props: TerminalWindowProps) {
   useEffect(() => {
     onFullscreenChange?.(mode === 'fullscreen' && !minimized)
   }, [mode, minimized, onFullscreenChange])
-
-  useEffect(() => {
-    const terminalScreen = screenRef.current
-    const character = characterRef.current
-    if (!terminalScreen || !character) return
-
-    const updateDimensions = () => {
-      const cell = character.getBoundingClientRect()
-      if (cell.width === 0 || cell.height === 0) return
-      setDimensions({
-        columns: Math.max(
-          1,
-          Math.floor((terminalScreen.clientWidth - 12) / cell.width)
-        ),
-        rows: Math.max(1, Math.floor((terminalScreen.clientHeight - 8) / cell.height)),
-      })
-    }
-    const observer = new ResizeObserver(updateDimensions)
-    observer.observe(terminalScreen)
-    updateDimensions()
-    return () => {
-      observer.disconnect()
-    }
-  }, [minimized, isMobile])
 
   useEffect(() => {
     if (scrollbackRef.current) {
@@ -316,8 +290,7 @@ export function TerminalWindow(props: TerminalWindowProps) {
               </div>
               <span className="terminal-title">
                 <FiFolder aria-hidden className="terminal-proxy-icon" />
-                {props.profile.githubUsername} — Portfolio Shell — {dimensions.columns}×
-                {dimensions.rows}
+                {props.profile.githubUsername} — Portfolio Shell
               </span>
             </div>
             <div
@@ -334,9 +307,6 @@ export function TerminalWindow(props: TerminalWindowProps) {
               }}
               ref={screenRef}
             >
-              <span aria-hidden className="terminal-cell-measure" ref={characterRef}>
-                M
-              </span>
               <div
                 aria-label="Terminal output"
                 className="terminal-output"
