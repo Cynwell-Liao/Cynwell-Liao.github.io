@@ -1,10 +1,15 @@
+/// <reference lib="dom" />
+
 import { readFileSync } from 'node:fs'
 import { runInNewContext } from 'node:vm'
 
 import { describe, expect, it, vi } from 'vitest'
 
 const html = readFileSync('index.html', 'utf8')
-const bootstrap = html.match(/<script>([\s\S]*?)<\/script>/u)?.[1]
+const parsedHtml = new DOMParser().parseFromString(html, 'text/html')
+const bootstrap = parsedHtml.head
+  .querySelector('script#theme-bootstrap:not([src])')
+  ?.textContent.trim()
 if (!bootstrap) throw new Error('Inline theme bootstrap is missing')
 
 describe('pre-paint theme bootstrap', () => {
