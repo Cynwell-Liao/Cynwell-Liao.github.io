@@ -7,8 +7,9 @@ export const terminalTestProfile: TerminalProfile = {
   title: 'Software Engineer',
   about: ['Builds reliable systems.', 'Enjoys clear interfaces.'],
   githubUsername: 'test-engineer',
-  heroTerminalPath: '~/portfolio',
-  heroTerminalDirectories: ['projects', 'skills'],
+  githubUrl: 'https://github.com/test-engineer',
+  linkedinUrl: 'https://www.linkedin.com/in/test-engineer',
+  repositoryUrl: 'https://github.com/test-engineer/portfolio',
 }
 
 export const terminalTestProjects: Project[] = [

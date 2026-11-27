@@ -7,12 +7,12 @@ import { getRequired } from '../../../test/getRequired'
 import {
   appendTerminalLines,
   createInitialTerminalLines,
+  getCompletions,
   MAX_COMMAND_HISTORY,
   MAX_TERMINAL_OUTPUT_LINES,
   resolveTerminalCommand,
 } from './terminal'
 import { terminalTestProfile, terminalTestProjects } from './terminal.test-fixtures'
-import { getTerminalToneClass } from './terminalTheme'
 
 const profile = terminalTestProfile
 const projects = terminalTestProjects
@@ -25,6 +25,7 @@ const runCommand = (
     theme?: 'light' | 'dark'
     commandHistory?: string[]
     commandProjects?: Project[]
+    cwd?: string
   }
 ) =>
   resolveTerminalCommand({
@@ -33,44 +34,16 @@ const runCommand = (
     projects: options?.commandProjects ?? projects,
     theme: options?.theme ?? 'light',
     commandHistory: options?.commandHistory ?? [],
+    ...(options?.cwd ? { cwd: options.cwd } : {}),
   })
 
 describe('terminal', () => {
-  it('defines theme-aware tone class mappings', () => {
-    expect(getTerminalToneClass('default', 'light')).toBe('text-[#161616]')
-    expect(getTerminalToneClass('default', 'dark')).toBe('text-[#f0f0f0]')
-    expect(getTerminalToneClass('error', 'light')).toBe('text-[#b42318]')
-    expect(getTerminalToneClass('success', 'dark')).toBe('text-[#87d68a]')
-    expect(getTerminalToneClass('muted', 'light')).toBe(
-      getTerminalToneClass('default', 'light')
-    )
-    expect(getTerminalToneClass('muted', 'dark')).toBe(
-      getTerminalToneClass('default', 'dark')
-    )
-  })
-
-  it('builds initial terminal lines from profile content', () => {
-    const lines = createInitialTerminalLines(profile)
-
-    expect(lines[0]).toEqual({
-      text: 'Last login: Wed May 15 10:24:08 on ttys001',
-      tone: 'muted',
-    })
-    expect(lines[1]).toEqual({
-      text: "Type 'help' to explore commands.",
-      tone: 'muted',
-    })
-    expect(lines[2]).toEqual({
-      text: `${profile.heroTerminalPath} % ls -la`,
-      tone: 'default',
-    })
-    expect(lines).toContainEqual({
-      text: `drwxr-xr-x ${getRequired(
-        profile.heroTerminalDirectories,
-        0,
-        'terminal directory'
-      )}`,
-    })
+  it('identifies the read-only shell and shows discovery hints', () => {
+    const startup = createInitialTerminalLines()
+      .map(({ text }) => text)
+      .join('\n')
+    expect(startup).toContain('read-only virtual filesystem')
+    expect(startup).toContain('help')
   })
 
   it('returns null for empty command input', () => {
@@ -83,10 +56,12 @@ describe('terminal', () => {
     expect(help?.shouldClear).toBe(false)
 
     const ls = runCommand('ls')
-    expect(ls?.output.some((line) => line.text === '-rw-r--r-- about.txt')).toBe(true)
+    expect(ls?.output).toContainEqual({ text: 'about.md' })
+    expect(ls?.output).toContainEqual({ text: 'projects/' })
+    expect(ls?.output).not.toContainEqual({ text: './' })
 
     const pwd = runCommand('pwd')
-    expect(pwd?.output).toEqual([{ text: profile.heroTerminalPath }])
+    expect(pwd?.output).toEqual([{ text: '/portfolio' }])
 
     const whoami = runCommand('whoami')
     expect(whoami?.output).toEqual([{ text: `${profile.name} (${profile.title})` }])
@@ -98,18 +73,18 @@ describe('terminal', () => {
   it('resolves cat command variants', () => {
     const supported = runCommand('cat about.txt')
     expect(supported?.output[0]?.text).toBe(
-      `- ${getRequired(profile.about, 0, 'profile paragraph')}`
+      getRequired(profile.about, 0, 'profile paragraph')
     )
 
     const unsupported = runCommand('cat notes.txt')
     expect(unsupported?.output).toEqual([
-      { text: "Only 'cat about.txt' is supported.", tone: 'error' },
+      { text: 'cat: notes.txt: No such file or directory', tone: 'error' },
     ])
   })
 
   it('resolves open command variants', () => {
     const noArg = runCommand('open')
-    expect(noArg?.output).toEqual([{ text: 'Usage: open <id|index>', tone: 'error' }])
+    expect(noArg?.output[0]?.text).toMatch(/^Usage: open /u)
 
     const byIndex = runCommand('open 1')
     expect(byIndex?.openUrl).toBe(firstProject.liveUrl)
@@ -186,7 +161,7 @@ describe('terminal', () => {
 
     const invalid = runCommand('theme bad', { theme: 'light' })
     expect(invalid?.output).toEqual([
-      { text: 'Usage: theme <dark|light|toggle>', tone: 'error' },
+      { text: 'Usage: theme [dark|light|system|toggle]', tone: 'error' },
     ])
 
     const same = runCommand('theme light', { theme: 'light' })
@@ -206,6 +181,62 @@ describe('terminal', () => {
       { text: 'Theme toggled to light.', tone: 'success' },
     ])
     expect(toggle?.shouldToggleTheme).toBe(true)
+  })
+
+  it('resolves relative, home, and absolute paths within the virtual filesystem', () => {
+    const cwd = '/portfolio/projects/alpha-project'
+    expect(runCommand('cd projects/alpha-project')?.nextPath).toBe(cwd)
+    expect(runCommand('cd ../beta-project', { cwd })?.nextPath).toBe(
+      '/portfolio/projects/beta-project'
+    )
+    expect(runCommand('cd ~', { cwd })?.nextPath).toBe('/portfolio')
+    expect(runCommand('cd /../../', { cwd })?.nextPath).toBe('/')
+    expect(runCommand('cd /etc', { cwd })?.nextPath).toBeUndefined()
+    expect(runCommand('cd missing/..', { cwd })?.nextPath).toBeUndefined()
+    expect(runCommand('cd ~/about.md/..', { cwd })?.output[0]?.text).toContain(
+      'Not a directory'
+    )
+    expect(runCommand('cat "README.md"', { cwd })?.output).toContainEqual({
+      text: firstProject.summary,
+    })
+    expect(runCommand("cat 'README.md", { cwd })?.output[0]?.tone).toBe('error')
+    expect(runCommand('ls -la', { cwd })?.output.map(({ text }) => text)).toEqual(
+      expect.arrayContaining([
+        expect.stringMatching(/dr-xr-xr-x.* \.\.\/$/u),
+        expect.stringMatching(/-r--r--r--.*README\.md$/u),
+      ])
+    )
+  })
+
+  it('uses shared usage and completion data and suggests misspelled commands', () => {
+    expect(runCommand('man open')?.output[0]?.text).toBe('OPEN(1)')
+    expect(runCommand('help cd')?.output).toEqual(runCommand('cd --help')?.output)
+    expect(runCommand('proejcts')?.output[1]?.text).toBe("Did you mean 'projects'?")
+    const complete = (input: string, cwd = '/portfolio') =>
+      getCompletions({ profile, projects }, cwd, input).candidates
+    expect(complete('man fas')).toEqual(['fastfetch'])
+    expect(complete('cd a')).toEqual([])
+    expect(complete('cd projects/a')).toEqual(['projects/alpha-project/'])
+    expect(complete('cat R', '/portfolio/projects/alpha-project')).toEqual([
+      'README.md',
+    ])
+    expect(complete('theme sys')).toEqual(['system'])
+    expect(complete('open --source be')).toEqual(['beta-project'])
+  })
+
+  it('opens only configured paths and supports explicit project links', () => {
+    expect(runCommand('open links/github')?.openUrl).toBe(profile.githubUrl)
+    expect(runCommand('open --source projects/alpha-project')?.openUrl).toBe(
+      firstProject.repoUrl
+    )
+    expect(runCommand('open --live beta-project')?.openUrl).toBeUndefined()
+    expect(runCommand('open https://example.com')?.openUrl).toBeUndefined()
+    expect(runCommand('gh repo view --web')?.openUrl).toBe(profile.repositoryUrl)
+    expect(runCommand('cat links/source')?.output).toEqual([
+      { text: profile.repositoryUrl, url: profile.repositoryUrl },
+    ])
+    expect(runCommand('neofetch')?.output).toEqual(runCommand('fastfetch')?.output)
+    expect(runCommand('theme system')?.shouldFollowSystemTheme).toBe(true)
   })
 
   it('resolves history, clear, and unknown commands', () => {

@@ -17,18 +17,16 @@ import type { TerminalWindowProps } from '../model/terminal.types'
 
 import './TerminalWindow.css'
 
-export function TerminalWindow({
-  profile,
-  projects,
-  theme,
-  onClose,
-  onToggleTheme,
-  activationRequest = 0,
-  onMinimizedChange,
-  onFullscreenChange,
-}: TerminalWindowProps) {
+export function TerminalWindow(props: TerminalWindowProps) {
+  const {
+    theme,
+    onClose,
+    activationRequest = 0,
+    onMinimizedChange,
+    onFullscreenChange,
+  } = props
   const reducedMotion = useReducedMotion()
-  const session = useTerminalSession({ profile, projects, theme, onToggleTheme })
+  const session = useTerminalSession(props)
   const mobileViewport = useTerminalViewport()
   const isMobile = mobileViewport !== null
   const {
@@ -318,7 +316,8 @@ export function TerminalWindow({
               </div>
               <span className="terminal-title">
                 <FiFolder aria-hidden className="terminal-proxy-icon" />
-                {profile.githubUsername} — -zsh — {dimensions.columns}×{dimensions.rows}
+                {props.profile.githubUsername} — Portfolio Shell — {dimensions.columns}×
+                {dimensions.rows}
               </span>
             </div>
             <div
@@ -327,7 +326,8 @@ export function TerminalWindow({
                 if (
                   event.pointerType === 'mouse' &&
                   event.target !== inputRef.current &&
-                  !window.getSelection()?.toString()
+                  !window.getSelection()?.toString() &&
+                  !(event.target instanceof Element && event.target.closest('a'))
                 ) {
                   inputRef.current?.focus({ preventScroll: true })
                 }
@@ -347,11 +347,22 @@ export function TerminalWindow({
                   <div
                     className={cn(
                       'terminal-line',
-                      getTerminalToneClass(line.tone ?? 'default', theme)
+                      getTerminalToneClass(line.tone ?? 'default')
                     )}
                     key={`${line.text}-${String(index)}`}
                   >
-                    {line.text || '\u00a0'}
+                    {line.url ? (
+                      <a
+                        className="terminal-link"
+                        href={line.url}
+                        rel="noopener noreferrer"
+                        target="_blank"
+                      >
+                        {line.text}
+                      </a>
+                    ) : (
+                      line.text || '\u00a0'
+                    )}
                   </div>
                 ))}
               </div>
@@ -360,7 +371,6 @@ export function TerminalWindow({
                 caret={caret}
                 inputRef={inputRef}
                 onCaretChange={setCaret}
-                path={profile.heroTerminalPath}
                 session={session}
               />
             </div>

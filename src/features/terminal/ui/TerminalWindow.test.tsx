@@ -54,8 +54,10 @@ describe('TerminalWindow', () => {
     expect(dialog).toHaveAttribute('data-theme', 'light')
     expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
     expect(dialog).not.toHaveAttribute('aria-modal')
-    expect(screen.getByText(/ — -zsh — \d+×\d+$/u)).toBeInTheDocument()
-    expect(screen.getByText("Type 'help' to explore commands.")).toBeInTheDocument()
+    expect(screen.getByText(/ — Portfolio Shell — \d+×\d+$/u)).toBeInTheDocument()
+    expect(
+      screen.getByText("Type 'help' for commands or 'ls' to explore.")
+    ).toBeInTheDocument()
     expect(output).not.toContainElement(input)
     expect(input.closest('.terminal-screen')).toContainElement(output)
     expect(input).not.toHaveAttribute('placeholder')
@@ -166,7 +168,7 @@ describe('TerminalWindow', () => {
     submitCommand('clear')
 
     expect(
-      screen.queryByText("Type 'help' to explore commands.")
+      screen.queryByText("Type 'help' for commands or 'ls' to explore.")
     ).not.toBeInTheDocument()
     expect(getTerminalInput()).toBeInTheDocument()
   })
@@ -225,9 +227,7 @@ describe('TerminalWindow', () => {
     expect(restore).toHaveFocus()
     await user.click(restore)
 
-    expect(screen.getByRole('log')).toHaveTextContent(
-      `${terminalTestProfile.heroTerminalPath} % pwd`
-    )
+    expect(screen.getByRole('log')).toHaveTextContent('~ % pwd')
     expect(getTerminalInput()).toHaveValue('unfinished command')
     expect(getTerminalInput()).toHaveFocus()
   })
@@ -417,9 +417,7 @@ describe('TerminalWindow', () => {
     fireEvent.keyDown(input, { key: 'u', ctrlKey: true })
 
     expect(input).toHaveValue('')
-    expect(screen.getByRole('log')).toHaveTextContent(
-      `${terminalTestProfile.heroTerminalPath} % pwd`
-    )
+    expect(screen.getByRole('log')).toHaveTextContent('~ % pwd')
   })
 
   it('does not consume shell shortcuts while composing text', () => {

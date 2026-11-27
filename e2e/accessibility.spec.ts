@@ -72,6 +72,13 @@ for (const theme of ['light', 'dark'] as const) {
     await input.press('Enter')
     await input.fill(`theme ${theme}`)
     await input.press('Enter')
+    await input.fill('man open')
+    await input.press('Enter')
+    await input.fill('cat links/github')
+    await input.press('Enter')
+    await expect(page.getByRole('log').getByRole('link')).toBeVisible()
+    await input.press('Control+r')
+    await expect(page.getByRole('status')).toContainText('Enter to recall')
     await expect(page.getByRole('dialog', { name: 'Terminal' })).toHaveAttribute(
       'data-theme',
       theme
@@ -84,6 +91,22 @@ for (const theme of ['light', 'dark'] as const) {
       'color',
       theme === 'dark' ? 'rgb(240, 240, 240)' : 'rgb(22, 22, 22)'
     )
+    expect(await scanForViolations(page, testInfo)).toEqual([])
+  })
+
+  test(`${theme} mobile terminal exposes readable portfolio files and links @mobile`, async ({
+    page,
+  }, testInfo) => {
+    await prepareAccessiblePage(page, theme)
+    await page
+      .getByRole('navigation', { name: 'Application Dock' })
+      .getByRole('button', { name: 'Terminal', exact: true })
+      .click()
+    const input = page.getByRole('textbox', { name: 'Terminal command input' })
+    const log = page.getByRole('log', { name: 'Terminal output' })
+    await input.fill('cat education.md links/github')
+    await input.press('Enter')
+    await expect(log.getByRole('link')).toBeInViewport()
     expect(await scanForViolations(page, testInfo)).toEqual([])
   })
 

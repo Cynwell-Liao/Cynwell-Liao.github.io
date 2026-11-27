@@ -15,7 +15,7 @@ import { useTheme } from '@shared/lib/theme/useTheme'
 import { TerminalHost } from './TerminalHost'
 
 function App() {
-  const { theme, toggleTheme } = useTheme()
+  const { theme, toggleTheme, followSystemTheme, setPreferredTheme } = useTheme()
   const [terminalOpener, setTerminalOpener] = useState<HTMLElement | null>(null)
   const [terminalMinimized, setTerminalMinimized] = useState(false)
   const [terminalFullscreen, setTerminalFullscreen] = useState(false)
@@ -107,14 +107,19 @@ function App() {
           {terminalOpener ? (
             <TerminalHost
               activationRequest={terminalActivation}
+              education={education}
               opener={terminalOpener}
               onClose={closeTerminal}
+              onFollowSystemTheme={followSystemTheme}
+              onSetTheme={setPreferredTheme}
               onMinimizedChange={setTerminalMinimized}
               onFullscreenChange={setTerminalFullscreen}
               onToggleTheme={toggleTheme}
               profile={profile}
               projects={projects}
+              skillCategories={skillCategories}
               theme={theme}
+              version={import.meta.env.VITE_APP_VERSION}
             />
           ) : null}
         </div>

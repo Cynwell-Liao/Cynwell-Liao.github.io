@@ -48,6 +48,26 @@ describe('useTheme', () => {
     localStorage.clear()
   })
 
+  it('resumes system updates and can pin the current system color explicitly', () => {
+    const preference = mockSystemTheme(true)
+    localStorage.setItem('portfolio-theme', 'light')
+    const { result } = renderHook(useTheme)
+    act(() => {
+      result.current.followSystemTheme()
+    })
+    expect(result.current.theme).toBe('dark')
+    expect(localStorage.getItem('portfolio-theme')).toBeNull()
+    act(() => {
+      result.current.setPreferredTheme('dark')
+    })
+    expect(localStorage.getItem('portfolio-theme')).toBe('dark')
+    act(() => {
+      Object.defineProperty(preference, 'matches', { value: false })
+      preference.dispatchEvent(new Event('change'))
+    })
+    expect(result.current.theme).toBe('dark')
+  })
+
   it('applies, persists, and toggles the active theme', () => {
     localStorage.setItem('portfolio-theme', 'light')
     const { result } = renderHook(() => useTheme())

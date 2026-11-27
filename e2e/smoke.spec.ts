@@ -118,8 +118,8 @@ test('terminal opens, submits a command, closes, and restores focus @desktop', a
   await input.fill('pwd')
   await input.press('Enter')
 
-  await expect(output).toContainText(`${profile.hero.terminalPath} % pwd`)
-  await expect(output).toContainText(profile.hero.terminalPath)
+  await expect(output).toContainText('~ % pwd')
+  await expect(output.getByText('/portfolio', { exact: true })).toBeVisible()
   await expect(input).toHaveValue('')
 
   await page.getByRole('button', { name: 'Close terminal' }).click()

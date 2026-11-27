@@ -3,6 +3,54 @@ import { expect, test } from './fixtures'
 
 const terminalAsset = /\/assets\/terminal-[^/]+\.js$/u
 
+test('portfolio shell completes real paths and restores commands from history @desktop', async ({
+  page,
+}) => {
+  await page.goto('/')
+  const launcher = page
+    .getByRole('navigation', { name: 'Application Dock' })
+    .getByRole('button', { name: 'Terminal', exact: true })
+  await launcher.click()
+  const input = page.getByRole('textbox', { name: 'Terminal command input' })
+  const log = page.getByRole('log', { name: 'Terminal output' })
+  const run = async (command: string) => {
+    await input.fill(command)
+    await input.press('Enter')
+  }
+  await expect(input).toBeFocused()
+  await input.fill('cd pro')
+  await input.press('End')
+  await input.press('Tab')
+  await expect(input).toHaveValue('cd projects/')
+  await input.press('Enter')
+  await run('cd missing/..')
+  await expect(log).toContainText('No such file or directory')
+  await run('pwd')
+  await expect(log.getByText('/portfolio/projects', { exact: true })).toBeVisible()
+  await run('cat ~/links/github')
+  await expect(log.getByRole('link')).toHaveAttribute('href', profile.githubUrl)
+  await run('man cd')
+  await expect(log).toContainText('CD(1)')
+  await input.press('Control+r')
+  await input.fill('pwd')
+  await expect(page.getByRole('status')).toContainText('Enter to recall')
+  await input.press('Enter')
+  await expect(input).toHaveValue('pwd')
+  await run('exit')
+  await expect(launcher).toBeFocused()
+  await launcher.click()
+  await expect(input).toBeFocused()
+  await input.press('ArrowUp')
+  await expect(input).toHaveValue('exit')
+
+  await input.fill('cd ')
+  await input.press('End')
+  await input.press('Tab')
+  await expect(log).toContainText(/links\/\s+projects\/\s+skills\//u)
+  await input.press('Tab')
+  await expect(input).not.toBeFocused()
+})
+
 test('terminal downloads without a popup and can be dismissed before opening @desktop', async ({
   page,
 }) => {
@@ -152,7 +200,7 @@ test('all traffic-light symbols appear together on hover and minimize preserves 
   await restore.click()
   await expect(input).toBeFocused()
   await expect(input).toHaveValue('unfinished command')
-  await expect(output).toContainText(`${profile.hero.terminalPath} % pwd`)
+  await expect(output).toContainText('~ % pwd')
 })
 
 test('minimize and restore preserve the editing caret @desktop', async ({ page }) => {
@@ -204,7 +252,9 @@ test('minimize and restore preserve the scrollback position @desktop', async ({
 
   await expect(input).toBeFocused()
   await expect.poll(async () => screen.evaluate((element) => element.scrollTop)).toBe(0)
-  await expect(page.getByRole('log')).toContainText("Type 'help' to explore commands.")
+  await expect(page.getByRole('log')).toContainText(
+    "Type 'help' for commands or 'ls' to explore."
+  )
 })
 
 test('title-bar zoom survives a full-screen round trip and restores the original bounds @desktop', async ({
@@ -295,7 +345,7 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
   await input.fill('pwd')
   await input.press('Enter')
   await expect(page.getByRole('log', { name: 'Terminal output' })).toContainText(
-    `${profile.hero.terminalPath} % pwd`
+    '~ % pwd'
   )
   await expect(input).toBeInViewport()
   await expect(page.getByRole('button', { name: 'Close terminal' })).toBeInViewport()
@@ -387,7 +437,7 @@ test('the dark terminal retains readable prompt, input, and title colors @deskto
   )
   await expect(page.locator('.terminal-prompt')).toHaveCSS(
     'color',
-    'rgb(240, 240, 240)'
+    'rgb(239, 162, 199)'
   )
   await expect(page.getByRole('textbox', { name: 'Terminal command input' })).toHaveCSS(
     'color',

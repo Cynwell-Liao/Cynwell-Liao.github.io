@@ -68,5 +68,21 @@ export const useTheme = () => {
     })
   }
 
-  return { theme, toggleTheme }
+  const followSystemTheme = () => {
+    try {
+      localStorage.removeItem(THEME_STORAGE_KEY)
+    } catch {
+      // The current session can still follow the system preference.
+    }
+    setFollowsSystem(true)
+    setTheme(getSystemTheme())
+  }
+
+  const setPreferredTheme = (nextTheme: ThemeMode) => {
+    setFollowsSystem(false)
+    storeTheme(nextTheme)
+    setTheme(nextTheme)
+  }
+
+  return { theme, toggleTheme, followSystemTheme, setPreferredTheme }
 }

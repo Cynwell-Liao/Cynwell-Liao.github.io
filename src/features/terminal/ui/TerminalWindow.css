@@ -8,6 +8,10 @@
   --terminal-background: #fff;
   --terminal-screen-glass: rgb(255 255 255 / var(--terminal-screen-opacity));
   --terminal-text: #161616;
+  --terminal-accent: var(--color-accent-800);
+  --terminal-secondary: var(--color-secondary-800);
+  --terminal-muted: var(--color-slate-700);
+  --terminal-error: #a62017;
   --terminal-glass-solid: #ececee;
   --terminal-glass-background: rgb(250 250 252 / var(--terminal-chrome-opacity));
   --terminal-glass-sheen: linear-gradient(
@@ -40,6 +44,10 @@
     transparent
   );
   --terminal-text: #f0f0f0;
+  --terminal-accent: var(--color-accent-300);
+  --terminal-secondary: var(--color-secondary-300);
+  --terminal-muted: var(--color-slate-300);
+  --terminal-error: #ff918c;
   --terminal-glass-solid: #303032;
   --terminal-glass-background: rgb(28 30 36 / var(--terminal-chrome-opacity));
   --terminal-glass-highlight: rgb(255 255 255 / 34%);
@@ -164,11 +172,7 @@
   background: var(--terminal-background);
   padding: 4px 6px;
   font:
-    400 13px/17px 'SFMono-Regular',
-    Menlo,
-    Monaco,
-    'Cascadia Mono',
-    'Liberation Mono',
+    400 13px/17px var(--font-mono),
     monospace;
   font-variant-ligatures: none;
   scrollbar-width: thin;
@@ -177,11 +181,11 @@
 }
 
 .terminal-screen ::selection {
-  background: #b4d5fe;
+  background: var(--color-accent-200);
   color: #111;
 }
 .terminal-desktop[data-theme='dark'] .terminal-screen ::selection {
-  background: #365f91;
+  background: var(--color-accent-800);
   color: #fff;
 }
 .terminal-cell-measure {
@@ -200,10 +204,31 @@
   align-items: baseline;
 }
 .terminal-prompt {
-  color: var(--terminal-text);
+  color: var(--terminal-accent);
   white-space: pre-wrap;
   overflow-wrap: anywhere;
   max-width: 100%;
+}
+.terminal-tone--accent {
+  color: var(--terminal-accent);
+}
+.terminal-tone--muted,
+.terminal-search-match {
+  color: var(--terminal-muted);
+}
+.terminal-tone--success,
+.terminal-link {
+  color: var(--terminal-secondary);
+}
+.terminal-tone--error {
+  color: var(--terminal-error);
+}
+.terminal-link {
+  text-decoration: underline;
+}
+.terminal-search-match {
+  flex-basis: 100%;
+  overflow-wrap: anywhere;
 }
 .terminal-input-wrap {
   position: relative;

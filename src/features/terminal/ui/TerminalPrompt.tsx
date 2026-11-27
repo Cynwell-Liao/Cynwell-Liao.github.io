@@ -13,7 +13,6 @@ export interface TerminalCaret {
 
 interface TerminalPromptProps {
   active: boolean
-  path: string
   session: TerminalSession
   inputRef: RefObject<HTMLInputElement | null>
   caret: TerminalCaret
@@ -22,7 +21,6 @@ interface TerminalPromptProps {
 
 export function TerminalPrompt({
   active,
-  path,
   session,
   inputRef,
   caret,
@@ -34,10 +32,44 @@ export function TerminalPrompt({
     onCaretChange({ position: 0, scroll: 0, selected: false })
   }
 
+  const moveCaret = (position: number) => {
+    onCaretChange({ position, scroll: 0, selected: false })
+    requestAnimationFrame(() => {
+      inputRef.current?.setSelectionRange(position, position)
+    })
+  }
+
   const onKeyDown = (event: KeyboardEvent<HTMLInputElement>) => {
     if (event.nativeEvent.isComposing) return
     const key = event.key.toLowerCase()
-    if ((event.ctrlKey && key === 'l') || (event.metaKey && key === 'k')) {
+    if (
+      key === 'tab' &&
+      !event.shiftKey &&
+      !event.ctrlKey &&
+      !event.altKey &&
+      !event.metaKey
+    ) {
+      const input = event.currentTarget
+      if (
+        input.selectionStart !== null &&
+        input.selectionStart === input.selectionEnd
+      ) {
+        const position = session.complete(input.selectionStart)
+        if (position !== null) {
+          event.preventDefault()
+          moveCaret(position)
+        }
+      }
+    } else if (event.ctrlKey && key === 'r') {
+      event.preventDefault()
+      session.reverseSearch()
+      if (!session.searching) resetCaret()
+    } else if (session.searching && key === 'escape') {
+      event.preventDefault()
+      event.stopPropagation()
+      session.cancelInput()
+      resetCaret()
+    } else if ((event.ctrlKey && key === 'l') || (event.metaKey && key === 'k')) {
       event.preventDefault()
       session.clearOutput()
     } else if (event.ctrlKey && key === 'c' && !window.getSelection()?.toString()) {
@@ -52,10 +84,7 @@ export function TerminalPrompt({
       const nextInput = session.recallHistory(key === 'arrowup' ? 'previous' : 'next')
       if (nextInput === null) return
       event.preventDefault()
-      onCaretChange({ position: nextInput.length, scroll: 0, selected: false })
-      requestAnimationFrame(() => {
-        inputRef.current?.setSelectionRange(nextInput.length, nextInput.length)
-      })
+      moveCaret(nextInput.length)
     }
   }
 
@@ -65,16 +94,20 @@ export function TerminalPrompt({
       onSubmit={(event) => {
         event.preventDefault()
         session.submit()
-        resetCaret()
+        if (session.searching) moveCaret(session.searchMatch?.length ?? 0)
+        else resetCaret()
       }}
     >
       <label className="sr-only" htmlFor="floating-terminal-input">
         Terminal command input
       </label>
-      <span className="terminal-prompt">{path} %&nbsp;</span>
+      <span className="terminal-prompt">
+        {session.searching ? 'reverse-i-search:' : `${session.path} %`}&nbsp;
+      </span>
       <span className="terminal-input-wrap">
         <input
           aria-label="Terminal command input"
+          aria-describedby={session.searching ? 'terminal-search-match' : undefined}
           autoCapitalize="off"
           autoComplete="off"
           autoCorrect="off"
@@ -159,6 +192,16 @@ export function TerminalPrompt({
           </span>
         )}
       </span>
+      {session.searching && (
+        <span
+          className="terminal-search-match"
+          id="terminal-search-match"
+          role="status"
+        >
+          {session.searchMatch ?? 'No matching command'} · Enter to recall · Esc to
+          cancel
+        </span>
+      )}
       <button
         aria-label="Run terminal command"
         className="sr-only"
