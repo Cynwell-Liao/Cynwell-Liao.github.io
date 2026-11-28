@@ -8,7 +8,7 @@ interface TerminalWindowControlsProps {
   expanded: boolean
   onClose: () => void
   onMinimize: () => void
-  onToggleExpanded: () => void
+  onToggleExpanded: (() => void) | undefined
 }
 
 export function TerminalWindowControls({
@@ -21,6 +21,7 @@ export function TerminalWindowControls({
   const closePress = useTerminalControlPress(reducedMotion)
   const minimizePress = useTerminalControlPress(reducedMotion)
   const expandPress = useTerminalControlPress(reducedMotion)
+  const expandDisabled = onToggleExpanded === undefined
   const pressTransition = reducedMotion
     ? { duration: 0 }
     : { type: 'spring' as const, stiffness: 650, damping: 35 }
@@ -86,34 +87,43 @@ export function TerminalWindowControls({
         </motion.span>
       </button>
       <button
-        {...expandPress.handlers}
-        aria-label={expanded ? 'Exit full screen' : 'Enter full screen'}
+        {...(expandDisabled ? {} : expandPress.handlers)}
+        aria-label={
+          expandDisabled
+            ? 'Full screen locked'
+            : expanded
+              ? 'Exit full screen'
+              : 'Enter full screen'
+        }
         className="terminal-window-control terminal-window-control--expand"
-        data-hovered={expandPress.hovered}
-        data-pressed={expandPress.pressed}
+        data-hovered={!expandDisabled && expandPress.hovered}
+        data-pressed={!expandDisabled && expandPress.pressed}
+        disabled={expandDisabled}
         onClick={onToggleExpanded}
         type="button"
       >
         <motion.span
-          animate={expandPress.animation}
+          animate={expandDisabled ? { scale: 1, x: 0, y: 0 } : expandPress.animation}
           className="terminal-window-control-dot"
           initial={false}
           transition={pressTransition}
         >
-          <svg
-            aria-hidden="true"
-            className="terminal-window-control__glyph"
-            viewBox="0 0 12 12"
-          >
-            <path
-              className="terminal-window-expand-glyph"
-              d={
-                expanded
-                  ? 'M6.5 2.5v3h3zM2.5 6.5h3v3z'
-                  : 'M2.5 2.5h4l-4 4zM9.5 9.5h-4l4-4z'
-              }
-            />
-          </svg>
+          {!expandDisabled && (
+            <svg
+              aria-hidden="true"
+              className="terminal-window-control__glyph"
+              viewBox="0 0 12 12"
+            >
+              <path
+                className="terminal-window-expand-glyph"
+                d={
+                  expanded
+                    ? 'M6.5 2.5v3h3zM2.5 6.5h3v3z'
+                    : 'M2.5 2.5h4l-4 4zM9.5 9.5h-4l4-4z'
+                }
+              />
+            </svg>
+          )}
         </motion.span>
       </button>
     </div>

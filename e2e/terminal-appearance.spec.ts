@@ -371,22 +371,28 @@ test('keyboard activation enters full screen and removes every window corner @de
   await expect(dialog).toHaveCSS('border-top-left-radius', originalRadius)
 })
 
-test('the green control exposes no arrangement menu in a narrow mobile viewport @mobile', async ({
+test('the terminal locks to full screen in a narrow viewport and restores desktop controls when widened @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
-  await page.setViewportSize({ width: 1280, height: 800 })
+  const desktopViewport = { width: 1280, height: 800 }
+  await page.setViewportSize(desktopViewport)
   await page.goto('/')
   await page
     .getByRole('navigation', { name: 'Application Dock' })
     .getByRole('button', { name: 'Terminal', exact: true })
     .click()
-  await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeFocused()
-  const viewport = { width: 320, height: 568 }
-  await page.setViewportSize(viewport)
-  const green = page.getByRole('button', { name: 'Enter full screen' })
-  await green.focus()
-  await green.press('ArrowDown')
-  await expect(page.getByRole('menu')).toHaveCount(0)
-  await expect(green).toHaveAttribute('aria-label', 'Enter full screen')
+  const dialog = page.getByRole('dialog', { name: 'Terminal' })
+  const input = page.getByRole('textbox', { name: 'Terminal command input' })
+  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
+  await input.fill('preserved draft')
+
+  await page.setViewportSize({ width: 320, height: 568 })
+  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+  await expect(page.getByRole('button', { name: 'Full screen locked' })).toBeDisabled()
+
+  await page.setViewportSize(desktopViewport)
+  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
+  await expect(page.getByRole('button', { name: 'Enter full screen' })).toBeEnabled()
+  await expect(input).toHaveValue('preserved draft')
 })

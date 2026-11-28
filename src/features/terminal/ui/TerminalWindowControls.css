@@ -69,6 +69,10 @@
   color: #006500;
 }
 
+.terminal-window-control:disabled .terminal-window-control-dot {
+  background-color: #b0b0b0;
+}
+
 .terminal-window[data-active='false']
   .terminal-window-controls:not(:has([data-hovered='true'])):not(:has(:focus-visible))
   .terminal-window-control-dot {
@@ -132,6 +136,11 @@
 
   .terminal-window-control-dot svg {
     opacity: 1;
+  }
+
+  .terminal-window-control:disabled .terminal-window-control-dot {
+    background: ButtonFace;
+    outline-color: GrayText;
   }
 
   .terminal-window-control:focus-visible {

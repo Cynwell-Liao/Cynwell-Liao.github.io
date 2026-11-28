@@ -44,7 +44,7 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
   expect((await input.boundingBox())?.height).toBeCloseTo(44, 1)
   await expect(page.getByRole('button', { name: 'Resize terminal' })).toHaveCount(0)
 
-  for (const name of ['Close terminal', 'Minimize terminal', 'Enter full screen']) {
+  for (const name of ['Close terminal', 'Minimize terminal', 'Full screen locked']) {
     const control = page.getByRole('button', { name })
     await expect(control).toBeInViewport()
     const bounds = await control.boundingBox()
@@ -79,9 +79,6 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
     })
     .toBe(true)
   await input.fill('saved mobile draft')
-  await page.getByRole('button', { name: 'Enter full screen' }).tap()
-  await expect(input).not.toBeFocused()
-  await expect(input).toHaveValue('saved mobile draft')
   await page.getByRole('button', { name: 'Minimize terminal' }).tap()
   await expect(dialog).toHaveCount(0)
   await page
@@ -89,6 +86,7 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
     .getByRole('button', { name: 'Terminal', exact: true })
     .tap()
   await expect(dialog).toBeVisible()
+  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
   await expect(input).not.toBeFocused()
   await expect(input).toHaveValue('saved mobile draft')
 })
@@ -267,15 +265,16 @@ test('mobile terminal keeps its prompt and controls usable in narrow portrait an
     { width: 844, height: 390 },
   ]) {
     await page.setViewportSize(viewport)
+    await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
     await expect
       .poll(async () => {
         const bounds = await dialog.boundingBox()
         return Boolean(
           bounds &&
-          bounds.x >= 0 &&
-          bounds.y >= 0 &&
-          bounds.x + bounds.width <= viewport.width &&
-          bounds.y + bounds.height <= viewport.height
+          bounds.x === 0 &&
+          bounds.y === 0 &&
+          bounds.width === viewport.width &&
+          bounds.height === viewport.height
         )
       })
       .toBe(true)

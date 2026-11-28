@@ -39,6 +39,7 @@ export function TerminalWindow(props: TerminalWindowProps) {
     startResize,
     resizeBy,
   } = useTerminalWindow()
+  const windowMode = isMobile ? 'fullscreen' : mode
   const dialogRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
@@ -109,8 +110,8 @@ export function TerminalWindow(props: TerminalWindowProps) {
   }, [minimized, handledActivation, isMobile, scrollbackRef])
 
   useEffect(() => {
-    onFullscreenChange?.(mode === 'fullscreen' && !minimized)
-  }, [mode, minimized, onFullscreenChange])
+    onFullscreenChange?.(windowMode === 'fullscreen' && !minimized)
+  }, [windowMode, minimized, onFullscreenChange])
 
   useEffect(() => {
     if (scrollbackRef.current) {
@@ -176,20 +177,16 @@ export function TerminalWindow(props: TerminalWindowProps) {
     y: window.innerHeight - 48 - (bounds.y + bounds.height / 2),
   }
 
-  const mobileMargin = mode === 'fullscreen' ? '0' : '12'
-  const insetLeft = `max(${mobileMargin}px, env(safe-area-inset-left))`
-  const insetRight = `max(${mobileMargin}px, env(safe-area-inset-right))`
-  const insetTop = `max(${mobileMargin}px, env(safe-area-inset-top))`
-  const insetBottom = `max(${mobileMargin}px, env(safe-area-inset-bottom))`
-  const mobileHeight = mobileViewport
-    ? `max(1px, calc(${String(mobileViewport.height)}px - ${insetTop} - ${insetBottom}))`
-    : ''
+  const insetLeft = 'env(safe-area-inset-left)'
+  const insetRight = 'env(safe-area-inset-right)'
+  const insetTop = 'env(safe-area-inset-top)'
+  const insetBottom = 'env(safe-area-inset-bottom)'
   const windowStyle = mobileViewport
     ? {
         left: `calc(${String(mobileViewport.offsetLeft)}px + ${insetLeft})`,
         top: `calc(${String(mobileViewport.offsetTop)}px + ${insetTop})`,
         width: `max(1px, calc(${String(mobileViewport.width)}px - ${insetLeft} - ${insetRight}))`,
-        height: mode === 'fullscreen' ? mobileHeight : `min(560px, ${mobileHeight})`,
+        height: `max(1px, calc(${String(mobileViewport.height)}px - ${insetTop} - ${insetBottom}))`,
       }
     : { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }
 
@@ -224,11 +221,11 @@ export function TerminalWindow(props: TerminalWindowProps) {
             aria-label="Terminal"
             className={cn(
               'terminal-window',
-              mode === 'fullscreen' && 'terminal-window--fullscreen'
+              windowMode === 'fullscreen' && 'terminal-window--fullscreen'
             )}
             data-active={active}
             data-theme={theme}
-            data-window-mode={mode}
+            data-window-mode={windowMode}
             exit={reducedMotion || isMobile ? { opacity: 0 } : dockTransform}
             initial={
               reducedMotion
@@ -247,7 +244,7 @@ export function TerminalWindow(props: TerminalWindowProps) {
               setActive(true)
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Escape' && mode !== 'windowed') {
+              if (event.key === 'Escape' && !isMobile && mode !== 'windowed') {
                 event.preventDefault()
                 event.stopPropagation()
                 if (mode === 'fullscreen') toggleExpanded()
@@ -282,10 +279,10 @@ export function TerminalWindow(props: TerminalWindowProps) {
             >
               <div className="terminal-controls-position">
                 <TerminalWindowControls
-                  expanded={mode === 'fullscreen'}
+                  expanded={windowMode === 'fullscreen'}
                   onClose={onClose}
                   onMinimize={minimize}
-                  onToggleExpanded={expand}
+                  onToggleExpanded={isMobile ? undefined : expand}
                 />
               </div>
               <span className="terminal-title">

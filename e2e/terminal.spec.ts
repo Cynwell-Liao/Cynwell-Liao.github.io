@@ -350,7 +350,9 @@ test('an open terminal remains usable when the viewport becomes narrow @mobile',
   await expect(input).toBeInViewport()
   await expect(page.getByRole('button', { name: 'Close terminal' })).toBeInViewport()
   await expect(page.getByRole('button', { name: 'Minimize terminal' })).toBeInViewport()
-  await expect(page.getByRole('button', { name: 'Enter full screen' })).toBeInViewport()
+  const fullscreenControl = page.getByRole('button', { name: 'Full screen locked' })
+  await expect(fullscreenControl).toBeInViewport()
+  await expect(fullscreenControl).toBeDisabled()
 })
 
 test('the green button never opens an arrangement menu and directly toggles full screen @desktop', async ({

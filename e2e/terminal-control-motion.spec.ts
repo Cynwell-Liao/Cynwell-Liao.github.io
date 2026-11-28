@@ -265,12 +265,12 @@ test('keyboard presses animate and interrupted hover or pointer presses reset wi
   }
 })
 
-test('touching a traffic light does not leave hover symbols or expose an arrangement menu @mobile', async ({
+test('tapping the disabled full-screen control leaves mobile terminal unchanged @mobile', async ({
   page,
 }) => {
   const viewport = page.viewportSize()
   if (!viewport) throw new Error('Mobile viewport is unavailable')
-  await page.emulateMedia({ reducedMotion: 'no-preference' })
+  await page.emulateMedia({ reducedMotion: 'no-preference', colorScheme: 'light' })
   await page.setViewportSize({ width: 1280, height: 800 })
   await page.goto('/')
   await page
@@ -280,7 +280,15 @@ test('touching a traffic light does not leave hover symbols or expose an arrange
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeFocused()
   await page.setViewportSize(viewport)
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
-  await page.getByRole('button', { name: 'Enter full screen' }).tap()
+  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+  const control = page.getByRole('button', { name: 'Full screen locked' })
+  await expect(control).toBeDisabled()
+  await expect(control.locator('.terminal-window-control-dot')).toHaveCSS(
+    'background-color',
+    'rgb(176, 176, 176)'
+  )
+  await control.tap({ force: true })
+  await expect(control).toHaveAttribute('data-pressed', 'false')
   await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
   await expect(page.getByRole('menu')).toHaveCount(0)
   for (const glyph of await page.locator('.terminal-window-control__glyph').all()) {
@@ -289,8 +297,6 @@ test('touching a traffic light does not leave hover symbols or expose an arrange
   for (const dot of await page.locator('.terminal-window-control-dot').all()) {
     expect((await dot.boundingBox())?.width).toBeCloseTo(12, 1)
   }
-  await page.getByRole('button', { name: 'Exit full screen' }).tap()
-  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
 })
 
 test('a mouse-like pointer reveals traffic-light glyphs when the device reports no hover @mobile', async ({
