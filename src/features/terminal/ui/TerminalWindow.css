@@ -226,10 +226,14 @@
   overflow-wrap: anywhere;
 }
 .terminal-input-wrap {
-  position: relative;
   flex: 1;
   min-width: 6ch;
   overflow: hidden;
+}
+
+.terminal-input-surface {
+  position: relative;
+  display: block;
 }
 
 .terminal-input {
@@ -264,7 +268,7 @@
 .terminal-cursor {
   flex-shrink: 0;
   width: 1ch;
-  height: 17px;
+  height: 1lh;
   color: var(--terminal-text);
   border: 1px solid currentColor;
   background: currentColor;
@@ -499,8 +503,24 @@
   border-top: 1px solid var(--terminal-divider);
 }
 
+.terminal-desktop[data-mobile='true'] .terminal-input-wrap {
+  --terminal-input-scale: 0.8125; /* 13px / 16px */
+  --terminal-touch-input-height: 44px;
+  height: var(--terminal-touch-input-height);
+  overflow: clip;
+}
+
+.terminal-desktop[data-mobile='true'] .terminal-input-surface {
+  /* iOS uses the input's font size before transforms when deciding focus zoom. */
+  width: calc(100% / var(--terminal-input-scale));
+  font-size: 16px;
+  line-height: calc(17px / var(--terminal-input-scale));
+  transform: scale(var(--terminal-input-scale));
+  transform-origin: top left;
+}
+
 .terminal-desktop[data-mobile='true'] .terminal-input {
-  height: 44px;
+  height: calc(var(--terminal-touch-input-height) / var(--terminal-input-scale));
 }
 
 .terminal-desktop[data-mobile='true'] .terminal-caret-track {

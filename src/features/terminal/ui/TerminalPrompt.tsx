@@ -105,92 +105,94 @@ export function TerminalPrompt({
         {session.searching ? 'reverse-i-search:' : `${session.path} %`}&nbsp;
       </span>
       <span className="terminal-input-wrap">
-        <input
-          aria-label="Terminal command input"
-          aria-describedby={session.searching ? 'terminal-search-match' : undefined}
-          autoCapitalize="off"
-          autoComplete="off"
-          autoCorrect="off"
-          className="terminal-input"
-          enterKeyHint="enter"
-          id="floating-terminal-input"
-          onBlur={() => {
-            setFocused(false)
-          }}
-          onChange={(event) => {
-            const input = event.target
-            session.editInput(input.value)
-            onCaretChange({
-              position: input.selectionStart ?? input.value.length,
-              scroll: input.scrollLeft,
-              selected: false,
-            })
-            // Chromium can update the insertion point after the change event,
-            // especially when focus has just been restored after minimizing.
-            requestAnimationFrame(() => {
+        <span className="terminal-input-surface">
+          <input
+            aria-label="Terminal command input"
+            aria-describedby={session.searching ? 'terminal-search-match' : undefined}
+            autoCapitalize="off"
+            autoComplete="off"
+            autoCorrect="off"
+            className="terminal-input"
+            enterKeyHint="enter"
+            id="floating-terminal-input"
+            onBlur={() => {
+              setFocused(false)
+            }}
+            onChange={(event) => {
+              const input = event.target
+              session.editInput(input.value)
               onCaretChange({
                 position: input.selectionStart ?? input.value.length,
                 scroll: input.scrollLeft,
-                selected: input.selectionStart !== input.selectionEnd,
+                selected: false,
               })
-            })
-          }}
-          onFocus={() => {
-            setFocused(true)
-          }}
-          onKeyDown={onKeyDown}
-          onScroll={(event) => {
-            const scroll = event.currentTarget.scrollLeft
-            onCaretChange((previous) => ({ ...previous, scroll }))
-          }}
-          onSelect={(event) => {
-            const input = event.currentTarget
-            const syncCaret = () => {
-              const position = input.selectionStart ?? 0
-              const selected = position !== input.selectionEnd
-              if (
-                !selected &&
-                position === input.value.length &&
-                input.scrollWidth > input.clientWidth
-              ) {
-                // WebKit scrolls only the native insertion point into view. The
-                // custom block caret occupies one additional cell, so use the
-                // trailing input padding to reveal that cell as well.
-                input.scrollLeft = input.scrollWidth
+              // Chromium can update the insertion point after the change event,
+              // especially when focus has just been restored after minimizing.
+              requestAnimationFrame(() => {
+                onCaretChange({
+                  position: input.selectionStart ?? input.value.length,
+                  scroll: input.scrollLeft,
+                  selected: input.selectionStart !== input.selectionEnd,
+                })
+              })
+            }}
+            onFocus={() => {
+              setFocused(true)
+            }}
+            onKeyDown={onKeyDown}
+            onScroll={(event) => {
+              const scroll = event.currentTarget.scrollLeft
+              onCaretChange((previous) => ({ ...previous, scroll }))
+            }}
+            onSelect={(event) => {
+              const input = event.currentTarget
+              const syncCaret = () => {
+                const position = input.selectionStart ?? 0
+                const selected = position !== input.selectionEnd
+                if (
+                  !selected &&
+                  position === input.value.length &&
+                  input.scrollWidth > input.clientWidth
+                ) {
+                  // WebKit scrolls only the native insertion point into view. The
+                  // custom block caret occupies one additional cell, so use the
+                  // trailing input padding to reveal that cell as well.
+                  input.scrollLeft = input.scrollWidth
+                }
+                onCaretChange({
+                  position,
+                  scroll: input.scrollLeft,
+                  selected,
+                })
               }
-              onCaretChange({
-                position,
-                scroll: input.scrollLeft,
-                selected,
-              })
-            }
-            syncCaret()
-            // WebKit updates an input's horizontal scroll after dispatching its
-            // selection event. Read it again once layout has settled.
-            requestAnimationFrame(syncCaret)
-          }}
-          ref={inputRef}
-          spellCheck={false}
-          type="text"
-          value={session.input}
-        />
-        {!caret.selected && (
-          <span
-            aria-hidden
-            className="terminal-caret-track"
-            style={{ left: -caret.scroll }}
-          >
-            <span className="terminal-caret-prefix">
-              {session.input.slice(0, caret.position)}
-            </span>
+              syncCaret()
+              // WebKit updates an input's horizontal scroll after dispatching its
+              // selection event. Read it again once layout has settled.
+              requestAnimationFrame(syncCaret)
+            }}
+            ref={inputRef}
+            spellCheck={false}
+            type="text"
+            value={session.input}
+          />
+          {!caret.selected && (
             <span
-              className={cn(
-                'terminal-cursor',
-                (!focused || !active) && 'terminal-cursor--inactive'
-              )}
-            />
-          </span>
-        )}
+              aria-hidden
+              className="terminal-caret-track"
+              style={{ left: -caret.scroll }}
+            >
+              <span className="terminal-caret-prefix">
+                {session.input.slice(0, caret.position)}
+              </span>
+              <span
+                className={cn(
+                  'terminal-cursor',
+                  (!focused || !active) && 'terminal-cursor--inactive'
+                )}
+              />
+            </span>
+          )}
+        </span>
       </span>
       {session.searching && (
         <span

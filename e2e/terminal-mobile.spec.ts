@@ -21,15 +21,27 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
   await expect(dialog).toBeFocused()
   await expect(input).not.toBeFocused()
   for (const text of [
-    input,
     dialog.locator('.terminal-prompt'),
     dialog.getByRole('log', { name: 'Terminal output' }),
   ]) {
     await expect(text).toHaveCSS('font-size', '13px')
     await expect(text).toHaveCSS('line-height', '17px')
   }
+  await expect(input).toHaveCSS('font-size', '16px')
+  const renderedInputSize = await input.evaluate((element) => {
+    const inputStyle = getComputedStyle(element)
+    const surface = element.closest('.terminal-input-surface')
+    if (!surface) throw new Error('Terminal input surface is missing')
+    const scale = new DOMMatrixReadOnly(getComputedStyle(surface).transform).a
+    return {
+      fontSize: Number.parseFloat(inputStyle.fontSize) * scale,
+      lineHeight: Number.parseFloat(inputStyle.lineHeight) * scale,
+    }
+  })
+  expect(renderedInputSize.fontSize).toBeCloseTo(13)
+  expect(renderedInputSize.lineHeight).toBeCloseTo(17)
   await expect(input).toHaveAttribute('enterkeyhint', 'enter')
-  expect((await input.boundingBox())?.height).toBeGreaterThanOrEqual(44)
+  expect((await input.boundingBox())?.height).toBeCloseTo(44, 1)
   await expect(page.getByRole('button', { name: 'Resize terminal' })).toHaveCount(0)
 
   for (const name of ['Close terminal', 'Minimize terminal', 'Enter full screen']) {
@@ -49,6 +61,23 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
   expect(viewportMeta).not.toMatch(/user-scalable\s*=\s*(?:no|0)|maximum-scale\s*=/iu)
 
   await input.tap()
+  await expect(input).toBeFocused()
+  await input.fill('long-draft-'.repeat(30))
+  await input.press('End')
+  await expect
+    .poll(() => input.evaluate((element) => element.scrollLeft))
+    .toBeGreaterThan(0)
+  await expect
+    .poll(async () => {
+      const inputBounds = await input.boundingBox()
+      const caretBounds = await dialog.locator('.terminal-cursor').boundingBox()
+      if (!inputBounds || !caretBounds) return false
+      return (
+        caretBounds.x >= inputBounds.x &&
+        caretBounds.x + caretBounds.width <= inputBounds.x + inputBounds.width + 1
+      )
+    })
+    .toBe(true)
   await input.fill('saved mobile draft')
   await page.getByRole('button', { name: 'Enter full screen' }).tap()
   await expect(input).not.toBeFocused()
