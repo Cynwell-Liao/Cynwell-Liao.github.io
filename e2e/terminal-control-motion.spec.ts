@@ -265,7 +265,7 @@ test('keyboard presses animate and interrupted hover or pointer presses reset wi
   }
 })
 
-test('tapping the disabled full-screen control leaves mobile terminal unchanged @mobile', async ({
+test('tapping the locked size control leaves the mobile terminal window unchanged @mobile', async ({
   page,
 }) => {
   const viewport = page.viewportSize()
@@ -280,8 +280,8 @@ test('tapping the disabled full-screen control leaves mobile terminal unchanged 
   await expect(page.getByRole('dialog', { name: 'Terminal' })).toBeFocused()
   await page.setViewportSize(viewport)
   const dialog = page.getByRole('dialog', { name: 'Terminal' })
-  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
-  const control = page.getByRole('button', { name: 'Full screen locked' })
+  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
+  const control = page.getByRole('button', { name: 'Window size locked' })
   await expect(control).toBeDisabled()
   await expect(control.locator('.terminal-window-control-dot')).toHaveCSS(
     'background-color',
@@ -289,7 +289,7 @@ test('tapping the disabled full-screen control leaves mobile terminal unchanged 
   )
   await control.tap({ force: true })
   await expect(control).toHaveAttribute('data-pressed', 'false')
-  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
   await expect(page.getByRole('menu')).toHaveCount(0)
   for (const glyph of await page.locator('.terminal-window-control__glyph').all()) {
     await expect(glyph).toHaveCSS('opacity', '0')

@@ -486,21 +486,21 @@ describe('TerminalWindow', () => {
       return renderTerminalWindow()
     }
 
-    it('opens in locked full screen without forcing the keyboard, but lets users tap to type', async () => {
+    it('opens in a fixed-size window without forcing the keyboard, but lets users tap to type', async () => {
       const user = userEvent.setup()
       renderMobileTerminal()
       const dialog = screen.getByRole('dialog', { name: 'Terminal' })
       const input = getTerminalInput()
 
       expect(dialog).toHaveFocus()
-      expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+      expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
       expect(input).not.toHaveFocus()
       expect(input).toHaveAttribute('enterkeyhint', 'enter')
       expect(screen.queryByRole('button', { name: 'Resize terminal' })).toBeNull()
 
       await user.pointer({ keys: '[TouchA]', target: input })
       expect(input).toHaveFocus()
-      expect(screen.getByRole('button', { name: 'Full screen locked' })).toBeDisabled()
+      expect(screen.getByRole('button', { name: 'Window size locked' })).toBeDisabled()
     })
 
     it('does not refocus the prompt when touching the transcript', async () => {
@@ -540,7 +540,7 @@ describe('TerminalWindow', () => {
 
       await user.dblClick(screen.getByTestId('terminal-titlebar'))
 
-      expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+      expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
       expect(dialog).toHaveAttribute('style', initialStyle)
       expect(getTerminalInput()).not.toHaveFocus()
     })

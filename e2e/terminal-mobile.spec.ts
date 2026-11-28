@@ -44,7 +44,7 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
   expect((await input.boundingBox())?.height).toBeCloseTo(44, 1)
   await expect(page.getByRole('button', { name: 'Resize terminal' })).toHaveCount(0)
 
-  for (const name of ['Close terminal', 'Minimize terminal', 'Full screen locked']) {
+  for (const name of ['Close terminal', 'Minimize terminal', 'Window size locked']) {
     const control = page.getByRole('button', { name })
     await expect(control).toBeInViewport()
     const bounds = await control.boundingBox()
@@ -86,7 +86,7 @@ test('mobile terminal uses desktop text sizing and touch controls without openin
     .getByRole('button', { name: 'Terminal', exact: true })
     .tap()
   await expect(dialog).toBeVisible()
-  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
   await expect(input).not.toBeFocused()
   await expect(input).toHaveValue('saved mobile draft')
 })
@@ -265,19 +265,15 @@ test('mobile terminal keeps its prompt and controls usable in narrow portrait an
     { width: 844, height: 390 },
   ]) {
     await page.setViewportSize(viewport)
-    await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+    await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
     await expect
-      .poll(async () => {
-        const bounds = await dialog.boundingBox()
-        return Boolean(
-          bounds &&
-          bounds.x === 0 &&
-          bounds.y === 0 &&
-          bounds.width === viewport.width &&
-          bounds.height === viewport.height
-        )
+      .poll(() => dialog.boundingBox())
+      .toEqual({
+        x: 12,
+        y: 12,
+        width: viewport.width - 24,
+        height: Math.min(560, viewport.height - 24),
       })
-      .toBe(true)
     await expect(input).toBeInViewport()
     await expect(input).toHaveValue('orientation draft')
     await expect(page.getByRole('button', { name: 'Close terminal' })).toBeInViewport()

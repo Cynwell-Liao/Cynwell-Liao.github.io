@@ -90,7 +90,7 @@ export function TerminalWindowControls({
         {...(expandDisabled ? {} : expandPress.handlers)}
         aria-label={
           expandDisabled
-            ? 'Full screen locked'
+            ? 'Window size locked'
             : expanded
               ? 'Exit full screen'
               : 'Enter full screen'

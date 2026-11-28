@@ -39,7 +39,7 @@ export function TerminalWindow(props: TerminalWindowProps) {
     startResize,
     resizeBy,
   } = useTerminalWindow()
-  const windowMode = isMobile ? 'fullscreen' : mode
+  const windowMode = isMobile ? 'windowed' : mode
   const dialogRef = useRef<HTMLDivElement>(null)
   const inputRef = useRef<HTMLInputElement>(null)
   const screenRef = useRef<HTMLDivElement>(null)
@@ -177,16 +177,16 @@ export function TerminalWindow(props: TerminalWindowProps) {
     y: window.innerHeight - 48 - (bounds.y + bounds.height / 2),
   }
 
-  const insetLeft = 'env(safe-area-inset-left)'
-  const insetRight = 'env(safe-area-inset-right)'
-  const insetTop = 'env(safe-area-inset-top)'
-  const insetBottom = 'env(safe-area-inset-bottom)'
+  const insetLeft = 'max(12px, env(safe-area-inset-left))'
+  const insetRight = 'max(12px, env(safe-area-inset-right))'
+  const insetTop = 'max(12px, env(safe-area-inset-top))'
+  const insetBottom = 'max(12px, env(safe-area-inset-bottom))'
   const windowStyle = mobileViewport
     ? {
         left: `calc(${String(mobileViewport.offsetLeft)}px + ${insetLeft})`,
         top: `calc(${String(mobileViewport.offsetTop)}px + ${insetTop})`,
         width: `max(1px, calc(${String(mobileViewport.width)}px - ${insetLeft} - ${insetRight}))`,
-        height: `max(1px, calc(${String(mobileViewport.height)}px - ${insetTop} - ${insetBottom}))`,
+        height: `clamp(1px, calc(${String(mobileViewport.height)}px - ${insetTop} - ${insetBottom}), 560px)`,
       }
     : { left: bounds.x, top: bounds.y, width: bounds.width, height: bounds.height }
 
@@ -244,10 +244,10 @@ export function TerminalWindow(props: TerminalWindowProps) {
               setActive(true)
             }}
             onKeyDown={(event) => {
-              if (event.key === 'Escape' && !isMobile && mode !== 'windowed') {
+              if (event.key === 'Escape' && windowMode !== 'windowed') {
                 event.preventDefault()
                 event.stopPropagation()
-                if (mode === 'fullscreen') toggleExpanded()
+                if (windowMode === 'fullscreen') toggleExpanded()
                 else restoreWindowed()
                 focusWindow()
               } else if (event.metaKey && event.key.toLowerCase() === 'm') {

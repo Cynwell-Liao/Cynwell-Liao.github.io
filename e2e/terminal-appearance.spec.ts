@@ -371,7 +371,7 @@ test('keyboard activation enters full screen and removes every window corner @de
   await expect(dialog).toHaveCSS('border-top-left-radius', originalRadius)
 })
 
-test('the terminal locks to full screen in a narrow viewport and restores desktop controls when widened @desktop', async ({
+test('the terminal uses a smaller window in a narrow viewport and restores desktop full screen when widened @desktop', async ({
   page,
 }) => {
   await page.emulateMedia({ reducedMotion: 'reduce' })
@@ -386,13 +386,15 @@ test('the terminal locks to full screen in a narrow viewport and restores deskto
   const input = page.getByRole('textbox', { name: 'Terminal command input' })
   await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
   await input.fill('preserved draft')
+  await page.getByRole('button', { name: 'Enter full screen' }).click()
+  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
 
   await page.setViewportSize({ width: 320, height: 568 })
-  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
-  await expect(page.getByRole('button', { name: 'Full screen locked' })).toBeDisabled()
+  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
+  await expect(page.getByRole('button', { name: 'Window size locked' })).toBeDisabled()
 
   await page.setViewportSize(desktopViewport)
-  await expect(dialog).toHaveAttribute('data-window-mode', 'windowed')
-  await expect(page.getByRole('button', { name: 'Enter full screen' })).toBeEnabled()
+  await expect(dialog).toHaveAttribute('data-window-mode', 'fullscreen')
+  await expect(page.getByRole('button', { name: 'Exit full screen' })).toBeEnabled()
   await expect(input).toHaveValue('preserved draft')
 })
